@@ -101,6 +101,9 @@ pub fn handle(origin: &Origin, path: &str, method: Method, headers: &[&str]) -> 
         (_, ["library", "collections", ..]) => empty(),
         (Method::Post, ["playQueues"]) => r.play_queue(),
         (_, ["video", ":", "transcode", "universal", "decision"]) => r.decision(),
+        (_, ["video", ":", "transcode", "universal", "stop"]) => r.stop_transcode(),
+        (_, ["video", ":", "transcode", "universal", "ping"]) => ok_bare(),
+        (_, ["status", "sessions", "close"]) => ok_bare(),
         (Method::Put, ["library", "parts", ..]) => ok_bare(),
         (_, [":", "timeline"]) => r.timeline(),
         (_, [":", "scrobble"]) => r.played(true),
@@ -708,6 +711,21 @@ impl Route<'_> {
                 }
             }
         }
+        // `directPlay=0` is the universal transcoder's own decision (the app has already ruled
+        // direct play out): answer with what Jellyfin's transcode will send.
+        if self.q.str("directPlay") == "0" {
+            super::transcode::decision_body(
+                &mut md,
+                self.q.flag("directStream"),
+                self.q.int("audioStreamID").unwrap_or(0),
+            );
+            return ok(json!({
+                "generalDecisionCode": 1001,
+                "generalDecisionText": "Transcode OK.",
+                "size": 1,
+                "Metadata": [md],
+            }));
+        }
         ok(json!({
             "generalDecisionCode": 1000,
             "generalDecisionText": "Direct play OK.",
@@ -753,6 +771,22 @@ impl Route<'_> {
         let mut b = body(state == "paused");
         b["EventName"] = json!("TimeUpdate");
         self.conn.post("/Sessions/Playing/Progress", Some(&b))?;
+        ok_bare()
+    }
+
+    /// Stop a transcode the player has finished with, so the server does not keep encoding.
+    fn stop_transcode(&self) -> Answer {
+        let session = match self.q.str("session") {
+            "" => self.q.str("X-Plex-Session-Identifier"),
+            s => s,
+        };
+        if !session.is_empty() {
+            self.conn.delete(&format!(
+                "/Videos/ActiveEncodings?deviceId={}&playSessionId={}",
+                enc(&super::api::device_id()),
+                enc(session)
+            ));
+        }
         ok_bare()
     }
 

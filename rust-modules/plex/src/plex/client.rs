@@ -274,6 +274,7 @@ impl Client {
         client_id: &str,
     ) -> Client {
         debug_assert!(!client_id.is_empty(), "Client requires a captured device identity");
+        crate::jellyfin::set_device_id(client_id);
         let generation = next_gen();
         Client {
             id,
