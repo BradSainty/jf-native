@@ -339,6 +339,14 @@ fn request_with(
     if !credential_transport_allowed(origin, path, headers) {
         return RequestOutcome::Transport(None);
     }
+    // This fork's servers are Jellyfin: the request is answered from its API in the Plex shape the
+    // caller parses (`crate::jellyfin`). Only plex.tv still goes out as it was written.
+    if crate::jellyfin::intercepts(origin) {
+        return match crate::jellyfin::handle(origin, path, method, headers) {
+            Some((status, body)) => RequestOutcome::Response(Reply { status, body, peer_pin: None }),
+            None => RequestOutcome::Transport(None),
+        };
+    }
     match origin.scheme() {
         // The plaintext arm dials the literal it is given; a pin belongs to a TLS NAME only.
         Scheme::Http => plaintext(origin, path, method, headers, body_policy),

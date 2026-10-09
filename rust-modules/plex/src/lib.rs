@@ -11,4 +11,5 @@
 //! application crate enables it in `[dev-dependencies]` only, so no shipped build sees it.
 
 pub mod http; // the ONE door out of the control plane: dispatch a Plex REST request on its origin's scheme
+pub mod jellyfin; // answers the Plex-shaped requests below from a Jellyfin server (see its doc)
 pub mod plex; // typed Plex API layer — one method per PMS operation (the live READ layer)
