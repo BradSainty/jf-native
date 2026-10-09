@@ -54,6 +54,62 @@ pub fn discover(wait: Duration) -> Vec<Found> {
     out
 }
 
+/// [`discover`], and when no server answers the broadcast (a network that drops broadcasts, or a
+/// sandbox that refuses them), a sweep of this network's /24 for Jellyfin's default port.
+pub fn find_servers(wait: Duration) -> Vec<Found> {
+    let found = discover(wait);
+    if !found.is_empty() {
+        return found;
+    }
+    plx_base::eventlog::log("auth: no broadcast answer — scanning this network for port 8096");
+    scan_subnet(8096)
+}
+
+/// This television's own IPv4 address on the LAN: the source address the kernel would use to
+/// reach the internet (nothing is sent — a UDP `connect` only picks a route).
+fn local_ipv4() -> Option<std::net::Ipv4Addr> {
+    let sock = UdpSocket::bind("0.0.0.0:0").ok()?;
+    sock.connect("8.8.8.8:53").ok()?;
+    match sock.local_addr().ok()?.ip() {
+        std::net::IpAddr::V4(v4) if v4.is_private() => Some(v4),
+        _ => None,
+    }
+}
+
+/// Try `port` on every address of this television's /24, a few dozen at a time with a short
+/// connect timeout, and keep the ones that answer as Jellyfin.
+fn scan_subnet(port: u16) -> Vec<Found> {
+    let Some(me) = local_ipv4() else { return Vec::new() };
+    let [a, b, c, _] = me.octets();
+    let open = Mutex::new(Vec::<std::net::Ipv4Addr>::new());
+    let hosts: Vec<u8> = (1..=254).collect();
+    std::thread::scope(|scope| {
+        for chunk in hosts.chunks(16) {
+            let open = &open;
+            scope.spawn(move || {
+                for &d in chunk {
+                    let ip = std::net::Ipv4Addr::new(a, b, c, d);
+                    let addr = std::net::SocketAddr::from((ip, port));
+                    if std::net::TcpStream::connect_timeout(&addr, Duration::from_millis(400)).is_ok() {
+                        if let Ok(mut o) = open.lock() {
+                            o.push(ip);
+                        }
+                    }
+                }
+            });
+        }
+    });
+    let ips = open.into_inner().unwrap_or_default();
+    ips.into_iter()
+        .filter_map(|ip| {
+            let url = format!("http://{ip}:{port}");
+            let origin = origin_of(&url)?;
+            let (name, id) = server_identity(&origin)?;
+            Some(Found { name, id, url })
+        })
+        .collect()
+}
+
 /// A server URL → its origin, with its path recorded as the origin's prefix.
 pub fn origin_of(url: &str) -> Option<Origin> {
     let url = url.trim().trim_end_matches('/');
