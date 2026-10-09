@@ -885,6 +885,10 @@ fn slot_of(elem: u32) -> Option<usize> {
     }
 }
 
+/// The side, in px, the locally drawn Quick Connect QR is rasterised for (it is drawn centred on
+/// the card at that size).
+const LOCAL_QR_SIDE: f32 = 340.0;
+
 pub struct LoginScreen {
     entry: EntryId,
     /// Free-running rotation clock for the spinner, in ms — cached each tick from
@@ -906,6 +910,10 @@ pub struct LoginScreen {
     /// so a host test driving `step` alone never touches GL.
     qr_tex: u32,
     qr_tex_gen: u64,
+    /// The QR this fork draws itself — the server's Quick Connect page, for the address
+    /// [`plx_plex::jellyfin::login::login_hint`] names — and the address it encodes. Jellyfin
+    /// serves no QR image, so `qr_tex` stays 0 and this takes its place on the card.
+    local_qr: Option<(String, plx_ui::qr::QrCode)>,
     /// The pixel size that texture was uploaded at, so [`Screen::render_report`] can state the
     /// bytes this screen holds of the frame's render residency (§8.3) instead of guessing them:
     /// the bitmap is whatever plex.tv's PNG decoded to, not a constant. `(0, 0)` while `qr_tex`
@@ -953,6 +961,7 @@ impl LoginScreen {
             phase_clock: plx_machine::motion::Phase::default(),
             wait: (Phase::Idle, 0),
             qr_tex: 0,
+            local_qr: None,
             qr_tex_gen: 0,
             qr_px: (0, 0),
             qr_png_pending: None,
@@ -1786,7 +1795,9 @@ impl LoginScreen {
         let status = self.waiting_label();
         let right = qr_layout(layout, status, f.measure);
 
-        TextView::new("plex.tv/link", theme::size::TITLE, theme::TEXT_HEADING)
+        let hint = plx_plex::jellyfin::login::login_hint();
+        let shown = hint.split_once("://").map_or(hint.as_str(), |(_, rest)| rest);
+        TextView::new(shown, theme::size::TITLE, theme::TEXT_HEADING)
             .bold()
             .h(HAlign::Center)
             .draw(p, right.url);
@@ -1807,6 +1818,8 @@ impl LoginScreen {
             // dark on the white card (the transparent ground shows the card) → a scannable
             // black-on-white QR.
             p.tex(self.qr_tex, inner, 0.0, theme::scrim_black(1.0));
+        } else if let Some((_, q)) = self.local_qr.as_ref().filter(|_| !self.qr_code.is_empty()) {
+            q.draw(p, card);
         } else {
             plx_ui::placeholder::note(p, plx_ui::placeholder::Reason::PageSpinner, "login-qr");
             Spinner::new(card.x + card.w * 0.5, card.y + card.h * 0.5, 22.0)
@@ -2288,6 +2301,15 @@ impl<H: AuthLike> Screen<H> for LoginScreen {
     }
     fn prepare(&mut self, _b: &mut Budget, _cx: &Cx<'_, H>) {
         self.prepare_qr_tex();
+        let hint = plx_plex::jellyfin::login::login_hint();
+        if !hint.is_empty() && self.local_qr.as_ref().is_none_or(|(url, _)| *url != hint) {
+            self.local_qr = plx_ui::qr::QrCode::new(&plx_plex::jellyfin::login::approve_url(&hint))
+                .ok()
+                .map(|q| (hint, q));
+        }
+        if let Some((_, q)) = self.local_qr.as_mut() {
+            q.prepare(Rect::new(0.0, 0.0, LOCAL_QR_SIDE, LOCAL_QR_SIDE));
+        }
     }
     fn draw(&mut self, f: &mut DrawFrame<'_, '_, H>) {
         let p = f.painter;
@@ -2785,6 +2807,7 @@ mod tests {
             phase_clock: plx_machine::motion::Phase::default(),
             wait: (phase, 0),
             qr_tex: 0,
+            local_qr: None,
             qr_tex_gen: 0,
             qr_px: (0, 0),
             qr_png_pending: None,

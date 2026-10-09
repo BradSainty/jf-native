@@ -413,6 +413,18 @@ static REVISION: AtomicU32 = AtomicU32::new(0);
 
 /// Make `c` the decision every later [`allows_usage`] sees. Called after a load or a save.
 pub fn install(c: Consent) {
+    // This fork reports nothing to anyone: the crash and analytics endpoints compiled into the
+    // upstream project are its author's, not this build's. Every decision is therefore recorded as
+    // asked-and-declined, which also keeps the first-run consent screen from asking.
+    #[cfg(not(any(test, feature = "test-support")))]
+    let c = Consent {
+        asked_version: c.asked_version.max(POLICY_VERSION),
+        errors: false,
+        usage: false,
+        install_id: None,
+        errors_id: None,
+        ..c
+    };
     if let Ok(mut g) = CURRENT.write() {
         *g = Some(c);
         REVISION.fetch_add(1, Ordering::SeqCst);

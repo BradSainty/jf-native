@@ -22,6 +22,7 @@
 
 mod api;
 mod ids;
+pub mod login;
 mod map;
 mod query;
 mod routes;

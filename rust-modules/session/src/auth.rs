@@ -28,6 +28,7 @@ pub mod owner;
 pub mod observation;
 mod causes;
 pub use causes::FailureCauses;
+mod jellyfin; // this fork's sign-in: Jellyfin server discovery + Quick Connect
 mod scripted; // the dev triggers that script the sign-in worker's outcomes (`readout`, `signinfail`)
 pub use owner::{SessionInit, SessionMachine, SessionRead};
 
@@ -44,7 +45,11 @@ pub fn run_session_work(key: owner::SessionWorkKey,
     }
     let epoch = key.epoch;
     match input {
-        owner::SessionWork::Login { client_id } => login_worker_with_output(epoch, client_id, &ask, output),
+        owner::SessionWork::Login { client_id } => if jellyfin::plex_login_requested() {
+            login_worker_with_output(epoch, client_id, &ask, output)
+        } else {
+            jellyfin::login_worker(epoch, output)
+        },
         owner::SessionWork::Rediscover { client_id, account_token } =>
             rediscovery_worker_with_output(client_id, account_token, epoch, &ask, output),
         owner::SessionWork::HomeRoster { client_id, account_token, expected } =>
