@@ -33,7 +33,7 @@
 //! once from `/dev/urandom` and persisted by [`session`](super::session).
 
 /// The product name. Unique, and not `Plex …` anything.
-pub const PRODUCT: &str = "PlxNative";
+pub const PRODUCT: &str = "JFNative";
 
 /// The app version, handed in by the application: `plx_plex` cannot see `PLX_VERSION`, because a
 /// `cargo:rustc-env` reaches one crate only and the rule that derives it (`rust-modules/build.rs`)
