@@ -56,7 +56,7 @@
     "description": "Settings, account, onboarding or privacy UI: settings.trailers.detail"
   },
   "settings.about.title": {
-    "value": "About PlxNative",
+    "value": "About JF Native",
     "description": "Settings, account, onboarding or privacy UI: settings.about.title"
   },
   "settings.about.section": {
@@ -168,7 +168,7 @@
     "description": "Settings, account, onboarding or privacy UI: settings.language.title"
   },
   "settings.language.detail": {
-    "value": "Choose the language used by PlxNative.",
+    "value": "Choose the language used by JF Native.",
     "description": "Settings, account, onboarding or privacy UI: settings.language.detail"
   },
   "settings.language.system": {
@@ -176,15 +176,15 @@
     "description": "Settings, account, onboarding or privacy UI: settings.language.system"
   },
   "settings.language.copy": {
-    "value": "Choose the app language for everyone on this television. Changes apply after restarting PlxNative.",
+    "value": "Choose the app language for everyone on this television. Changes apply after restarting JF Native.",
     "description": "Settings, account, onboarding or privacy UI: settings.language.copy"
   },
   "settings.language.pending": {
-    "value": "Restart PlxNative to apply this change.",
+    "value": "Restart JF Native to apply this change.",
     "description": "Settings, account, onboarding or privacy UI: settings.language.pending"
   },
   "settings.language.restart_hint": {
-    "value": "Hold {key} to close PlxNative, then open it again.",
+    "value": "Hold {key} to close JF Native, then open it again.",
     "description": "Complete sentence under the Language page's explanation, telling people how to restart the app: holding the remote's BACK button closes it (many LG remotes have no EXIT button). {key} is the BACK button rendered as a keycap; keep exactly one occurrence. Must fit one line of the Settings narrative column at CAPTION size.",
     "args": {
       "key": "str"
@@ -219,11 +219,11 @@
     "description": "Settings, account, onboarding or privacy UI: settings.consent.product.title"
   },
   "settings.consent.crash.body": {
-    "value": "If PlxNative crashes, or signing in fails, it can send technical details that help find and fix the problem. Reports may include the signal, code addresses, thread information and device compatibility details, or which sign-in step failed and how the connection answered, plus a random crash report identifier, created when you turn this on and deleted when you turn it off or sign out, so that repeated crashes under one crash report identifier are counted once rather than once each. They never include titles, Plex accounts, searches, server names or addresses, tokens, subtitle text, or the product analytics identifier.",
+    "value": "If JF Native crashes, or signing in fails, it can send technical details that help find and fix the problem. Reports may include the signal, code addresses, thread information and device compatibility details, or which sign-in step failed and how the connection answered, plus a random crash report identifier, created when you turn this on and deleted when you turn it off or sign out, so that repeated crashes under one crash report identifier are counted once rather than once each. They never include titles, Plex accounts, searches, server names or addresses, tokens, subtitle text, or the product analytics identifier.",
     "description": "Settings, account, onboarding or privacy UI: settings.consent.crash.body"
   },
   "settings.consent.product.body": {
-    "value": "PlxNative can share which screens and features are used and broad sign-in and playback outcomes. Reports carry a random Analytics ID, created when you turn this on and deleted when you turn it off or sign out, and can include the app version, webOS version, television model and SoC, and whether a selected server is local, remote or relayed. They never include titles, Plex accounts, searches, server names or addresses, tokens, subtitle text, or exact viewing history.",
+    "value": "JF Native can share which screens and features are used and broad sign-in and playback outcomes. Reports carry a random Analytics ID, created when you turn this on and deleted when you turn it off or sign out, and can include the app version, webOS version, television model and SoC, and whether a selected server is local, remote or relayed. They never include titles, Plex accounts, searches, server names or addresses, tokens, subtitle text, or exact viewing history.",
     "description": "Settings, account, onboarding or privacy UI: settings.consent.product.body"
   },
   "settings.consent.crash.row": {
@@ -271,11 +271,11 @@
     "description": "Settings, account, onboarding or privacy UI: settings.consent.delete"
   },
   "settings.consent.delete_scope": {
-    "value": "This signs out and removes PlxNative data stored on this television. It does not delete data already sent to Plex, your Plex Media Servers, Sentry or PostHog.",
+    "value": "This signs out and removes JF Native data stored on this television. It does not delete data already sent to Plex, your Plex Media Servers, Sentry or PostHog.",
     "description": "Settings, account, onboarding or privacy UI: settings.consent.delete_scope"
   },
   "settings.consent.settings_copy": {
-    "value": "Control optional reporting, review exactly what may be shared, and manage data stored by PlxNative on this television.",
+    "value": "Control optional reporting, review exactly what may be shared, and manage data stored by JF Native on this television.",
     "description": "Settings, account, onboarding or privacy UI: settings.consent.settings_copy"
   },
   "settings.consent.reporting": {
@@ -299,7 +299,7 @@
     "description": "Settings, account, onboarding or privacy UI: settings.consent.preview_usage"
   },
   "settings.consent.preview_policy": {
-    "value": "The complete PlxNative privacy policy for this build.",
+    "value": "The complete JF Native privacy policy for this build.",
     "description": "Settings, account, onboarding or privacy UI: settings.consent.preview_policy"
   },
   "settings.consent.preview_errors_id": {
@@ -311,7 +311,7 @@
     "description": "Settings, account, onboarding or privacy UI: settings.consent.preview_analytics_id"
   },
   "settings.consent.delete_detail": {
-    "value": "Sign out and remove PlxNative data from this TV.",
+    "value": "Sign out and remove JF Native data from this TV.",
     "description": "Settings, account, onboarding or privacy UI: settings.consent.delete_detail"
   },
   "settings.consent.errors_subtitle": {
@@ -323,7 +323,7 @@
     "description": "Settings, account, onboarding or privacy UI: settings.consent.analytics_subtitle"
   },
   "settings.consent.policy_subtitle": {
-    "value": "How PlxNative handles local data, Plex services and optional reporting.",
+    "value": "How JF Native handles local data, Plex services and optional reporting.",
     "description": "Settings, account, onboarding or privacy UI: settings.consent.policy_subtitle"
   },
   "settings.consent.crash_subtitle": {
@@ -371,7 +371,7 @@
     "description": "Settings, account, onboarding or privacy UI: settings.legal.ffmpeg.title"
   },
   "settings.legal.source.title": {
-    "value": "PlxNative source code",
+    "value": "JF Native source code",
     "description": "Settings, account, onboarding or privacy UI: settings.legal.source.title"
   },
   "settings.legal.trademarks.title": {
@@ -383,7 +383,7 @@
     "description": "Settings, account, onboarding or privacy UI: settings.legal.contact.title"
   },
   "settings.legal.privacy.subtitle": {
-    "value": "How PlxNative handles local data and optional reports.",
+    "value": "How JF Native handles local data and optional reports.",
     "description": "Settings, account, onboarding or privacy UI: settings.legal.privacy.subtitle"
   },
   "settings.legal.opensource.subtitle": {
@@ -423,7 +423,7 @@
     "description": "Settings, account, onboarding or privacy UI: settings.legal.privacy.responsible"
   },
   "settings.legal.privacy.responsible_body": {
-    "value": "Gleb Linnik is responsible only for data PlxNative stores locally and for optional reports you choose to share.",
+    "value": "Gleb Linnik is responsible only for data JF Native stores locally and for optional reports you choose to share.",
     "description": "Settings, account, onboarding or privacy UI: settings.legal.privacy.responsible_body"
   },
   "settings.legal.privacy.plex": {
@@ -431,7 +431,7 @@
     "description": "Settings, account, onboarding or privacy UI: settings.legal.privacy.plex"
   },
   "settings.legal.privacy.plex_body": {
-    "value": "PlxNative is an independent client for Plex. To sign you in, discover servers and provide Plex account features, the app communicates directly with Plex services. Plex processes information received by those services under Plex’s own Privacy Policy. PlxNative’s developer does not receive that information.",
+    "value": "JF Native is an independent client for Plex. To sign you in, discover servers and provide Plex account features, the app communicates directly with Plex services. Plex processes information received by those services under Plex’s own Privacy Policy. JF Native’s developer does not receive that information.",
     "description": "Settings, account, onboarding or privacy UI: settings.legal.privacy.plex_body"
   },
   "settings.legal.privacy.plex_link": {
@@ -443,7 +443,7 @@
     "description": "Settings, account, onboarding or privacy UI: settings.legal.privacy.servers"
   },
   "settings.legal.privacy.servers_body": {
-    "value": "To browse and play media, update watch progress and use server features, PlxNative communicates directly with the Plex Media Servers you select. Those requests are handled by the selected server and its operator. PlxNative’s developer does not receive them.",
+    "value": "To browse and play media, update watch progress and use server features, JF Native communicates directly with the Plex Media Servers you select. Those requests are handled by the selected server and its operator. JF Native’s developer does not receive them.",
     "description": "Settings, account, onboarding or privacy UI: settings.legal.privacy.servers_body"
   },
   "settings.legal.privacy.local": {
@@ -451,7 +451,7 @@
     "description": "Settings, account, onboarding or privacy UI: settings.legal.privacy.local"
   },
   "settings.legal.privacy.local_body": {
-    "value": "PlxNative stores your Plex account token and a separate token for each server you use. For every profile you have switched to on this television, it also keeps that profile's own server access token(s) and, for a PIN-protected profile, a one-way check computed from that PIN rather than the PIN itself. It also keeps the addresses and identifiers of those servers, the profile names and pictures on your account (pictures and other downloaded artwork are cached as bounded files for reuse across restarts), your Home library choices, your recent searches, your playback quality, Direct Play and app language preferences, and local technical logs: an event log and an error-output log, each emptied every time the app launches, a crash log that is kept until the television restarts, and a bounded storage status snapshot. It also stores your answers to the two optional-reporting questions, the random Crash report ID if you turned crash reports on, the random Analytics ID if you turned product analytics on, any report waiting to be sent, and a marker recording how much of the crash log has already been read. It keeps no bookmark of its own for where you stopped watching: playback position is held by your Plex Media Server. Delete all local data in Settings signs out and removes PlxNative data from this television.",
+    "value": "JF Native stores your Plex account token and a separate token for each server you use. For every profile you have switched to on this television, it also keeps that profile's own server access token(s) and, for a PIN-protected profile, a one-way check computed from that PIN rather than the PIN itself. It also keeps the addresses and identifiers of those servers, the profile names and pictures on your account (pictures and other downloaded artwork are cached as bounded files for reuse across restarts), your Home library choices, your recent searches, your playback quality, Direct Play and app language preferences, and local technical logs: an event log and an error-output log, each emptied every time the app launches, a crash log that is kept until the television restarts, and a bounded storage status snapshot. It also stores your answers to the two optional-reporting questions, the random Crash report ID if you turned crash reports on, the random Analytics ID if you turned product analytics on, any report waiting to be sent, and a marker recording how much of the crash log has already been read. It keeps no bookmark of its own for where you stopped watching: playback position is held by your Plex Media Server. Delete all local data in Settings signs out and removes JF Native data from this television.",
     "description": "Settings, account, onboarding or privacy UI: settings.legal.privacy.local_body"
   },
   "settings.legal.privacy.crashes": {
@@ -491,7 +491,7 @@
     "description": "Settings, account, onboarding or privacy UI: settings.legal.privacy.choices"
   },
   "settings.legal.privacy.choices_body": {
-    "value": "Both optional reports are off until you turn them on, and either can be turned off again at any time in Settings. A one-off sign-in problem report is sent only when you press Send report. Delete all local data removes what PlxNative stored on this television; it does not reach anything already sent. To ask what crash reports or product analytics hold for your installation, or to have them deleted, write to the contact below and quote your Crash report ID or Analytics ID from Settings, or the Report ID shown after a one-off report. Each identifier is the only handle its reports carry. Turning a category off deletes its identifier from this television, and so does signing out; reports already sent keep the old one, so copy it down first if you intend to ask for their deletion.",
+    "value": "Both optional reports are off until you turn them on, and either can be turned off again at any time in Settings. A one-off sign-in problem report is sent only when you press Send report. Delete all local data removes what JF Native stored on this television; it does not reach anything already sent. To ask what crash reports or product analytics hold for your installation, or to have them deleted, write to the contact below and quote your Crash report ID or Analytics ID from Settings, or the Report ID shown after a one-off report. Each identifier is the only handle its reports carry. Turning a category off deletes its identifier from this television, and so does signing out; reports already sent keep the old one, so copy it down first if you intend to ask for their deletion.",
     "description": "Settings, account, onboarding or privacy UI: settings.legal.privacy.choices_body"
   },
   "settings.legal.privacy.processing": {
@@ -499,7 +499,7 @@
     "description": "Settings, account, onboarding or privacy UI: settings.legal.privacy.processing"
   },
   "settings.legal.privacy.processing_body": {
-    "value": "Optional crash reports are processed by Sentry in Germany and optional product analytics by PostHog in Germany. Plex processes what its own services receive under Plex’s Privacy Policy. A Plex Media Server you connect to may be located anywhere and is operated by whoever runs it, not by PlxNative’s developer.",
+    "value": "Optional crash reports are processed by Sentry in Germany and optional product analytics by PostHog in Germany. Plex processes what its own services receive under Plex’s Privacy Policy. A Plex Media Server you connect to may be located anywhere and is operated by whoever runs it, not by JF Native’s developer.",
     "description": "Settings, account, onboarding or privacy UI: settings.legal.privacy.processing_body"
   },
   "settings.legal.privacy.uninstall": {
@@ -507,7 +507,7 @@
     "description": "Settings, account, onboarding or privacy UI: settings.legal.privacy.uninstall"
   },
   "settings.legal.privacy.uninstall_body": {
-    "value": "Removing PlxNative removes the application, but webOS gives an application no way to run code as it is removed, so anything kept outside the application’s own directory can survive. Your sign-in is deliberately kept there so that reinstalling does not sign you out. Your optional-reporting answers and their Crash report ID and Analytics ID are kept with that sign-in, so that a decision you have already made is not put to you again after a reinstall. Your app language preference is also kept there. Use Delete all local data BEFORE uninstalling if you want nothing of PlxNative left on this television.",
+    "value": "Removing JF Native removes the application, but webOS gives an application no way to run code as it is removed, so anything kept outside the application’s own directory can survive. Your sign-in is deliberately kept there so that reinstalling does not sign you out. Your optional-reporting answers and their Crash report ID and Analytics ID are kept with that sign-in, so that a decision you have already made is not put to you again after a reinstall. Your app language preference is also kept there. Use Delete all local data BEFORE uninstalling if you want nothing of JF Native left on this television.",
     "description": "Settings, account, onboarding or privacy UI: settings.legal.privacy.uninstall_body"
   },
   "settings.legal.privacy.contact": {
@@ -519,11 +519,11 @@
     "description": "Settings, account, onboarding or privacy UI: settings.legal.privacy.contact_body"
   },
   "settings.legal.ffmpeg.body": {
-    "value": "This software uses libraries from the FFmpeg project under the LGPLv2.1. FFmpeg is copyright (c) the FFmpeg developers; PlxNative does not own FFmpeg.\n\nThe FFmpeg libraries are unmodified and loaded dynamically, and may be replaced with an interface-compatible build. The complete corresponding FFmpeg 9.0 source, exact configure line and build script are published with every PlxNative release.",
+    "value": "This software uses libraries from the FFmpeg project under the LGPLv2.1. FFmpeg is copyright (c) the FFmpeg developers; JF Native does not own FFmpeg.\n\nThe FFmpeg libraries are unmodified and loaded dynamically, and may be replaced with an interface-compatible build. The complete corresponding FFmpeg 9.0 source, exact configure line and build script are published with every JF Native release.",
     "description": "Settings, account, onboarding or privacy UI: settings.legal.ffmpeg.body"
   },
   "settings.legal.trademarks.body": {
-    "value": "Plex, the Plex logo and Plex Media Server are trademarks of Plex, Inc.\n\nLG and webOS are trademarks of LG Electronics Inc.\n\nPlxNative is an independent, unofficial application. It is not produced by, endorsed by, or affiliated with Plex, Inc. or LG Electronics Inc.",
+    "value": "Plex, the Plex logo and Plex Media Server are trademarks of Plex, Inc.\n\nLG and webOS are trademarks of LG Electronics Inc.\n\nJF Native is an independent, unofficial application. It is not produced by, endorsed by, or affiliated with Plex, Inc. or LG Electronics Inc.",
     "description": "Settings, account, onboarding or privacy UI: settings.legal.trademarks.body"
   },
   "settings.legal.contact.body": {
@@ -531,7 +531,7 @@
     "description": "Settings, account, onboarding or privacy UI: settings.legal.contact.body"
   },
   "settings.legal.opensource.body": {
-    "value": "PlxNative is open-source software licensed under GPL-3.0-or-later. Copyright (c) 2026 Gleb Linnik and contributors. You may modify and redistribute it under these terms. There is no warranty, to the extent permitted by law.\n\nThird-party components retain their own licences. The package includes THIRD-PARTY-NOTICES.md and licence texts for the Rust runtime and crates, FFmpeg, Sentry Native, libunwind, NanoSVG, fonts and icons. Platform libraries have separate terms.",
+    "value": "JF Native is open-source software licensed under GPL-3.0-or-later. Copyright (c) 2026 Gleb Linnik and contributors. You may modify and redistribute it under these terms. There is no warranty, to the extent permitted by law.\n\nThird-party components retain their own licences. The package includes THIRD-PARTY-NOTICES.md and licence texts for the Rust runtime and crates, FFmpeg, Sentry Native, libunwind, NanoSVG, fonts and icons. Platform libraries have separate terms.",
     "description": "Settings, account, onboarding or privacy UI: settings.legal.opensource.body"
   },
   "settings.legal.source.body": {
@@ -542,7 +542,7 @@
     }
   },
   "settings.about.body": {
-    "value": "Version {version}\nBuild {build}\n\nDeveloped by Gleb Linnik\n© 2026 Gleb Linnik\n\nOpen source under GPL-3.0-or-later\ngithub.com/GLinnik21/plx-native\n\nPlxNative is an independent, unofficial application. It is not produced by, endorsed by, or affiliated with Plex, Inc. or LG Electronics Inc.",
+    "value": "Version {version}\nBuild {build}\n\nDeveloped by Gleb Linnik\n© 2026 Gleb Linnik\n\nOpen source under GPL-3.0-or-later\ngithub.com/GLinnik21/plx-native\n\nJF Native is an independent, unofficial application. It is not produced by, endorsed by, or affiliated with Plex, Inc. or LG Electronics Inc.",
     "description": "Settings, account, onboarding or privacy UI: settings.about.body",
     "args": {
       "build": "str",
@@ -734,7 +734,7 @@
     "description": "Settings, consent or sign-in UI: settings.audio.forced_subtitles"
   },
   "settings.playback.force_body": {
-    "value": "Bypasses playback compatibility checks and always uses original quality. Playback may have no sound, display incorrectly, freeze, or crash the app. PlxNative will not automatically switch to compatible playback and may not recover gracefully.\n\nEnable this only if you understand these risks and know how to restart the app and return Direct Play to Auto.",
+    "value": "Bypasses playback compatibility checks and always uses original quality. Playback may have no sound, display incorrectly, freeze, or crash the app. JF Native will not automatically switch to compatible playback and may not recover gracefully.\n\nEnable this only if you understand these risks and know how to restart the app and return Direct Play to Auto.",
     "description": "Settings, consent or sign-in UI: settings.playback.force_body"
   },
   "settings.playback.force_note": {
@@ -1027,7 +1027,7 @@
   },
   "settings.legal.privacy.plaintext_body": {
     "description": "In-app privacy disclosure, aligned with PRIVACY.md.",
-    "value": "For a server you were asked about, PlxNative also keeps whether you allowed an unencrypted connection on your home network, for the Plex account that answered. Only the answer is stored. The permission itself is never stored and ends when a fresh check no longer reaches the same server address, at sign-in or sign-out, at a profile switch unless the new profile reaches that server at the same address, or when the app returns from the background."
+    "value": "For a server you were asked about, JF Native also keeps whether you allowed an unencrypted connection on your home network, for the Plex account that answered. Only the answer is stored. The permission itself is never stored and ends when a fresh check no longer reaches the same server address, at sign-in or sign-out, at a profile switch unless the new profile reaches that server at the same address, or when the app returns from the background."
   },
   "settings.legal.privacy.signin_body": {
     "description": "In-app privacy disclosure, aligned with PRIVACY.md.",

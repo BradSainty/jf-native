@@ -57,7 +57,7 @@ pub const ENV_STEERABLE: bool = cfg!(feature = "hostsim");
 ///
 /// It is a FALLBACK and a comparison value — never the answer on its own. See [`app_id`]: which
 /// app this process is depends on where it was installed, not on what it was compiled with.
-pub const STABLE_APP_ID: &str = "com.beb.plxnative";
+pub const STABLE_APP_ID: &str = "com.jfnative.app";
 
 /// The Developer Mode install dir. Only a last-resort fallback now — it is what the app used to
 /// hardcode, so it keeps the historical behaviour if `/proc` is somehow unreadable.
@@ -887,13 +887,13 @@ mod tests {
             None
         );
         assert_eq!(
-            "com.beb.plxnative.debug"
+            "com.jfnative.app.debug"
                 .strip_prefix(super::STABLE_APP_ID)
                 .and_then(|r| r.strip_prefix('.')),
             Some("debug")
         );
         assert_eq!(
-            "com.beb.plxnative.nightly"
+            "com.jfnative.app.nightly"
                 .strip_prefix(super::STABLE_APP_ID)
                 .and_then(|r| r.strip_prefix('.')),
             Some("nightly")

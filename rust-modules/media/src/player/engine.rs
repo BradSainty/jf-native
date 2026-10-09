@@ -3582,7 +3582,8 @@ mod payload_tests {
     /// composed bytes here is the only gate available for it.
     #[test]
     fn the_shipped_app_composes_the_payload_it_always_did() {
-        let want = r#""appId":"com.beb.plxnative""#;
+        // JF Native: the fork's shipped id, still spelled out so it stays an independent witness
+        let want = r#""appId":"com.jfnative.app""#;
         for (name, p) in [
             ("PAYLOAD_V", PAYLOAD_V),
             ("PAYLOAD_AV", PAYLOAD_AV),
