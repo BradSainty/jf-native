@@ -75,18 +75,41 @@ pub fn fnv64(s: &str) -> u64 {
     h
 }
 
-/// The `DeviceId` this install reports. Jellyfin ties an access token to the device it was issued
-/// to, so it must not change between requests; deriving it from the token keeps it stable without
-/// threading the session's client id down to this layer.
-fn device_id(token: &str) -> String {
-    format!("jfnative-{:016x}", fnv64(token))
+fn device_slot() -> &'static Mutex<String> {
+    static D: OnceLock<Mutex<String>> = OnceLock::new();
+    D.get_or_init(|| Mutex::new(String::new()))
+}
+
+/// Adopt this install's identity (the session's client id, a per-install uuid) as the Jellyfin
+/// `DeviceId`. Jellyfin ties every access token to the device it was issued to and REVOKES a
+/// device's older tokens when it signs in again — so the id must be stable for one television and
+/// different between two, or each would sign the other out.
+pub fn set_device_id(client_id: &str) {
+    if client_id.is_empty() {
+        return;
+    }
+    if let Ok(mut d) = device_slot().lock() {
+        if d.is_empty() {
+            *d = format!("jfnative-{client_id}");
+        }
+    }
+}
+
+/// The `DeviceId` this install reports (see [`set_device_id`]).
+pub fn device_id() -> String {
+    device_slot()
+        .lock()
+        .ok()
+        .map(|d| d.clone())
+        .filter(|d| !d.is_empty())
+        .unwrap_or_else(|| "jfnative-unidentified".to_string())
 }
 
 /// The `Authorization: MediaBrowser …` header Jellyfin authenticates by.
 pub fn auth_header(token: &str) -> String {
     let mut h = format!(
         "Authorization: MediaBrowser Client=\"{CLIENT}\", Device=\"{DEVICE}\", DeviceId=\"{}\", Version=\"{VERSION}\"",
-        device_id(token)
+        device_id()
     );
     if !token.is_empty() {
         h.push_str(&format!(", Token=\"{token}\""));
