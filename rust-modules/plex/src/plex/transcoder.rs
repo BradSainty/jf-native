@@ -628,6 +628,13 @@ impl Client {
 
     /// The delivery-matched stream target for `spec` — same params as the registering decision.
     pub fn transcode_start_url(&self, spec: &TranscodeSpec) -> StreamUrl {
+        if crate::jellyfin::intercepts(&self.origin) {
+            let tok = self.token.read().map(|g| g.clone()).unwrap_or_default();
+            return StreamUrl {
+                origin: self.origin.clone(),
+                path: crate::jellyfin::transcode_path(&self.origin, spec, &tok),
+            };
+        }
         let endpoint = match spec.contract.delivery {
             TranscodeDelivery::ProgressiveMkv => "start.mkv",
             TranscodeDelivery::FixedHls { .. } => "start.m3u8",

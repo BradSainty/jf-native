@@ -34,10 +34,12 @@ fn fail(output: &dyn owner::ObservationSink, epoch: u64, message: &str, kind: In
     output_failed(output, epoch, message, IncidentContext::new(kind, None), None);
 }
 
-pub(super) fn login_worker(epoch: u64, output: &dyn owner::ObservationSink) {
+pub(super) fn login_worker(epoch: u64, client_id: &str, output: &dyn owner::ObservationSink) {
     if !output.live() {
         return;
     }
+    // Before the first request: the token Quick Connect issues is bound to this DeviceId.
+    plx_plex::jellyfin::set_device_id(client_id);
     // 1) the server.
     let url = match jf::server_override() {
         Some(url) => url,

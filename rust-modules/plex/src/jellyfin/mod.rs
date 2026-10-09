@@ -26,9 +26,11 @@ pub mod login;
 mod map;
 mod query;
 mod routes;
+mod transcode;
 
-pub use api::{path_prefix, set_path_prefix};
+pub use api::{device_id, path_prefix, set_device_id, set_path_prefix};
 pub use routes::handle;
+pub use transcode::path as transcode_path;
 
 use crate::plex::Origin;
 

@@ -393,7 +393,7 @@ impl Client {
         let tok = self.token.read().map(|g| g.clone()).unwrap_or_default();
         StreamUrl {
             origin: self.origin.clone(),
-            path: format!("{}&api_key={tok}", self.with_token(&path)),
+            path: format!("{}&ApiKey={tok}&api_key={tok}", self.with_token(&path)),
         }
     }
 }

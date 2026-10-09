@@ -48,7 +48,7 @@ pub fn run_session_work(key: owner::SessionWorkKey,
         owner::SessionWork::Login { client_id } => if jellyfin::plex_login_requested() {
             login_worker_with_output(epoch, client_id, &ask, output)
         } else {
-            jellyfin::login_worker(epoch, output)
+            jellyfin::login_worker(epoch, &client_id, output)
         },
         owner::SessionWork::Rediscover { client_id, account_token } =>
             rediscovery_worker_with_output(client_id, account_token, epoch, &ask, output),
