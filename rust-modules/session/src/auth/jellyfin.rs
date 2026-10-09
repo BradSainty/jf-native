@@ -45,7 +45,7 @@ pub(super) fn login_worker(epoch: u64, client_id: &str, output: &dyn owner::Obse
         Some(url) => url,
         None => {
             log("auth: looking for a Jellyfin server on this network");
-            match jf::discover(DISCOVERY_WAIT).into_iter().next() {
+            match jf::find_servers(DISCOVERY_WAIT).into_iter().next() {
                 Some(found) => found.url,
                 None => {
                     return fail(
