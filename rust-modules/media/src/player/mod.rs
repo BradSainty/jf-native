@@ -3256,7 +3256,7 @@ mod tests {
         assert_eq!(
             line,
             format!(
-                "PlxNative {} · webOS 4.10.2 · 43LM6300PVB · m3r · tv_pipeline",
+                "JFNative {} · webOS 4.10.2 · 43LM6300PVB · m3r · tv_pipeline",
                 plx_plex::plex::identity::version()
             )
         );

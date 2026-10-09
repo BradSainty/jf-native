@@ -515,7 +515,7 @@
     }
   },
   "widgets.panel.jail": {
-    "value": "this install's sandbox blocks access to /dev/rtkmem; PlxNative can offer a confirmed repair through rooted Homebrew Channel access",
+    "value": "this install's sandbox blocks access to /dev/rtkmem; JF Native can offer a confirmed repair through rooted Homebrew Channel access",
     "translate": false,
     "description": "Playback verdict line: the install's sandbox blocks the video-plane device node."
   },
@@ -590,11 +590,11 @@
     "description": "reason forced_playback_help"
   },
   "widgets.repair.question": {
-    "value": "Repair PlxNative’s sandbox?",
+    "value": "Repair JF Native’s sandbox?",
     "description": "repair question"
   },
   "widgets.repair.body": {
-    "value": "Use Homebrew Channel’s root access to update PlxNative’s sandbox with LG’s native profile. This requires a rooted TV. Close and reopen PlxNative afterward.",
+    "value": "Use Homebrew Channel’s root access to update JF Native’s sandbox with LG’s native profile. This requires a rooted TV. Close and reopen JF Native afterward.",
     "description": "repair body"
   },
   "widgets.repair.action": {
@@ -614,7 +614,7 @@
     "description": "repair completed"
   },
   "widgets.repair.reopen": {
-    "value": "Close and reopen PlxNative before playing video.",
+    "value": "Close and reopen JF Native before playing video.",
     "description": "repair reopen"
   },
   "widgets.repair.failed": {
@@ -622,7 +622,7 @@
     "description": "repair failed"
   },
   "widgets.repair.start_failed": {
-    "value": "Could not start the repair. Close and reopen PlxNative to try again.",
+    "value": "Could not start the repair. Close and reopen JF Native to try again.",
     "description": "repair start_failed"
   },
   "widgets.repair.hbc_unavailable": {
