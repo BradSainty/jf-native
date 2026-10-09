@@ -17,9 +17,23 @@ const DEVICE: &str = "LG webOS TV";
 
 /// A Jellyfin server behind a reverse proxy can live under a path (`https://host/jellyfin`). An
 /// [`Origin`] is scheme + host + port only, so the path is kept here, keyed by the origin's base.
+///
+/// The session file persists only the origin, so the table is kept on disk beside it
+/// ([`prefix_file`]) and read back on first use — a server signed in under a path keeps working
+/// after a restart.
 fn prefixes() -> &'static Mutex<HashMap<String, String>> {
     static P: OnceLock<Mutex<HashMap<String, String>>> = OnceLock::new();
-    P.get_or_init(|| Mutex::new(HashMap::new()))
+    P.get_or_init(|| {
+        let saved = std::fs::read(prefix_file())
+            .ok()
+            .and_then(|b| serde_json::from_slice::<HashMap<String, String>>(&b).ok())
+            .unwrap_or_default();
+        Mutex::new(saved)
+    })
+}
+
+fn prefix_file() -> std::path::PathBuf {
+    plx_base::paths::persistent_state_root().join("jellyfin-paths.json")
 }
 
 /// Record the path a server lives under (`"/jellyfin"`; empty for the root).
@@ -27,7 +41,16 @@ pub fn set_path_prefix(origin: &Origin, prefix: &str) {
     let p = prefix.trim().trim_end_matches('/');
     let p = if p.is_empty() || p.starts_with('/') { p.to_string() } else { format!("/{p}") };
     if let Ok(mut m) = prefixes().lock() {
+        if m.get(&origin.base()) == Some(&p) {
+            return;
+        }
         m.insert(origin.base(), p);
+        #[cfg(not(any(test, feature = "test-support")))]
+        if plx_base::paths::ensure_persistent_state_root().is_ok() {
+            if let Ok(bytes) = serde_json::to_vec(&*m) {
+                let _ = std::fs::write(prefix_file(), bytes);
+            }
+        }
     }
 }
 

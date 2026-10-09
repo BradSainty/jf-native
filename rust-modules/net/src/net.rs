@@ -887,6 +887,12 @@ pub fn request_result_evidence(
     )
 }
 
+/// plex.tv and its subdomains (sign-in, resources, metadata provider).
+pub fn is_plex_tv(host: &str) -> bool {
+    let h = host.trim_end_matches('.').to_ascii_lowercase();
+    h == "plex.tv" || h.ends_with(".plex.tv")
+}
+
 /// Test-only override of the CA trust root `request_result` verifies against — see that
 /// function's doc. Process-global rather than thread-local: `auth::race_batch` dials each
 /// candidate on a real worker thread (`task::spawn_small`), which a thread-local would never see.
@@ -1563,6 +1569,13 @@ fn request_tls_evidence(
     // calls via `request_result_evidence`). A frame-thread caller would freeze the HUD for up to
     // the request timeout: panic in host tests, abort under `threadcheck`.
     let _block = plx_base::task::assert_may_block(const { &plx_base::task::BlockingLabel::new("curl request") });
+    // This build is a Jellyfin client: nothing it holds is a Plex credential, and the inherited
+    // plex.tv account code must never carry a Jellyfin token (or anything else) there. Every easy
+    // request passes this funnel, so plex.tv is refused here, as an unreachable host.
+    #[cfg(not(any(test, feature = "test-support")))]
+    if is_plex_tv(origin::url_host(url)) {
+        return Err(RequestError::Transport.into());
+    }
     // Every fallible CString is built BEFORE the easy handle exists. The RAII guards below still
     // make later early returns safe, but this ordering also means malformed caller input never
     // enters curl with a half-configured request.
