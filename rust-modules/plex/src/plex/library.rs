@@ -324,7 +324,8 @@ impl Client {
         };
         let path = self.playback_identity(q).build();
         // The player dials this URL itself, past `crate::jellyfin`, so it must carry the token in
-        // the spelling Jellyfin reads (`api_key`); `with_token` always leaves a `?` behind it.
+        // the spellings Jellyfin reads: `ApiKey`, and the legacy `api_key` that 10.x also accepts
+        // and 12 refuses on most endpoints. `with_token` always leaves a `?` behind it.
         let tok = self.token.read().map(|g| g.clone()).unwrap_or_default();
         StreamUrl {
             origin: self.origin.clone(),
