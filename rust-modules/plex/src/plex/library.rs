@@ -323,9 +323,12 @@ impl Client {
             None => q,
         };
         let path = self.playback_identity(q).build();
+        // The player dials this URL itself, past `crate::jellyfin`, so it must carry the token in
+        // the spelling Jellyfin reads (`api_key`); `with_token` always leaves a `?` behind it.
+        let tok = self.token.read().map(|g| g.clone()).unwrap_or_default();
         StreamUrl {
             origin: self.origin.clone(),
-            path: self.with_token(&path),
+            path: format!("{}&api_key={tok}", self.with_token(&path)),
         }
     }
 }
