@@ -33,7 +33,7 @@
 // `rgb8`, and the two stops the renderer itself paints with (`NEUTRAL_500`, the app ground, and
 // `NEUTRAL_1000`, the scrim ink behind `SCRIM_INK`), are written down in `gfx::tokens` (module-layers
 // step L5) and imported here, so a code still exists in exactly one place.
-use plx_gfx::gfx::tokens::{rgb8, NEUTRAL_500};
+use plx_gfx::gfx::tokens::{rgb8, GROUND, NEUTRAL_500};
 
 // Cool — blue-leaning: everything that is text, and artwork that has not loaded.
 const COOL_0: [f32; 4] = rgb8(0xf7, 0xfa, 0xfc);
@@ -89,7 +89,8 @@ const SAND_100: [f32; 4] = rgb8(0xe9, 0xe6, 0xe0);
 // an authored key light would use — bright near one corner, dark at its opposite — while every
 // corner still clears 3:1 against `TEXT_TERTIARY` and 7:1 against `TEXT_PRIMARY`, the same floors
 // `AmbientWash::keyed` holds a real hero to.
-const ATMOS_CHARCOAL: [f32; 4] = rgb8(0x18, 0x18, 0x1a);
+// JF Native: deepened from #18181a, which sat within a few codes of the navy ground and read as it.
+const ATMOS_CHARCOAL: [f32; 4] = rgb8(0x06, 0x08, 0x0e);
 const ATMOS_WARM_GREY: [f32; 4] = rgb8(0x4a, 0x46, 0x40);
 const ATMOS_UMBER: [f32; 4] = rgb8(0x5e, 0x3e, 0x24);
 const ATMOS_ASH: [f32; 4] = rgb8(0x42, 0x42, 0x4a);
@@ -132,7 +133,11 @@ pub const TEXT_TERTIARY: [f32; 4] = COOL_400;
 /// Only reachable where the separator is its OWN draw run. A dot baked into a joined string
 /// (`"a   ·   b"`) is one run at one colour by construction; those are unchanged, and converting
 /// them is a per-site decision about whether the extra draw call is worth it.
-pub const TEXT_SEPARATOR: [f32; 4] = with_a(TEXT_TERTIARY, 0.45);
+///
+/// **JF Native draws no separator dots** (the owner's call): this ink is fully transparent, so every
+/// dot drawn as its own run disappears and leaves its air behind — the facts stay exactly as far
+/// apart as they were, with nothing between them. Joined strings use `fmt::GAP` for the same air.
+pub const TEXT_SEPARATOR: [f32; 4] = with_a(TEXT_TERTIARY, 0.0);
 
 /// **The ink a control shows when it has reached a hard limit** — the Timing capsule's chevron on
 /// the side already at its range's edge (`appkit::timing_capsule`, plan `subtitle-menu-capsule` §4,
@@ -393,7 +398,9 @@ pub const CONTROL_CAST_FOCUS: [(f32, f32, f32); 2] = [(5.0, 32.0, 0.34), (1.0, 6
 /// Flat shelf/app base (both gradient stops) — Apple TV's shelf gray **#2C2C2E (44,44,46)**. A
 /// MEDIUM gray, deliberately not near-black: the focused-card drop-shadow only reads against a base
 /// this light (on the old near-black 25,25,29 a black shadow had almost nothing to darken).
-pub const SURFACE_APP: [f32; 4] = NEUTRAL_500;
+/// JF Native: the owner's Jellyfin theme's dark navy (`gfx::tokens::GROUND`), in place of the gray; the
+/// lighter top of its gradient is painted by `frame_clear`.
+pub const SURFACE_APP: [f32; 4] = GROUND;
 /// Opaque sheet drawn over the hardware video plane when a detail page scrolls the hero away.
 /// Same stop as [`SURFACE_APP`] so the rising page and the cover are one surface. Different role:
 /// this hides the plane. It is not atmosphere, so [`scrim`] is the wrong token.

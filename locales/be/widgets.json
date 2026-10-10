@@ -105,16 +105,16 @@
     "other": "{count} дарожкі"
   },
   "widgets.tracks.count_detail": {
-    "one": "{description} · {count} дарожка",
-    "few": "{description} · {count} дарожкі",
-    "many": "{description} · {count} дарожак",
-    "other": "{description} · {count} дарожкі"
+    "one": "{description}   {count} дарожка",
+    "few": "{description}   {count} дарожкі",
+    "many": "{description}   {count} дарожак",
+    "other": "{description}   {count} дарожкі"
   },
   "widgets.tracks.count_heading": {
-    "one": "{heading} · {count} ДАРОЖКА",
-    "few": "{heading} · {count} ДАРОЖКІ",
-    "many": "{heading} · {count} ДАРОЖАК",
-    "other": "{heading} · {count} ДАРОЖКІ"
+    "one": "{heading}   {count} ДАРОЖКА",
+    "few": "{heading}   {count} ДАРОЖКІ",
+    "many": "{heading}   {count} ДАРОЖАК",
+    "other": "{heading}   {count} ДАРОЖКІ"
   },
   "widgets.reason.jail_help": "Для выпраўлення патрэбны тэлевізар з root-доступам і Homebrew Channel.",
   "widgets.tracks.empty": "Няма дарожак",

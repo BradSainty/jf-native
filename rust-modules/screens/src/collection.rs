@@ -159,7 +159,7 @@ pub fn member_caption(item: &PmsMovie) -> TileLabel {
     if item.kind == 3 {
         let address = plx_ui::fmt::episode_address(item.season_index as i64, item.ep_index as i64);
         let caption = match (item.show_title.is_empty(), address.is_empty()) {
-            (false, false) => format!("{} · {}", item.show_title, address),
+            (false, false) => format!("{}{}{}", item.show_title, plx_ui::fmt::GAP, address),
             (false, true) => item.show_title.clone(),
             (true, false) => address,
             (true, true) => String::new(),
@@ -1094,10 +1094,10 @@ mod tests {
         assert_eq!(member_label(&season), "SEASON 3");
         let episode = PmsMovie { kind: 3, season_index: 3, ep_index: 4, title: "The Answer".into(),
             show_title: "Example Show".into(), ..Default::default() };
-        assert_eq!(member_label(&episode), "S3 · E4");
+        assert_eq!(member_label(&episode), "S3 E4");
         let caption = member_caption(&episode);
         assert_eq!(caption.title.unwrap().to_str().unwrap(), "The Answer");
-        assert_eq!(caption.caption.unwrap().to_str().unwrap(), "Example Show · S3 · E4");
+        assert_eq!(caption.caption.unwrap().to_str().unwrap(), "Example Show   S3 E4");
     }
 
     pub(super) fn step(screen: &mut CollectionScreen, ev: ScreenEvent<CollectionHost>,
@@ -1674,7 +1674,7 @@ mod tests {
             let verdict = msg::browse_collection_unavailable();
             let w = m.width_str(verdict, theme::size::TITLE, true);
             if w > (SCR_W - 2.0 * MARGIN_X) * HEADROOM { out.push(format!("{}: {verdict:?} is {w:.0}px", language.tag())); }
-            let heading = format!("{} · {}", msg::browse_collection_items(), msg::browse_collection_order_release());
+            let heading = format!("{}{}{}", msg::browse_collection_items(), plx_ui::fmt::GAP, msg::browse_collection_order_release());
             let w = m.width_str(&heading, theme::size::HEADLINE, true);
             if w > (SCR_W - 2.0 * MARGIN_X) * HEADROOM { out.push(format!("{}: {heading:?} is {w:.0}px", language.tag())); }
         }

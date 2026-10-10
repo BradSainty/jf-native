@@ -188,7 +188,7 @@
     "description": "browse detail direct_stream"
   },
   "browse.detail.original_audio_converted": {
-    "value": "Original · audio converted",
+    "value": "Original   audio converted",
     "description": "Detail-page playback label when the picture is copied untouched and only the audio of the track that will play is converted by the server."
   },
   "browse.detail.hardware_needs": {
@@ -454,8 +454,8 @@
   },
   "browse.person.credits": {
     "value": {
-      "one": "{count} credit · Newest first.",
-      "other": "{count} credits · Newest first."
+      "one": "{count} credit, newest first.",
+      "other": "{count} credits, newest first."
     },
     "args": {
       "count": "i64"
@@ -509,7 +509,7 @@
     "description": "browse library unwatched"
   },
   "browse.library.genre_unwatched": {
-    "value": "{genre} · Unwatched",
+    "value": "{genre}   Unwatched",
     "args": {
       "genre": "str"
     },
@@ -523,7 +523,7 @@
     "description": "browse library unreachable"
   },
   "browse.library.shared_unreachable": {
-    "value": "Shared by {owner} · your own server is fine.",
+    "value": "Shared by {owner}. Your own server is fine.",
     "args": {
       "owner": "str"
     },
@@ -623,7 +623,7 @@
     "description": "browse search unreachable"
   },
   "browse.search.partial": {
-    "value": "{unreachable} unreachable · results from {available} only",
+    "value": "{unreachable} unreachable, results from {available} only",
     "args": {
       "available": "str",
       "unreachable": "str"
@@ -1976,7 +1976,7 @@
     "description": "The collection page meta line before its size is known; the kind of page shown"
   },
   "browse.collection.meta": {
-    "value": "{items} · Collection",
+    "value": "{items}   Collection",
     "args": {
       "items": "str"
     },

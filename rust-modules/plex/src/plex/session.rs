@@ -962,7 +962,8 @@ impl PlaybackQuality {
             msg::widgets_tracks_kbps(&current().number(kbps))
         };
         // `1080p` is the format's own conventional name in every shipped language.
-        format!("{lines}p \u{b7} {rate}")
+        // (spaced, not `·`: JF Native separates facts with space, `ui::fmt::GAP`)
+        format!("{lines}p   {rate}")
     }
 
     /// A missing field in an OLD file is handled by [`Session::playback_quality`] and is always

@@ -1008,7 +1008,7 @@ fn cw_caption(m: &TileFacts<'_>) -> Option<std::ffi::CString> {
     let s = if let Some(resume) = m.resume {
         let left = crate::fmt::time_left(resume.left_ms);
         if m.kind == TileKind::Episode && !show.is_empty() {
-            format!("{show} \u{00b7} {left}")
+            format!("{show}{}{left}", crate::fmt::GAP)
         } else {
             left // a resumed movie: time-remaining alone
         }

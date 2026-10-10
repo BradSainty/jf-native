@@ -38,7 +38,7 @@ fn every_library_kind_offers_the_type_selector_and_it_opens_its_own_menu() {
     let movie_page = movies.screen();
     assert_eq!(movie_page.toolbar_elems(), [TYPE, SORT, FILTER], "Movies / Collections is a real choice");
     assert!(<LibraryScreen as Focusable<HostFixture>>::place(&movie_page, &TYPE, &movies.cx(None), At::Drawn).is_some());
-    assert_eq!(movie_page.toolbar_chip(TYPE, &movies.cx(None)).value.to_str().unwrap(), " · Movies");
+    assert_eq!(movie_page.toolbar_chip(TYPE, &movies.cx(None)).value.to_str().unwrap(), "   Movies");
     let fixture = tv_fixture(LibraryType::Primary, 36);
     let mut page = tv_page(&fixture);
     assert_eq!(page.toolbar_elems(), [TYPE, SORT, FILTER]);
@@ -93,7 +93,7 @@ fn empty_episode_results_keep_type_selector_available() {
     assert_eq!(page.readout, Readout::Empty);
     assert!(page.layout.grid_head);
     assert!(<LibraryScreen as Focusable<HostFixture>>::place(&page, &TYPE, &fixture.cx(None), At::Drawn).is_some());
-    assert_eq!(page.toolbar_chip(TYPE, &fixture.cx(None)).value.to_str().unwrap(), " · Episodes");
+    assert_eq!(page.toolbar_chip(TYPE, &fixture.cx(None)).value.to_str().unwrap(), "   Episodes");
 }
 
 #[test]
@@ -141,7 +141,7 @@ fn a_collections_listing_hides_the_filter_control() {
     assert_eq!(page.listed(), LibraryType::Collections);
     assert_eq!(page.toolbar_elems(), [TYPE, SORT]);
     assert!(<LibraryScreen as Focusable<HostFixture>>::place(&page, &FILTER, &fixture.cx(None), At::Drawn).is_none());
-    assert_eq!(page.toolbar_chip(TYPE, &fixture.cx(None)).value.to_str().unwrap(), " · Collections");
+    assert_eq!(page.toolbar_chip(TYPE, &fixture.cx(None)).value.to_str().unwrap(), "   Collections");
 }
 
 /// An empty Collections answer is the ordinary empty read-out, worded for what was asked for, and

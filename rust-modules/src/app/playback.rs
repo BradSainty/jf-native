@@ -303,10 +303,11 @@ pub(super) trait PlaybackResources {
 pub(crate) fn movie_ctx(m: &plx_data::pms::PmsMovie) -> String {
     let rating = if m.rating.is_empty() { "NR" } else { &m.rating };
     format!(
-        "{} \u{b7} {} \u{b7} {}",
+        "{}{gap}{}{gap}{}",
         m.year,
         rating,
-        plx_ui::fmt::dur_short(m.dur_ns / 1_000_000)
+        plx_ui::fmt::dur_short(m.dur_ns / 1_000_000),
+        gap = plx_ui::fmt::GAP,
     )
 }
 
@@ -460,7 +461,7 @@ fn request_episode(ps: &mut plx_media::route::PlaybackSession, meta: &mut plx_da
         dur_ms: ep.dur_ms, rating: ep.rating.clone(), thumb: ep.thumb.clone(), detail_rk: d.rk.clone(),
     })));
     let title = if ep.title.is_empty() { &d.title } else { &ep.title };
-    let context = format!("{}  ·  {}", d.title, plx_ui::fmt::episode_ordinal(ep.season, ep.index));
+    let context = format!("{}{}{}", d.title, plx_ui::fmt::GAP, plx_ui::fmt::episode_ordinal(ep.season, ep.index));
     plx_media::route::request_play(ps, meta, plx_media::route::item_sid(d.sid), &ep.rk, &ep.part,
         &ep.vcodec, &ep.acodec, title, &context)
 }

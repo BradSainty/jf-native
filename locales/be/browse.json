@@ -116,10 +116,10 @@
   "browse.person.library_one": "{titles} у гэтай бібліятэцы",
   "browse.person.library_both": "{films} і {shows} у гэтай бібліятэцы",
   "browse.person.credits": {
-    "one": "{count} праца · Спачатку новыя.",
-    "few": "{count} працы · Спачатку новыя.",
-    "many": "{count} прац · Спачатку новыя.",
-    "other": "{count} працы · Спачатку новыя."
+    "one": "{count} праца   Спачатку новыя.",
+    "few": "{count} працы   Спачатку новыя.",
+    "many": "{count} прац   Спачатку новыя.",
+    "other": "{count} працы   Спачатку новыя."
   },
   "browse.detail.seasons": {
     "one": "{count} сезон",

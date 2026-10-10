@@ -953,8 +953,8 @@ fn toolbar_stops_use_the_shared_value_chip_measurement() {
     let cx = fixture.cx(None);
     let sort = page.place(&SORT, &cx, At::Drawn).unwrap().rect;
     let filter = page.place(&FILTER, &cx, At::Drawn).unwrap().rect;
-    assert_eq!(sort.w, plx_ui::value_chip::ValueChip::width(cx.measure, c"Sort", c" · Title", None));
-    assert_eq!(filter.w, plx_ui::value_chip::ValueChip::width(cx.measure, c"Filter", c" · All", None));
+    assert_eq!(sort.w, plx_ui::value_chip::ValueChip::width(cx.measure, c"Sort", c"   Title", None));
+    assert_eq!(filter.w, plx_ui::value_chip::ValueChip::width(cx.measure, c"Filter", c"   All", None));
     assert_eq!(filter.x, sort.x + sort.w + 16.0);
 }
 

@@ -96,6 +96,11 @@ pub fn clock(ms: i64) -> String {
 /// The MIDDOT is what separates this from [`episode_ordinal`]'s `S1, E3`, and the two are kept
 /// apart deliberately: this one is a printed mark on artwork, sized and inked as its own line,
 /// while the ordinal is a run inside sentences elsewhere in the app.
+/// **What separates two facts in one run of text: space, never a dot.** JF Native shows no `·`
+/// between words (the owner's call); a fact joined into a string sits this far from the next, the
+/// same air a separately drawn dot left behind (`theme::TEXT_SEPARATOR`, now transparent).
+pub const GAP: &str = "   ";
+
 pub fn episode_address(season: i64, index: i64) -> String {
     let mut parts: Vec<String> = Vec::new();
     if season > 0 {
@@ -104,7 +109,7 @@ pub fn episode_address(season: i64, index: i64) -> String {
     if index > 0 {
         parts.push(plx_platform::i18n::msg::core_episode(index));
     }
-    parts.join(" \u{b7} ")
+    parts.join(" ")
 }
 
 /// A collection's size — `"1 item"`, `"12 items"`. ONE formatter for the collection page's meta
@@ -145,7 +150,7 @@ pub fn shared_by(handle: &str) -> Option<String> {
 /// they read identically to the first. It was three separate literals before, with nothing keeping
 /// them in step.
 pub fn episode_kicker(season: i64, index: i64, title: &str) -> String {
-    format!("{} \u{b7} {title}", episode_ordinal(season, index))
+    format!("{}{GAP}{title}", episode_ordinal(season, index))
 }
 
 /// The media badge for a video version — `"4K"` / `"1080p"` / `"SD"`, or None when the item has no

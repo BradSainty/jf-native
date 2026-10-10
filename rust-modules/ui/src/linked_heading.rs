@@ -111,7 +111,7 @@ impl<'a> LinkedHeading<'a> {
         match (self.total, self.count.is_empty()) {
             (0, _) => self.count.to_owned(),
             (n, true) => n.to_string(),
-            (n, false) => format!("{n} \u{b7} {}", self.count),
+            (n, false) => format!("{n}{}{}", crate::fmt::GAP, self.count),
         }
     }
 
@@ -555,7 +555,7 @@ mod tests {
         assert_eq!(counted.measure(&measure).note, "12");
         assert!(counted.measure(&measure).run_w > plain.run_w);
         assert_eq!(LinkedHeading::heading("Saga", "friend").total(12).measure(&measure).note,
-            "12 \u{b7} friend");
+            "12   friend");
         assert_eq!(LinkedHeading::heading("Saga", "friend").measure(&measure).note, "friend");
         assert_eq!(LinkedHeading::heading("Saga", "").total(0).measure(&measure).note, "");
     }

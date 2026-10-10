@@ -81,7 +81,7 @@ impl LibraryScreen {
                 (Some(genre), true) => plx_platform::i18n::msg::browse_library_genre_unwatched(genre),
             })
         };
-        Chip { name, value: CString::new(format!(" · {value}")).unwrap_or_default(), note: None }
+        Chip { name, value: CString::new(format!("{}{value}", plx_ui::fmt::GAP)).unwrap_or_default(), note: None }
     }
 
     pub(super) fn toolbar_chip_rect<H: LibraryLike>(&self, elem: u32, cx: &Cx<'_, H>, at: At) -> Rect {

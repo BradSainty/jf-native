@@ -454,6 +454,7 @@ fn frame_clear_alpha(r: f32, g: f32, b: f32, a: f32) {
         if SUPPRESS_FRAME_CLEAR.with(|v|v.get()) { return; }
         backdrop::paint(backdrop::canvas(),
             vec![0,r.to_bits() as u64,g.to_bits() as u64,b.to_bits() as u64,a.to_bits() as u64]);
+        ground_sky(r, g, b, a);
         return;
     }
     // A frozen page must not clear: the cached host quad is already on the framebuffer and this is
@@ -469,6 +470,22 @@ fn frame_clear_alpha(r: f32, g: f32, b: f32, a: f32) {
             glClear(GL_COLOR_BUFFER_BIT);
         })
     });
+    ground_sky(r, g, b, a);
+}
+
+/// **The top of JF Native's ground**: a clear to the app ground ([`tokens::CLEAR_RGB`]) is the dark
+/// stop of the owner's gradient, and this lays its lighter top over it — [`tokens::GROUND_TOP`] at
+/// the top edge, falling to the ground at [`tokens::GROUND_SKY`] of the panel, solid below. One
+/// dithered ambient quad (the wash's own, so it does not band), drawn wherever a page clears to the
+/// ground, so every page has the same sky without each screen having to paint it. Any other clear
+/// (the transparent punch to the video plane, a test's colour) is left as it was.
+fn ground_sky(r: f32, g: f32, b: f32, a: f32) {
+    if a < 1.0 || (r, g, b) != tokens::CLEAR_RGB {
+        return;
+    }
+    let (top, ground) = (tokens::GROUND_TOP, tokens::GROUND);
+    draw_ambient(0.0, 0.0, SCR_W, SCR_H * tokens::GROUND_SKY, 1.0,
+        top.as_ptr(), top.as_ptr(), ground.as_ptr(), ground.as_ptr());
 }
 
 /// Run `clear`, bracketed by the installed probe when [`arm_clear_probe`] offered it this frame.

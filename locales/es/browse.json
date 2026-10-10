@@ -114,9 +114,9 @@
   "browse.person.library_one": "{titles} en esta biblioteca",
   "browse.person.library_both": "{films} y {shows} en esta biblioteca",
   "browse.person.credits": {
-    "one": "{count} crédito · Más recientes primero.",
-    "many": "{count} créditos · Más recientes primero.",
-    "other": "{count} créditos · Más recientes primero."
+    "one": "{count} crédito   Más recientes primero.",
+    "many": "{count} créditos   Más recientes primero.",
+    "other": "{count} créditos   Más recientes primero."
   },
   "browse.detail.seasons": {
     "one": "{count} temporada",

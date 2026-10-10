@@ -16,7 +16,7 @@ use super::layout::{self, Layout, ShelfRun, shelf_pitch, COLS, CONTENT_TOP, GRID
 fn grid_labels_identify_episodes_and_seasons() {
     let episode = PmsMovie { kind: 3, title: "The Bear".into(), show_title: "The Bear".into(),
         season_index: 3, ep_index: 4, ..Default::default() };
-    assert_eq!(super::parts::grid_label(&episode).title.unwrap().to_str().unwrap(), "S3 · E4",
+    assert_eq!(super::parts::grid_label(&episode).title.unwrap().to_str().unwrap(), "S3 E4",
         "an episode without its own title must identify the episode, not repeat the show");
     let season = PmsMovie { kind: 2, title: "Season 3".into(), show_title: "The Bear".into(),
         season_index: 3, year: 2024, ..Default::default() };
@@ -341,10 +341,10 @@ fn a_focused_poster_tile_always_fills_the_caption_rung_it_reserves() {
         assert_eq!(caption(&l), "");
         // …and an episode with no title of its own falls back to its address on the title rung
         let sh = shelf(vec![dated(ep(3, 4, "", "The Bear"))]);
-        assert_eq!(title(&shelf_label(&sh, 0)), "S3 \u{b7} E4");
+        assert_eq!(title(&shelf_label(&sh, 0)), "S3 E4");
         // an episode whose title IS the show's says it once, as the address
         let sh = shelf(vec![dated(ep(2, 1, "X", "X"))]);
-        assert_eq!(title(&shelf_label(&sh, 0)), "S2 \u{b7} E1");
+        assert_eq!(title(&shelf_label(&sh, 0)), "S2 E1");
 
         // …and a POSTER shelf is untouched: its tiles still name the item on focus
         let mut poster = shelf(vec![dated(ep(3, 4, "Violet", "The Bear"))]);

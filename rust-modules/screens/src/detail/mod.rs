@@ -3136,7 +3136,7 @@ fn hero_blurb<'a>(
                 let lead = if ep.title.is_empty() {
                     format!("{ordinal}: ")
                 } else {
-                    format!("{ordinal} \u{b7} {}: ", ep.title)
+                    format!("{ordinal}{}{}: ", plx_ui::fmt::GAP, ep.title)
                 };
                 return (lead, ep.summary.clone());
             }
@@ -4319,7 +4319,7 @@ impl DetailScreen {
         } else {
             ep.title.clone()
         };
-        let context = format!("{}  \u{b7}  {}", d.title, plx_ui::fmt::episode_ordinal(ep.season, ep.index));
+        let context = format!("{}{}{}", d.title, plx_ui::fmt::GAP, plx_ui::fmt::episode_ordinal(ep.season, ep.index));
         let resume_ns = play_resume_ns(from_start, ep.resume_ms, ep.dur_ms);
         let now_playing = plx_data::metadata::NowPlaying {
             is_episode: true,

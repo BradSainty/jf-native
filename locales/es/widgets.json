@@ -104,14 +104,14 @@
     "other": "{count} pistas"
   },
   "widgets.tracks.count_detail": {
-    "one": "{description} · {count} pista",
-    "many": "{description} · {count} pistas",
-    "other": "{description} · {count} pistas"
+    "one": "{description}   {count} pista",
+    "many": "{description}   {count} pistas",
+    "other": "{description}   {count} pistas"
   },
   "widgets.tracks.count_heading": {
-    "one": "{heading} · {count} PISTA",
-    "many": "{heading} · {count} PISTAS",
-    "other": "{heading} · {count} PISTAS"
+    "one": "{heading}   {count} PISTA",
+    "many": "{heading}   {count} PISTAS",
+    "other": "{heading}   {count} PISTAS"
   },
   "widgets.reason.jail_help": "La reparación requiere un televisor con root y acceso a Homebrew Channel.",
   "widgets.tracks.empty": "No hay pistas",

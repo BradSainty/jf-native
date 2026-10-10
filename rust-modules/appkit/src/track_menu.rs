@@ -4229,7 +4229,7 @@ mod enhancement_menu_tests {
     #[test]
     fn a_converted_track_names_the_server_on_its_sub_line_and_a_playable_one_does_not() {
         let _g = plx_base::testlock::serial();
-        assert_eq!(audio_sub_line_for("AAC 7.1".into(), true), "AAC 7.1 \u{b7} converted by your server");
+        assert_eq!(audio_sub_line_for("AAC 7.1".into(), true), format!("AAC 7.1{}converted by your server", plx_ui::fmt::GAP));
         assert_eq!(audio_sub_line_for("Dolby Digital 5.1".into(), false), "Dolby Digital 5.1");
         assert_eq!(audio_sub_line_for(String::new(), true), "", "no descriptor, nothing to extend");
         // the capability answer it is fed: TrueHD is outside the profile's audio list, AC-3 is not

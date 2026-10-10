@@ -570,7 +570,7 @@ pub(super) fn subtitle(kind: Kind, item: &Item, handle: &str) -> String {
     if !handle.is_empty() {
         parts.push(handle.into());
     }
-    parts.join(" · ")
+    parts.join(plx_ui::fmt::GAP)
 }
 
 fn source_label(source: &ScopeSource) -> String {
@@ -646,7 +646,7 @@ fn scope_text(sources: &[ScopeSource]) -> Option<String> {
             .filter(|source| !source.household && !source.handle.is_empty());
         if let (2, Some(source), None) = (live.len(), shares.next(), shares.next()) {
             if source_label(source) != source.handle {
-                line.push_str(" · ");
+                line.push_str(plx_ui::fmt::GAP);
                 line.push_str(&source.handle);
             }
         }
@@ -956,7 +956,7 @@ mod tests {
     fn a_household_source_is_named_while_a_friends_share_stays_credited_and_counted() {
         assert_eq!(
             scope_text(&[household("nas-home"), share("Film Club", "friend")]).unwrap(),
-            "Searching nas-home and Film Club · friend"
+            "Searching nas-home and Film Club   friend"
         );
         let many = vec![
             household("nas-home"),
@@ -986,7 +986,7 @@ mod tests {
     fn two_live_sources_name_both_and_attribute_the_share() {
         assert_eq!(
             scope_text(&[own("nas-home"), share("Film Club", "friend")]).unwrap(),
-            "Searching nas-home and Film Club · friend"
+            "Searching nas-home and Film Club   friend"
         );
     }
 
@@ -1043,7 +1043,7 @@ mod tests {
     fn an_unreachable_source_names_itself_and_what_is_left() {
         assert_eq!(
             scope_text(&[own("nas-home"), down(share("Film Club", "friend"))]).unwrap(),
-            "Film Club unreachable · results from nas-home only"
+            "Film Club unreachable, results from nas-home only"
         );
     }
 
@@ -1051,7 +1051,7 @@ mod tests {
     fn your_own_server_going_quiet_reads_the_same_way() {
         assert_eq!(
             scope_text(&[down(own("nas-home")), share("Film Club", "friend")]).unwrap(),
-            "nas-home unreachable · results from Film Club only"
+            "nas-home unreachable, results from Film Club only"
         );
     }
 
@@ -1088,7 +1088,7 @@ mod tests {
     fn an_unnamed_source_still_produces_a_sentence() {
         assert_eq!(
             scope_text(&[own(""), share("Film Club", "friend")]).unwrap(),
-            "Searching your server and Film Club · friend"
+            "Searching your server and Film Club   friend"
         );
         assert_eq!(
             scope_text(&[own("nas-home"), share("", "")]).unwrap(),
@@ -1191,7 +1191,7 @@ mod tests {
             ..Default::default()
         });
         assert_eq!(subtitle(Kind::Movie, &film, ""), "2005");
-        assert_eq!(subtitle(Kind::Movie, &film, "friend"), "2005 · friend");
+        assert_eq!(subtitle(Kind::Movie, &film, "friend"), "2005   friend");
         let ep = Item::Media(plx_data::pms::PmsMovie {
             kind: 3,
             title: "A Grand Day Out".into(),
@@ -1204,7 +1204,7 @@ mod tests {
         assert_eq!(subtitle(Kind::Episode, &ep, ""), "11/4/1989");
         assert_eq!(
             subtitle(Kind::Episode, &ep, "friend"),
-            "11/4/1989 · friend"
+            "11/4/1989   friend"
         );
         let undated = Item::Media(plx_data::pms::PmsMovie {
             kind: 3,
@@ -1241,7 +1241,7 @@ mod tests {
             ..Default::default()
         });
         assert_eq!(subtitle(Kind::Collection, &full(12), ""), "12 items");
-        assert_eq!(subtitle(Kind::Collection, &full(1), "friend"), "1 item · friend");
+        assert_eq!(subtitle(Kind::Collection, &full(1), "friend"), "1 item   friend");
         assert_eq!(subtitle(Kind::Collection, &full(0), ""), "0 items");
     }
 
