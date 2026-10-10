@@ -107,6 +107,9 @@ pub(super) struct Layout {
     /// An empty answer under the heading row: the document keeps one grid pitch below the
     /// heading for its read-out, so the read-out scrolls with the page and never lands on a shelf.
     pub empty: bool,
+    /// Whether the grid's heading row (its "All" heading and the TYPE · SORT · FILTER chips)
+    /// takes room above the grid. JF Native draws none, so the grid starts where the heading was.
+    head: bool,
     episodes: bool,
     /// Total height of the shelf run: the sequential sum of every shelf pitch.
     shelf_run: f32,
@@ -117,7 +120,8 @@ impl Layout {
     pub(super) const SHAPE: &'static str = "LibraryLayout{libraries:bool,shelves:u32,rows:u32,grid_head:bool,status:bool,empty:bool,episodes:bool,shelf_run:f32,grid_bands:[(row:u32,expansion:f32)]}";
 
     pub(super) fn write(&self, c: &mut plx_machine::machine::Canon) {
-        let Self { libraries, shelves, rows, grid_head, status, empty, episodes, shelf_run, grid_bands } = self;
+        // `head` is a build constant (`SHOW_TOOLBAR`), not state a frame can change: not written.
+        let Self { libraries, shelves, rows, grid_head, status, empty, head: _, episodes, shelf_run, grid_bands } = self;
         c.bool(*libraries).u32(*shelves as u32).u32(*rows as u32).bool(*grid_head).bool(*status).bool(*empty).bool(*episodes);
         c.f32(*shelf_run);
         c.seq(grid_bands.iter().filter(|band| band.row != usize::MAX).count());
@@ -134,6 +138,7 @@ impl Layout {
             grid_head,
             status: false,
             empty: false,
+            head: true,
             episodes: false,
             shelf_run: shelf_pitches.iter().sum::<f32>(),
             grid_bands: [GridBand::CLOSED; MAX_GRID_BANDS],
@@ -145,6 +150,8 @@ impl Layout {
     }
 
     pub(super) fn with_episodes(self, episodes: bool) -> Self { Self { episodes, ..self } }
+
+    pub(super) fn with_head(self, head: bool) -> Self { Self { head, ..self } }
 
     pub(super) fn with_grid_bands(mut self, bands: [GridBand; MAX_GRID_BANDS]) -> Self {
         self.grid_bands = bands;
@@ -215,7 +222,7 @@ impl Layout {
     }
 
     pub(super) fn grid_top(&self) -> f32 {
-        self.grid_block_top() + if self.grid_head { GRID_HEAD_H } else { 0.0 }
+        self.grid_block_top() + if self.grid_head && self.head { GRID_HEAD_H } else { 0.0 }
     }
 
     pub(super) fn row_y(&self, row: usize, scroll: f32) -> f32 {

@@ -150,6 +150,12 @@ fn shelves_settled(hubs: plx_data::stores::browse::HubsView<'_>) -> bool {
     hubs.id().is_none() || hubs.publication() == plx_data::browse::section_hubs::Publication::Committed
 }
 
+/// **JF Native shows no control row above a library's grid**: a tab is its posters, sorted by title,
+/// with nothing to sort or filter. The row (`toolbar.rs`) is upstream's and stays intact behind
+/// this switch; the inherited suites still drive it (`test` and the application's `test-support` builds), and the shipped layout is
+/// graded by the tests that call [`LibraryScreen::hide_toolbar`].
+const SHOW_TOOLBAR: bool = cfg!(any(test, feature = "test-support"));
+
 /// A retained page body, also remountable from its entry-owned LibraryMemory.
 pub struct LibraryScreen {
     entry: EntryId,
@@ -164,6 +170,9 @@ pub struct LibraryScreen {
     pair: MasterDetail<RailPart, GridPart, Regions>,
     /// The heading row's group: per section and epoch, registered beside the pair's.
     toolbar: GroupId,
+    /// Whether the grid's heading row — "All" and the TYPE · SORT · FILTER chips — is shown
+    /// ([`SHOW_TOOLBAR`]).
+    show_toolbar: bool,
     libraries: Vec<(u32, usize)>,
     shelves: Vec<HubShelf>,
     section: Option<LibrarySectionIdentity>,
@@ -235,6 +244,7 @@ impl LibraryScreen {
                 MasterDetailPolicy::new(MasterSide::Right, Follow::Live), Regions,
             ),
             toolbar: TOOLBAR_GROUP,
+            show_toolbar: SHOW_TOOLBAR,
             libraries: Vec::new(), shelves: Vec::new(), section: None, epoch: None, query: None, grid_reset_pending: false,
             shelf_publication: None, layout, target_layout: layout,
             run: ShelfRun::default(), target_run: ShelfRun::default(),
@@ -279,6 +289,11 @@ impl LibraryScreen {
     /// The heading row's group for the section on the page.
     #[cfg(any(test, feature = "test-support"))]
     pub fn toolbar_group(&self) -> GroupId { self.toolbar }
+    /// Is the grid's heading row on the page now: shown at all ([`SHOW_TOOLBAR`]) and laid out.
+    fn has_toolbar(&self) -> bool { self.show_toolbar && self.layout.grid_head }
+    /// The shipped page: no heading row above the grid.
+    #[cfg(test)]
+    pub(super) fn hide_toolbar(&mut self) { self.show_toolbar = false; }
 
     /// `(page alpha, focused shelf tile's pop scale)` — what a viewer sees of a focus arrival.
     /// The scale is `None` when focus is not on a shelf tile; it is the pop the draw paints, so a
@@ -626,9 +641,9 @@ impl LibraryScreen {
         let episodes = self.layout.is_episodes();
         self.layout = if self.readout == Readout::Failed {
             Layout::failed(!self.libraries.is_empty(), self.run.pitches())
-        } else { Layout::new(!self.libraries.is_empty(), self.run.pitches(), rows, grid_head) }.with_episodes(episodes)
+        } else { Layout::new(!self.libraries.is_empty(), self.run.pitches(), rows, grid_head).with_head(self.show_toolbar) }.with_episodes(episodes)
             .with_grid_bands(self.pair.detail.band_geometry());
-        self.target_layout = Layout::new(!self.libraries.is_empty(), self.target_run.pitches(), rows, grid_head).with_episodes(episodes)
+        self.target_layout = Layout::new(!self.libraries.is_empty(), self.target_run.pitches(), rows, grid_head).with_head(self.show_toolbar).with_episodes(episodes)
             .with_grid_focus(grid_focus.map(|index| index / self.layout.cols()));
         if self.grid_reset_pending {
             self.scroll_target = self.target_layout.row_reveal(0);
@@ -656,7 +671,9 @@ impl LibraryScreen {
             Some(Block::LibraryRow) => LIBRARY_GROUP,
             Some(Block::Shelf(index)) => self.shelves[index].entry_group(),
             Some(Block::Status) => STATUS_GROUP,
-            Some(Block::Toolbar | Block::Grid(_)) => self.toolbar,
+            Some(Block::Toolbar | Block::Grid(_)) if self.show_toolbar => self.toolbar,
+            // no heading row: the page starts at the grid itself
+            Some(Block::Toolbar | Block::Grid(_)) => self.pair.groups_config().detail,
             None => STRIP,
         }
     }
@@ -1341,7 +1358,7 @@ impl<H: LibraryLike> Focusable<H> for LibraryScreen {
             }
             out.push(shelf);
         }
-        if self.layout.grid_head {
+        if self.has_toolbar() {
             out.push(row_group(self.toolbar, self.toolbar_elems().len(), self.toolbar_chip_rect(self.toolbar_elems()[0], cx, At::SpringTarget), ElemKind::Control));
         }
         if self.readout == Readout::Failed {
@@ -1361,7 +1378,7 @@ impl<H: LibraryLike> Focusable<H> for LibraryScreen {
         if self.libraries.iter().any(|(key, _)| key == elem) { return Some(LIBRARY_GROUP); }
         if let Some(row) = self.shelves.iter().find(|row| row.elems.contains(elem)) { return Some(row.group); }
         if let Some((group, _)) = self.shelves.iter().find_map(|row| row.heading.filter(|(_, e)| e == elem)) { return Some(group); }
-        if self.layout.grid_head && self.toolbar_elems().contains(elem) { return Some(self.toolbar); }
+        if self.has_toolbar() && self.toolbar_elems().contains(elem) { return Some(self.toolbar); }
         if self.readout == Readout::Failed && *elem == RETRY { return Some(STATUS_GROUP); }
         self.pair.group_of(elem, cx)
     }
@@ -1388,7 +1405,7 @@ impl<H: LibraryLike> Focusable<H> for LibraryScreen {
             self.shelf_rect_at(row, col, cx)
         } else if let Some(index) = self.shelves.iter().position(|row| row.heading_elem() == Some(*elem)) {
             self.heading_rect(index, cx, at)?
-        } else if self.toolbar_elems().contains(elem) && self.layout.grid_head { self.toolbar_chip_rect(*elem, cx, at) }
+        } else if self.toolbar_elems().contains(elem) && self.has_toolbar() { self.toolbar_chip_rect(*elem, cx, at) }
         else if *elem == RETRY && self.readout == Readout::Failed { self.status_rect(cx)? }
         else { return None };
         Some(Placed { rect, rest_rect: rect, clip: content_clip(), index: None })
@@ -1552,7 +1569,7 @@ impl<H: LibraryLike> Screen<H> for LibraryScreen {
             if let Some((heading, _)) = row.heading { document.push(heading); }
             document.push(row.group);
         }
-        if self.layout.grid_head { document.push(self.toolbar); }
+        if self.has_toolbar() { document.push(self.toolbar); }
         if self.readout == Readout::Failed { document.push(STATUS_GROUP); }
         if self.pair.detail.total() > 0 { document.push(self.pair.groups_config().detail); }
         for pair in document.windows(2) {
@@ -1560,7 +1577,9 @@ impl<H: LibraryLike> Screen<H> for LibraryScreen {
             out.push(Link { from: pair[1], dir: Dir::Up, to: pair[0] });
         }
         self.pair.links(out);
-        out.push(Link { from: self.toolbar, dir: Dir::Right, to: self.pair.groups_config().master });
+        if self.has_toolbar() {
+            out.push(Link { from: self.toolbar, dir: Dir::Right, to: self.pair.groups_config().master });
+        }
     }
     fn as_any(&self) -> Option<&dyn std::any::Any> { Some(self) }
 }

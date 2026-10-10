@@ -958,6 +958,36 @@ fn toolbar_stops_use_the_shared_value_chip_measurement() {
     assert_eq!(filter.x, sort.x + sort.w + 16.0);
 }
 
+/// **The shipped page (JF Native)**: no heading row above the grid. The grid starts where the
+/// row was, no TYPE · SORT · FILTER chip is placed or focusable, and the page's head — what DOWN
+/// from the strip reaches — is the grid itself.
+#[test]
+fn the_shipped_page_has_no_heading_row_and_starts_at_the_grid() {
+    let _guard = plx_base::testlock::serial();
+    let fixture = Fixture::new();
+    let cx = fixture.cx(None);
+    let with_row = fixture.screen();
+    let mut page = LibraryScreen::new(ENTRY, InstanceId(19), SecKind::Movie);
+    page.hide_toolbar();
+    page.sync(&cx);
+    assert!(page.layout.grid_head, "the fixture lists a grid");
+    assert_eq!(page.layout.grid_top(), page.layout.grid_block_top(), "no room is kept for a heading row");
+    assert!(with_row.layout.grid_top() > with_row.layout.grid_block_top());
+    for chip in [TYPE, SORT, FILTER] {
+        assert!(page.place(&chip, &cx, At::Drawn).is_none(), "chip {chip} is not on the page");
+        assert!(<LibraryScreen as Focusable<HostFixture>>::group_of(&page, &chip, &cx).is_none());
+    }
+    let mut groups = Vec::new();
+    page.groups(&cx, &mut groups);
+    assert!(!groups.iter().any(|g| g.id == page.toolbar_group()), "no toolbar group is registered");
+    let grid = page.pair.groups_config().detail;
+    assert_eq!(page.first_group(), grid, "the page's head is the grid");
+    let mut links = Vec::new();
+    <LibraryScreen as plx_ui::screen::Screen<HostFixture>>::links(&page, &mut links);
+    assert!(links.iter().any(|l| l.from == STRIP && l.dir == Dir::Down && l.to == grid), "DOWN from the strip lands in the grid");
+    assert!(!links.iter().any(|l| l.from == page.toolbar_group() || l.to == page.toolbar_group()));
+}
+
 #[test]
 fn section_grid_memories_do_not_overwrite_one_another() {
     let _guard = plx_base::testlock::serial();

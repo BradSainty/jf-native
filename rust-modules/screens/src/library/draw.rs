@@ -201,7 +201,7 @@ impl LibraryScreen {
     fn draw_grid_header<H: LibraryLike>(&self, f: &DrawFrame<'_, '_, H>) {
         let p = f.painter.alpha(f.page_alpha * self.page_fade.alpha());
         let y = CONTENT_TOP + self.layout.grid_block_top() - self.scroll.pos;
-        if !self.layout.grid_head || !document_band_visible(p, y, layout::GRID_HEAD_H, 1.0) { return; }
+        if !self.has_toolbar() || !document_band_visible(p, y, layout::GRID_HEAD_H, 1.0) { return; }
         let env = Env::inert();
         for &elem in self.toolbar_elems() {
             let chip = self.toolbar_chip(elem, f.cx);
@@ -233,7 +233,7 @@ impl LibraryScreen {
                 heading.stop(f, rect, self.key(elem));
             }
         }
-        if self.layout.grid_head { for &elem in self.toolbar_elems() { self.stop(elem, f); } }
+        if self.has_toolbar() { for &elem in self.toolbar_elems() { self.stop(elem, f); } }
         if self.readout == Readout::Failed { self.stop(RETRY, f); }
     }
 
