@@ -1811,19 +1811,33 @@ pub fn hero_metadata(p: Painter, r: Rect, parts: &[&str], quality: Option<&str>,
     identity_row(Some(p), r, parts, quality, chips, theme::TEXT_READING, measure);
 }
 
+/// **JF Native spaces the identity band evenly** (the owner's call): words and chips one
+/// `detail_layout::FACT_GAP` apart, with no dot. Upstream's `SM` run / `XS` chips stay behind this.
+const EVEN_IDENTITY_GAPS: bool = true;
+
 /// The one layout of the identity band, painted with `paint` or only measured without it.
 fn identity_row(paint: Option<Painter>, r: Rect, parts: &[&str], resolution: Option<&str>, chips: &[&str], ink: [f32; 4], measure: &dyn plx_machine::machine::Measure) -> f32 {
     use crate::hstack::{Flow, Item};
+    // JF Native: every member, word or chip, stands one even `detail_layout::FACT_GAP` from the
+    // next. The run's dot is inked transparent (`theme::TEXT_SEPARATOR`), so its pads are set to
+    // leave exactly that gap around it.
+    let (chip_gap, run_gap, pad) = if EVEN_IDENTITY_GAPS {
+        let gap = crate::detail_layout::FACT_GAP;
+        let dot = measure.width(c"\u{b7}", theme::hero::IDENTITY_SIZE, false);
+        (gap, gap, ((gap - dot) * 0.5).max(0.0))
+    } else {
+        (theme::space::XS, theme::space::SM, theme::space::SM)
+    };
     let labels: Vec<&str> = resolution.into_iter().chain(chips.iter().copied()).collect();
     let widths: Vec<Item> = labels.iter().map(|s| Item::new(keyline_chip_w(s, measure))).collect();
-    let chip_w = HStack::new(&widths, theme::space::XS, StackAlign::Leading(0.0)).width();
-    let budget = (r.w - chip_w - if labels.is_empty() { 0.0 } else { theme::space::SM }).max(0.0);
+    let chip_w = HStack::new(&widths, chip_gap, StackAlign::Leading(0.0)).width();
+    let budget = (r.w - chip_w - if labels.is_empty() { 0.0 } else { run_gap }).max(0.0);
     let cy = r.y + r.h * 0.5;
     let y = plx_gfx::text::text_vcenter_y(theme::hero::IDENTITY_SIZE, 0, cy);
-    let run = DottedRun::new(theme::hero::IDENTITY_SIZE, ink, theme::space::SM).measured(measure);
+    let run = DottedRun::new(theme::hero::IDENTITY_SIZE, ink, pad).measured(measure);
     let natural = run.width(measure, parts);
     let text_w = if natural > budget {
-        let joined = parts.iter().filter(|s| !s.is_empty()).copied().collect::<Vec<_>>().join(" \u{b7} ");
+        let joined = parts.iter().filter(|s| !s.is_empty()).copied().collect::<Vec<_>>().join(crate::fmt::GAP);
         let elided = plx_gfx::text::elide_by(&joined, budget, false,
             |text| measure.width_str(text, theme::hero::IDENTITY_SIZE, false));
         if let (Some(p), Ok(text)) = (paint, CString::new(elided.as_str())) {
@@ -1835,8 +1849,8 @@ fn identity_row(paint: Option<Painter>, r: Rect, parts: &[&str], resolution: Opt
     } else {
         natural
     };
-    let mut flow = Flow::new(r.x, theme::space::XS);
-    flow.push(if text_w > 0.0 { Item::new(text_w).after(theme::space::SM) } else { Item::absent() });
+    let mut flow = Flow::new(r.x, chip_gap);
+    flow.push(if text_w > 0.0 { Item::new(text_w).after(run_gap) } else { Item::absent() });
     for label in labels {
         flow.place(|x| Item::new(match paint {
             Some(p) => keyline_chip(p, x, cy, label, ink, measure),

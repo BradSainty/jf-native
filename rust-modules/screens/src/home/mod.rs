@@ -4072,12 +4072,27 @@ fn hero_action(hero: &PmsMovie) -> (std::borrow::Cow<'static, std::ffi::CStr>, O
     (Cow::Borrowed(plx_appkit::hero_layout::play_label(resumes)), None)
 }
 
+/// **JF Native's billboard line names the year alone** (the owner's call): no "Movie"/"TV Show" —
+/// the artwork already says which — and no length, genres, quality or rating, which the detail page
+/// carries; an episode names its address. Nothing when there is no year. Upstream's line stays
+/// behind this switch.
+const HERO_YEAR_ONLY: bool = true;
+
 fn hero_line(hero: &PmsMovie) -> Option<HeroLine<'_>> {
     use plx_data::pms::{KIND_EPISODE, KIND_MOVIE, KIND_SHOW};
     use plx_platform::i18n::msg;
     use plx_ui::fmt;
     let is_episode = hero.kind == KIND_EPISODE;
     let is_show = hero.kind == KIND_SHOW;
+    if HERO_YEAR_ONLY && (hero.kind == KIND_MOVIE || is_show || is_episode) {
+        let (identity, date) = if is_episode {
+            (fmt::episode_address(i64::from(hero.season_index), i64::from(hero.ep_index)), String::new())
+        } else {
+            (String::new(), if hero.year > 0 { hero.year.to_string() } else { String::new() })
+        };
+        if identity.is_empty() && date.is_empty() { return None; }
+        return Some(HeroLine::Metadata { identity, date, length: String::new(), genres: String::new(), quality: None, rating: "" });
+    }
     // A movie, a show and an episode read their identity band whatever their watch state: the
     // owner expects "Movie • Year • Length" on every one (v0.10.0 rc1 — a watched film showed its
     // plot instead). Only the kinds with no such band (a season, a collection) read a premise.
