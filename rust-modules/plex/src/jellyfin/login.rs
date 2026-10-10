@@ -132,10 +132,18 @@ pub fn origin_of(url: &str) -> Option<Origin> {
     Some(origin)
 }
 
-/// The developer override for discovery (`PLXNATIVE_JF_SERVER`), for a simulator on a network
-/// where the server cannot hear a broadcast.
+/// A server address given rather than discovered, for a server no broadcast or LAN sweep can find
+/// (behind a reverse proxy on a domain, in a container network): `jellyfin-server.txt` in the
+/// app's own directory — added to the package at install time, so an address never has to be
+/// committed — or, on the simulator, `PLXNATIVE_JF_SERVER`.
 pub fn server_override() -> Option<String> {
-    std::env::var("PLXNATIVE_JF_SERVER").ok().filter(|s| !s.trim().is_empty())
+    let from_file = std::fs::read_to_string(plx_base::paths::in_app_dir("jellyfin-server.txt"))
+        .ok()
+        .map(|s| s.trim().to_string());
+    from_file
+        .filter(|s| !s.is_empty())
+        .or_else(|| std::env::var("PLXNATIVE_JF_SERVER").ok().map(|s| s.trim().to_string()))
+        .filter(|s| !s.is_empty())
 }
 
 /// What the sign-in screen shows beside the code: the address the user should approve it on.
