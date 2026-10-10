@@ -371,6 +371,11 @@ pub fn item(it: &Value, env: &Env) -> Option<Value> {
     }
     o.insert("index".into(), json!(int(it, "IndexNumber")));
     o.insert("childCount".into(), json!(int(it, "ChildCount")));
+    if kind == "collection" {
+        // PMS's `collectionSort` 0, release order: what `/library/collections/{rk}/children`
+        // answers in, so the Collection page names the order it actually shows.
+        o.insert("collectionSort".into(), json!(0));
+    }
 
     // Hierarchy.
     match kind {

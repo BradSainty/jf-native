@@ -24,6 +24,7 @@ fn strip_keys(directory: DirectoryView<'_>) -> Vec<u32> {
     keys.extend((0..directory.tab_count()).filter_map(|i| directory.tab_kind(i)).map(|kind| match kind {
         SecKind::Movie => widgets::TAB_KEY_MOVIES,
         SecKind::Show => widgets::TAB_KEY_SHOWS,
+        SecKind::Collection => widgets::TAB_KEY_COLLECTIONS,
     }));
     keys.push(widgets::TAB_KEY_WATCHLIST);
     keys.push(widgets::TAB_KEY_SEARCH);
@@ -39,6 +40,7 @@ fn pill_in(i: usize, keys: &[u32]) -> Pill {
     match keys.get(i).copied() {
         Some(widgets::TAB_KEY_MOVIES) => Pill::Section(SecKind::Movie),
         Some(widgets::TAB_KEY_SHOWS) => Pill::Section(SecKind::Show),
+        Some(widgets::TAB_KEY_COLLECTIONS) => Pill::Section(SecKind::Collection),
         Some(widgets::TAB_KEY_WATCHLIST) => Pill::Watchlist,
         Some(widgets::TAB_KEY_SEARCH) => Pill::Search,
         _ => Pill::Home,
@@ -54,6 +56,7 @@ fn pill_index(pill: Pill, keys: &[u32]) -> Option<usize> {
         Pill::Home => widgets::TAB_KEY_HOME,
         Pill::Section(SecKind::Movie) => widgets::TAB_KEY_MOVIES,
         Pill::Section(SecKind::Show) => widgets::TAB_KEY_SHOWS,
+        Pill::Section(SecKind::Collection) => widgets::TAB_KEY_COLLECTIONS,
         Pill::Watchlist => widgets::TAB_KEY_WATCHLIST,
         Pill::Search => widgets::TAB_KEY_SEARCH,
     };
@@ -111,6 +114,7 @@ impl ChromeSnapshot {
                 widgets::TAB_KEY_HOME => TabFace::Label(plx_platform::i18n::msg::browse_chrome_home().into()),
                 widgets::TAB_KEY_MOVIES => TabFace::Label(plx_platform::i18n::msg::browse_kind_movies().into()),
                 widgets::TAB_KEY_SHOWS => TabFace::Label(plx_platform::i18n::msg::browse_kind_tv_shows().into()),
+                widgets::TAB_KEY_COLLECTIONS => TabFace::Label(plx_platform::i18n::msg::browse_kind_collections().into()),
                 widgets::TAB_KEY_WATCHLIST => TabFace::Icon(Icon::Bookmark),
                 _ => TabFace::Icon(Icon::Search),
             }).collect();

@@ -265,6 +265,8 @@ pub enum HomeTab {
     /// The Watchlist mark, before Search (docs/watchlist-plan.md §2.4 W45).
     Watchlist,
     Search,
+    /// JF Native: the Collections folder (`SecKind::Collection`).
+    Collections,
 }
 
 /// Addressed bootstrap/diagnostic intentions. They use the same owned step and focus engine as

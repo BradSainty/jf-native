@@ -959,13 +959,14 @@ impl LibraryScreen {
             fx.push(Fx::App(AppFx::Library(req)));
             return Handled::Yes;
         }
-        use plx_ui::widgets::{TAB_KEY_CHIP, TAB_KEY_HOME, TAB_KEY_MOVIES, TAB_KEY_SEARCH, TAB_KEY_SHOWS, TAB_KEY_WATCHLIST};
+        use plx_ui::widgets::{TAB_KEY_CHIP, TAB_KEY_COLLECTIONS, TAB_KEY_HOME, TAB_KEY_MOVIES, TAB_KEY_SEARCH, TAB_KEY_SHOWS, TAB_KEY_WATCHLIST};
         let req = match elem {
             TAB_KEY_HOME => Some(LibraryReq::Tab(HomeTab::Home)),
             TAB_KEY_MOVIES => Some(LibraryReq::Tab(HomeTab::Movies)),
             TAB_KEY_SHOWS => Some(LibraryReq::Tab(HomeTab::Shows)),
             TAB_KEY_SEARCH => Some(LibraryReq::Tab(HomeTab::Search)),
             TAB_KEY_WATCHLIST => Some(LibraryReq::Tab(HomeTab::Watchlist)),
+            TAB_KEY_COLLECTIONS => Some(LibraryReq::Tab(HomeTab::Collections)),
             TAB_KEY_CHIP => Some(LibraryReq::Account),
             _ => None,
         };
@@ -1595,8 +1596,8 @@ impl<H: LibraryLike> Screen<H> for LibraryScreen {
 impl LogicalState for LibraryScreen {
     fn write(&self, c: &mut Canon) {
         c.u32(self.entry.0).u32(self.instance.0);
-        c.u32(match self.kind { SecKind::Movie => 0, SecKind::Show => 1 });
-        c.option(self.wanted_kind, |c, kind| { c.u32(match kind { SecKind::Movie => 0, SecKind::Show => 1 }); });
+        c.u32(match self.kind { SecKind::Movie => 0, SecKind::Show => 1, SecKind::Collection => 2 });
+        c.option(self.wanted_kind, |c, kind| { c.u32(match kind { SecKind::Movie => 0, SecKind::Show => 1, SecKind::Collection => 2 }); });
         c.f32(self.scroll.pos).f32(self.scroll.vel).f32(self.scroll_target);
         c.option(self.restore_scroll, |c, value| { c.f32(value); });
         c.bool(self.live).bool(self.initial);

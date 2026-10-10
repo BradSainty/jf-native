@@ -98,6 +98,8 @@ pub const STRIP_SHOWS_ELEM: u32 = plx_ui::dispatch::STRIP_BASE + 2;
 pub const STRIP_SEARCH_ELEM: u32 = plx_ui::dispatch::STRIP_BASE + 3;
 pub const STRIP_ACCOUNT_ELEM: u32 = plx_ui::dispatch::STRIP_BASE + 4;
 pub const STRIP_WATCHLIST_ELEM: u32 = plx_ui::dispatch::STRIP_BASE + 5;
+/// JF Native's Collections pill ([`plx_ui::widgets::TAB_KEY_COLLECTIONS`]). After every upstream key, so none moves.
+pub const STRIP_COLLECTIONS_ELEM: u32 = plx_ui::widgets::TAB_KEY_COLLECTIONS;
 
 const MAX_ITEMS: usize = plx_data::pms::MAX_SHELF_ITEMS;
 /// **How much of a resting shelf's posters must stand above the bottom margin for the pointer to take
@@ -1847,6 +1849,7 @@ impl HomeScreen {
             STRIP_HOME_ELEM => HomeReq::Tab(HomeTab::Home),
             STRIP_MOVIES_ELEM => HomeReq::Tab(HomeTab::Movies),
             STRIP_SHOWS_ELEM => HomeReq::Tab(HomeTab::Shows),
+            STRIP_COLLECTIONS_ELEM => HomeReq::Tab(HomeTab::Collections),
             STRIP_SEARCH_ELEM => HomeReq::Tab(HomeTab::Search),
             STRIP_WATCHLIST_ELEM => HomeReq::Tab(HomeTab::Watchlist),
             STRIP_ACCOUNT_ELEM => HomeReq::Account,
@@ -1908,6 +1911,7 @@ impl HomeScreen {
                     HomeTab::Home => STRIP_HOME_ELEM,
                     HomeTab::Movies => STRIP_MOVIES_ELEM,
                     HomeTab::Shows => STRIP_SHOWS_ELEM,
+                    HomeTab::Collections => STRIP_COLLECTIONS_ELEM,
                     HomeTab::Search => STRIP_SEARCH_ELEM,
                     HomeTab::Watchlist => STRIP_WATCHLIST_ELEM,
                 };

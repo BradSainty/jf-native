@@ -1312,7 +1312,7 @@ impl<H: LibraryLike> Screen<H> for RecommendedScreen {
 impl LogicalState for RecommendedScreen {
     fn write(&self, c: &mut Canon) {
         c.u32(self.entry.0).u32(self.instance.0);
-        c.u32(match self.kind { SecKind::Movie => 0, SecKind::Show => 1 });
+        c.u32(match self.kind { SecKind::Movie => 0, SecKind::Show => 1, SecKind::Collection => 2 });
         c.f32(self.scroll.pos).f32(self.scroll.vel).f32(self.scroll_target);
         c.option(self.restore_scroll, |c, value| { c.f32(value); });
         c.bool(self.live).bool(self.initial).bool(self.sweep_down);
