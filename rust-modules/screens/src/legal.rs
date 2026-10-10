@@ -24,7 +24,7 @@ use super::registry::word;
 /// **The one contact address the application prints.**
 /// `every_document_prints_only_the_one_contact_address` scans the documents for stray `@`s;
 /// `screens::consent` imports it.
-pub const CONTACT_EMAIL: &str = "support@plxnative.com";
+pub const CONTACT_EMAIL: &str = "BradSainty@users.noreply.github.com";
 
 #[derive(Clone, Copy, PartialEq, Eq, Debug)]
 pub enum Page {

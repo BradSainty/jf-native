@@ -742,7 +742,7 @@
     "description": "browse auth offline_profile"
   },
   "browse.auth.insecure": {
-    "value": "Found your Jellyfin server, but couldn't connect to it securely (HTTPS). Check that your server allows secure connections, then try again.",
+    "value": "Found your Jellyfin server, but couldn't connect securely (HTTPS). Check that your server allows secure connections, then try again.",
     "description": "browse auth insecure"
   },
   "browse.auth.no_access": {

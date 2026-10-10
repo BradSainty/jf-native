@@ -1557,7 +1557,7 @@ pub(crate) unsafe fn construct(
     // the first thing a desktop shows, so the two builds spell it differently: the device keeps
     // the process-shaped name every log, `pidof` recipe and skill already uses.
     #[cfg(feature = "hostsim")]
-    let title = c"PlxNative";
+    let title = c"JF Native";
     #[cfg(not(feature = "hostsim"))]
     let title = c"plxnative";
     // A frame dump's drawable is exactly the window's size in points: it is the one desktop window
