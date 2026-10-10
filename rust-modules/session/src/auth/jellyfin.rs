@@ -139,7 +139,8 @@ pub(super) fn login_worker(epoch: u64, client_id: &str, output: &dyn owner::Obse
         address: origin.host().to_owned(),
         port: i64::from(origin.port()),
         token,
-        tier: Some(probe::configured_tier(origin.host())),
+        // Local whatever the address says: see `Client::link`.
+        tier: Some(probe::Location::Local),
         origin_url: origin.base(),
         ..Default::default()
     };
