@@ -8564,6 +8564,13 @@ pub fn demux(
                     ));
                 }
                 let dur = fmt_duration(fmt);
+                // A live Jellyfin remux/transcode declares no duration; the item's own runtime
+                // stands in, or there is no seek bar and no progress report.
+                let dur = if dur > 0 {
+                    dur
+                } else {
+                    plx_plex::jellyfin::runtime_ms_for_stream(&path).map_or(0, |ms| ms.saturating_mul(1000))
+                };
                 if dur > 0 {
                     SHARED
                         .duration_ns
