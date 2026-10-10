@@ -326,6 +326,9 @@ pub fn item(it: &Value, env: &Env) -> Option<Value> {
     let ud = it.get("UserData").cloned().unwrap_or(Value::Null);
     let series_id = s(it, "SeriesId");
     ids::remember(id, kind, series_id);
+    if int(it, "RunTimeTicks") > 0 {
+        super::remember_runtime(id, ticks_ms(int(it, "RunTimeTicks")));
+    }
 
     let mut o = Map::new();
     o.insert("type".into(), json!(kind));

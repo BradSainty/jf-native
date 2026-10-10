@@ -2084,6 +2084,19 @@ pub(super) fn build_stream(off: &plx_base::task::OffFrame, rk: &str, part: &str,
     let mut directplay = (audio_sel.is_some()
         || (tracks.is_empty() && (acodec.is_empty() || audio_direct_plays_with(&env.caps, env.direct_play_mode, acodec, 0, 0))))
         && mde.as_ref().is_some_and(|v| v.original && (!forced || !v.video_forbids_copy));
+    // What decided Original, in one line: the questions a device report has to answer first
+    // when a file that should direct-play is remuxed instead.
+    crate::player::log(&format!(
+        "route: original? local={} video_dp={video_dp} streamable={streamable} audio={} tracks=[{}] mde_original={} -> directplay={directplay}",
+        client.link() == Some(plx_plex::plex::probe::Location::Local),
+        audio_sel.as_ref().map_or("none".to_string(), |(i, c, id)| format!("#{i} {c} id={id}")),
+        tracks
+            .iter()
+            .map(|t| format!("{} {}ch{}", t.codec, t.channels, if t.default { " default" } else { "" }))
+            .collect::<Vec<_>>()
+            .join(", "),
+        mde.as_ref().map_or("none".to_string(), |v| v.original.to_string()),
+    ));
     if forced {
         let mut refused_raw = String::new();
         let failure = if part.is_empty() { Some(ForcedFailure::NoOriginal) }
