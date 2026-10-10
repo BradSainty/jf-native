@@ -61,7 +61,7 @@ body:
     attributes:
       label: Logs
       description: |
-        How to get them: https://plxnative.com/troubleshooting/#collecting-logs
+        How to get them: `ares-novacom -d tv --run "cat /tmp/com.jfnative.app.debug/plxnative-events.log"`
         Fetch before you reopen the app: the event log is emptied on every launch.
         Logs contain ratingKeys (item numbers on your server), so think before posting publicly.
       placeholder: Attach the log files here.

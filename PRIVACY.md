@@ -1,37 +1,25 @@
-# PlxNative Privacy Policy
+# JF Native Privacy Policy
 
-Applies to PlxNative 0.6.0. Last updated 9 November 2026.
+Applies to JF Native, a fork of PlxNative. Last updated 10 October 2026.
 
-## Who is responsible for PlxNative data
+## The short version
 
-Gleb Linnik is responsible only for data PlxNative stores locally and for optional reports you
-choose to share. Contact: `support@plxnative.com`.
+JF Native talks to **your Jellyfin server** and nothing else. It does not contact plex.tv or any
+Plex service, and the optional crash reports and product analytics inherited from PlxNative are
+**switched off** in this fork: the consent questions are never asked, and no report is sent. The
+sections on optional reports below are kept because they document the inherited code paths (and a
+test checks them against the code); in JF Native those paths never run.
 
-## Plex services
+## Who is responsible for JF Native data
 
-PlxNative is an independent client for Plex. To sign you in, discover servers and provide Plex
-account features, the app communicates directly with Plex services. Plex processes information
-received by those services under [Plex’s own Privacy
-Policy](https://www.plex.tv/about/privacy-legal/). PlxNative’s developer does not receive that
-information.
+The JF Native maintainer is responsible only for data the app stores locally on your television.
+Contact: `BradSainty@users.noreply.github.com`.
 
-Continue Watching artwork. For each title in a Continue Watching row, PlxNative asks Plex’s catalog
-(discover.provider.plex.tv) for the title’s own cover artwork. The request carries the title’s Plex
-catalog identifier (which your Plex Media Server lists with the title), the language of the app, the
-app’s client identifier and, only when the profile has one, its Plex account token, so it tells
-Plex which titles are in the Continue Watching row of the profile in use. Your Plex Media Server then fetches
-the picture itself from the image host that Plex’s answer names. The request is made when a
-title’s card is first shown and this television has no saved answer for it; again when the saved
-answer is more than a day old and the card is shown; again on a later start or after a profile
-switch when an earlier attempt saved nothing, and when the card is shown again after Plex’s catalog
-could not be reached (at most once every 45 seconds while it cannot be reached); and again after the saved artwork was removed to make room, by signing out, or
-by changing the app’s language. PlxNative’s developer does not receive these requests.
+## Jellyfin servers
 
-## Plex Media Servers
-
-To browse and play media, update watch progress and use server features, PlxNative communicates
-directly with the Plex Media Servers you select. Those requests are handled by the selected server
-and its operator. PlxNative’s developer does not receive them.
+To sign you in (Quick Connect), browse and play media, and update watch progress, JF Native
+communicates directly with the Jellyfin server you use. Those requests are handled by that server
+and its operator. The JF Native maintainer does not receive them.
 
 ## Data stored on this television
 
@@ -360,8 +348,8 @@ report is sent only when you press Send report; quote the Report ID it showed to
 
 ## Contact and non-affiliation
 
-Privacy questions may be sent to `support@plxnative.com`. Security vulnerabilities may be reported
-privately through GitHub Security Advisories for `GLinnik21/plx-native`.
+Privacy questions may be sent to `BradSainty@users.noreply.github.com`. Security vulnerabilities may be reported
+privately through GitHub Security Advisories for `BradSainty/jf-native`.
 
-PlxNative is an independent, unofficial application. It is not produced by, endorsed by, or
-affiliated with Plex, Inc. or LG Electronics Inc.
+JF Native is an independent, unofficial application. It is not produced by, endorsed by, or
+affiliated with the Jellyfin project, the PlxNative author or LG Electronics Inc.
