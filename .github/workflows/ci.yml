@@ -12,7 +12,8 @@ on:
     # A maintenance line (`release/vX.Y`, cut from a tag for a patch release) is a trunk of its own
     # for `release.yml`'s `line` input, so it gets the same push gate `main` does — otherwise the
     # first time a hotfix's changes are compiled in a clean checkout is the release run itself.
-    branches: [main, 'release/v*']
+    # JF Native: `jellyfin` is the fork's trunk and default branch, so it gets the push gate too.
+    branches: [main, 'release/v*', jellyfin]
     # This gate is host checks (lint + unit suite) and an ARM cross-build — expensive (#261 spent
     # ~20 runner-minutes on a README-only PR, #513 the same on issue templates and docs), and
     # neither stage reads prose, images or repository metadata. The policy: start from `'**'`,
@@ -551,7 +552,10 @@ jobs:
           key: ffmpeg-${{ runner.os }}-${{ runner.arch }}-${{ hashFiles('ci/build-ffmpeg.sh', 'ci/deps.py', 'ci/dependencies.json', 'ci/arm-cc.py', 'ci/check-link-evidence.py', 'ci/stage-link-evidence.py', '.github/actions/webos-ndk/action.yml') }}
 
       - name: Build
-        run: make WEBOS_SDK='${{ steps.ndk.outputs.sdk-dir }}' -j"$(nproc)"
+        # JF Native: RELEASE=1, so the TV build carries no developer overlays (the on-screen
+        # counter, the purple main-thread banner) and no /tmp trigger surface. It still installs
+        # under the debug id (the Package step's FLAVOR), beside any other install.
+        run: make RELEASE=1 WEBOS_SDK='${{ steps.ndk.outputs.sdk-dir }}' -j"$(nproc)"
 
       - name: Package
         # DELIBERATELY the developer id. This artifact is a DEV build — the whole point of a PR
@@ -561,7 +565,7 @@ jobs:
         # than over it. The release job is the only place `FLAVOR=stable` belongs (release.yml).
         # Named explicitly rather than inherited, so this is a decision on the page instead of a
         # default that moves if the Makefile's does.
-        run: make ipk FLAVOR=debug WEBOS_SDK='${{ steps.ndk.outputs.sdk-dir }}'
+        run: make ipk RELEASE=1 FLAVOR=debug WEBOS_SDK='${{ steps.ndk.outputs.sdk-dir }}'
 
       - name: Binary size budget
         # The STRIPPED binary `make ipk` just staged (the one inside the .ipk), not the unstripped
