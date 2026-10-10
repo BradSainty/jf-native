@@ -228,8 +228,17 @@ pub struct View {
     pub id: String,
     pub key: i64,
     pub name: String,
-    /// `movie` | `show` — the Plex section type.
+    /// `movie` | `show` | `collection` — the Plex section type. `collection` is Jellyfin's
+    /// Collections folder (the `boxsets` view): its listing is the user's collections.
     pub kind: &'static str,
+}
+
+impl View {
+    /// A library of films or shows, as opposed to the Collections folder: the views a Home
+    /// "Recently Added" row or a resume query reads, which ask for films and series by type.
+    pub fn holds_media(&self) -> bool {
+        self.kind != "collection"
+    }
 }
 
 fn ctxs() -> &'static Mutex<HashMap<String, Ctx>> {
@@ -273,7 +282,7 @@ pub fn ctx(conn: &Conn) -> Option<Ctx> {
     Some(c)
 }
 
-/// The user's movie and TV libraries. Cached; `refresh` re-reads them (a lookup by key that
+/// The user's movie and TV libraries, and the Collections folder when there is one. Cached; `refresh` re-reads them (a lookup by key that
 /// misses asks for that, so a library added mid-session is found).
 pub fn views(conn: &Conn, ctx: &Ctx, refresh: bool) -> Vec<View> {
     let key = cache_key(conn);
@@ -297,6 +306,7 @@ pub fn views(conn: &Conn, ctx: &Ctx, refresh: bool) -> Vec<View> {
                     let kind = match it.get("CollectionType").and_then(Value::as_str) {
                         Some("movies") => "movie",
                         Some("tvshows") => "show",
+                        Some("boxsets") => "collection",
                         _ => return None,
                     };
                     let id = it.get("Id").and_then(Value::as_str)?.to_string();

@@ -204,6 +204,8 @@ impl BandFamily {
         let (movie, show) = match kind {
             SecKind::Movie => (true, false),
             SecKind::Show => (false, true),
+            // The Collections folder (JF Native) lists collections: one sort, no bands.
+            SecKind::Collection => return None,
         };
         // Exhaustive on purpose too: a fifth type must decide here.
         match listing {

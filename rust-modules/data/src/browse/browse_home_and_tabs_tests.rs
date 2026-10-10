@@ -951,6 +951,7 @@ fn a_friends_library_of_a_type_you_do_not_own_gets_its_own_pill() {
     // is what keeps an unplayable library out of the strip, the Sources panel and the grid at once
     assert_eq!(SecKind::from_wire("movie"), Some(SecKind::Movie));
     assert_eq!(SecKind::from_wire("show"), Some(SecKind::Show));
+    assert_eq!(SecKind::from_wire("collection"), Some(SecKind::Collection), "JF Native's Collections folder");
     assert_eq!(
         SecKind::from_wire("artist"),
         None,
@@ -1577,4 +1578,17 @@ fn ending_a_library_visit_forgets_only_its_transient_choice_and_rejects_old_epoc
     assert_eq!(browse.state.remembered_section(SecKind::Movie), Some(0));
     assert!(browse.state.visited.iter().any(|(kind, _, _)| *kind == SecKind::Show));
     assert!(browse.jobs.is_empty(), "ending a visit performs no IO");
+/// **The Collections folder (JF Native)**: its own listing IS its collections — `type=18`, no
+/// TYPE choices, no Unwatched/Genre filters, its wire name round-trips, and its pill sits after
+/// TV Shows in the strip's vocabulary.
+#[test]
+fn the_collections_folder_lists_its_collections_and_nothing_else() {
+    assert_eq!(SecKind::from_wire(SecKind::Collection.wire()), Some(SecKind::Collection));
+    assert_eq!(LibraryType::offered(SecKind::Collection), &[LibraryType::Primary]);
+    assert_eq!(LibraryType::Primary.plex_type(SecKind::Collection), Some(18));
+    assert!(!LibraryType::Primary.filters(SecKind::Collection), "a collection has no watch state or genre");
+    assert!(LibraryType::Primary.filters(SecKind::Movie));
+    assert!(!LibraryType::Collections.filters(SecKind::Show));
+    assert_eq!(TAB_KINDS, [SecKind::Movie, SecKind::Show, SecKind::Collection]);
+    assert!(!kind_offers_plays_sort(SecKind::Collection), "a collection has no play count");
 }

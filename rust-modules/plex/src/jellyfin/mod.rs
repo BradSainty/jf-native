@@ -140,4 +140,20 @@ mod tests {
         forget_position(id);
         assert_eq!(position_ms(id, 0), 0, "marking played forgets the report");
     }
+
+    /// A Jellyfin collection (BoxSet) is a Plex `collection` whose members are its children, and
+    /// it names release order: the order `/library/collections/{rk}/children` answers in.
+    #[test]
+    fn a_boxset_is_a_collection_in_release_order() {
+        let it = serde_json::json!({ "Type": "BoxSet", "Id": "boxset-test", "Name": "Pokémon", "ChildCount": 24 });
+        let env = map::Env { prefix: String::new(), section: None };
+        let o = map::item(&it, &env).expect("a BoxSet maps");
+        assert_eq!(o["type"], "collection");
+        assert_eq!(o["title"], "Pokémon");
+        assert_eq!(o["childCount"], 24);
+        assert_eq!(o["collectionSort"], 0, "release order");
+        assert_eq!(o["key"], "/library/metadata/boxset-test/children");
+        let film = serde_json::json!({ "Type": "Movie", "Id": "film-test", "Name": "Mewtwo Strikes Back" });
+        assert!(map::item(&film, &env).unwrap().get("collectionSort").is_none(), "only a collection names an order");
+    }
 }

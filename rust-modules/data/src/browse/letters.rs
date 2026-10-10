@@ -105,7 +105,9 @@ impl SecState {
     /// The terms the section's query applies now: Unwatched and the genre's tag id, both `off` while a
     /// type the filters do not apply to is listed ([`super::LibraryType::filters`]).
     fn applied_terms(&self) -> (bool, Option<&str>) {
-        if !self.library_type.filters() {
+        // The section's kind is not to hand; the Collections folder offers no filter, so it never
+        // sets either term and the listed type alone answers.
+        if self.library_type == super::LibraryType::Collections {
             return (false, None);
         }
         (self.unwatched, self.genre.as_ref().map(|genre| genre.id.as_str()))
