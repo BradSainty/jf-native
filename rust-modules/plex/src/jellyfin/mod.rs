@@ -34,6 +34,27 @@ pub use transcode::path as transcode_path;
 
 use crate::plex::Origin;
 
+fn runtimes() -> &'static std::sync::Mutex<std::collections::HashMap<String, i64>> {
+    static R: std::sync::OnceLock<std::sync::Mutex<std::collections::HashMap<String, i64>>> =
+        std::sync::OnceLock::new();
+    R.get_or_init(|| std::sync::Mutex::new(std::collections::HashMap::new()))
+}
+
+fn remember_runtime(id: &str, ms: i64) {
+    if let Ok(mut r) = runtimes().lock() {
+        r.insert(id.to_string(), ms);
+    }
+}
+
+/// The runtime, in ms, of the item a Jellyfin stream path names (`…/Videos/{id}/…`), as the item's
+/// metadata gave it. The player's fallback for a stream that declares no duration — Jellyfin's
+/// live remux/transcode does not — without which there is no seek bar and no progress report.
+pub fn runtime_ms_for_stream(path: &str) -> Option<i64> {
+    let rest = &path[path.find("/Videos/")? + "/Videos/".len()..];
+    let id = rest.split(['/', '?']).next()?;
+    runtimes().lock().ok()?.get(id).copied().filter(|ms| *ms > 0)
+}
+
 /// Is `origin` a Jellyfin server? Everything except the plex.tv family is: this fork has no PMS.
 /// plex.tv itself is left alone so the remaining account code fails the way it always did when
 /// plex.tv is unreachable, rather than being answered by a server that has no idea what it means.

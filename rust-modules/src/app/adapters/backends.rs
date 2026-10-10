@@ -319,6 +319,7 @@ pub(crate) fn install_feed(adapter: &mut PlayerAdapter, hooks: &'static NativeHo
     }
     let _ = plx_play_feed::sf_event::install(
         &SfEventHooks { audio_rebuild_presented: plx_media::player::audio_rebuild_presented });
+    plx_play_feed::set_duration_fallback(plx_plex::jellyfin::runtime_ms_for_stream);
     true
 }
 

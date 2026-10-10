@@ -16,6 +16,17 @@ use std::ffi::CString;
 use std::os::raw::{c_int, c_long, c_uchar, c_uint, c_void};
 use std::sync::atomic::{AtomicBool, Ordering};
 use std::sync::Arc;
+
+/// A stand-in duration, in milliseconds, for a stream whose container declares none: a live Jellyfin
+/// remux/transcode Matroska carries no duration, and without one there is no seek bar and no progress
+/// report. The composition installs the lookup (it knows the item's runtime; this crate may not name
+/// the server layer). Keyed by the stream's path.
+static DURATION_FALLBACK: std::sync::OnceLock<fn(&str) -> Option<i64>> = std::sync::OnceLock::new();
+
+/// Install the [`DURATION_FALLBACK`] lookup, once. A second call changes nothing.
+pub fn set_duration_fallback(lookup: fn(&str) -> Option<i64>) {
+    let _ = DURATION_FALLBACK.set(lookup);
+}
 pub use plx_media_codecs::ffi::*;
 
 fn audio_declaration_mismatch(declared: u8, actual: u8) -> bool {
@@ -6400,6 +6411,11 @@ pub fn demux(
                     }
                 }
                 let dur = fmt_duration(fmt);
+                let dur = if dur > 0 {
+                    dur
+                } else {
+                    DURATION_FALLBACK.get().and_then(|lookup| lookup(&path)).map_or(0, |ms| ms.saturating_mul(1000))
+                };
                 if dur > 0 {
                     session.media().publish(DemuxEffect::DurationNs(dur.saturating_mul(1000)));
                 }

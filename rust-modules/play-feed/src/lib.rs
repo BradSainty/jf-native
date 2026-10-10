@@ -15,7 +15,7 @@ pub mod feed_state;
 pub mod ffi_host;
 pub mod ff_pcm;
 mod ff;
-pub use ff::{boot, demux, pushed_any, set_feed_audio, set_pcm_out, DemuxTransport};
+pub use ff::{boot, demux, pushed_any, set_duration_fallback, set_feed_audio, set_pcm_out, DemuxTransport};
 pub use ff::native_audio;
 
 /// Physical mechanisms exercised by media's integration fixtures. This module exports no raw
