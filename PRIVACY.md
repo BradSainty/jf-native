@@ -1,25 +1,25 @@
-# PlxNative Privacy Policy
+# JF Native Privacy Policy
 
-Applies to PlxNative 0.6.0. Last updated 4 September 2026.
+Applies to JF Native, a fork of PlxNative. Last updated 10 October 2026.
 
-## Who is responsible for PlxNative data
+## The short version
 
-Gleb Linnik is responsible only for data PlxNative stores locally and for optional reports you
-choose to share. Contact: `support@plxnative.com`.
+JF Native talks to **your Jellyfin server** and nothing else. It does not contact plex.tv or any
+Plex service, and the optional crash reports and product analytics inherited from PlxNative are
+**switched off** in this fork: the consent questions are never asked, and no report is sent. The
+sections on optional reports below are kept because they document the inherited code paths (and a
+test checks them against the code); in JF Native those paths never run.
 
-## Plex services
+## Who is responsible for JF Native data
 
-PlxNative is an independent client for Plex. To sign you in, discover servers and provide Plex
-account features, the app communicates directly with Plex services. Plex processes information
-received by those services under [Plex’s own Privacy
-Policy](https://www.plex.tv/about/privacy-legal/). PlxNative’s developer does not receive that
-information.
+The JF Native maintainer is responsible only for data the app stores locally on your television.
+Contact: `BradSainty@users.noreply.github.com`.
 
-## Plex Media Servers
+## Jellyfin servers
 
-To browse and play media, update watch progress and use server features, PlxNative communicates
-directly with the Plex Media Servers you select. Those requests are handled by the selected server
-and its operator. PlxNative’s developer does not receive them.
+To sign you in (Quick Connect), browse and play media, and update watch progress, JF Native
+communicates directly with the Jellyfin server you use. Those requests are handled by that server
+and its operator. The JF Native maintainer does not receive them.
 
 ## Data stored on this television
 
@@ -298,8 +298,8 @@ report is sent only when you press Send report; quote the Report ID it showed to
 
 ## Contact and non-affiliation
 
-Privacy questions may be sent to `support@plxnative.com`. Security vulnerabilities may be reported
-privately through GitHub Security Advisories for `GLinnik21/plx-native`.
+Privacy questions may be sent to `BradSainty@users.noreply.github.com`. Security vulnerabilities may be reported
+privately through GitHub Security Advisories for `BradSainty/jf-native`.
 
-PlxNative is an independent, unofficial application. It is not produced by, endorsed by, or
-affiliated with Plex, Inc. or LG Electronics Inc.
+JF Native is an independent, unofficial application. It is not produced by, endorsed by, or
+affiliated with the Jellyfin project, the PlxNative author or LG Electronics Inc.

@@ -515,7 +515,7 @@
     "description": "Settings, account, onboarding or privacy UI: settings.legal.privacy.contact"
   },
   "settings.legal.privacy.contact_body": {
-    "value": "Privacy questions: support@plxnative.com",
+    "value": "Privacy questions: BradSainty@users.noreply.github.com",
     "description": "Settings, account, onboarding or privacy UI: settings.legal.privacy.contact_body"
   },
   "settings.legal.ffmpeg.body": {
@@ -523,11 +523,11 @@
     "description": "Settings, account, onboarding or privacy UI: settings.legal.ffmpeg.body"
   },
   "settings.legal.trademarks.body": {
-    "value": "Plex, the Plex logo and Plex Media Server are trademarks of Plex, Inc.\n\nLG and webOS are trademarks of LG Electronics Inc.\n\nJF Native is an independent, unofficial application. It is not produced by, endorsed by, or affiliated with Plex, Inc. or LG Electronics Inc.",
+    "value": "Jellyfin is a trademark of the Jellyfin project.\n\nLG and webOS are trademarks of LG Electronics Inc.\n\nJF Native is an independent, unofficial application. It is not produced by, endorsed by, or affiliated with the Jellyfin project or LG Electronics Inc.",
     "description": "Settings, account, onboarding or privacy UI: settings.legal.trademarks.body"
   },
   "settings.legal.contact.body": {
-    "value": "Privacy questions may be sent to support@plxnative.com.\n\nSecurity vulnerabilities may be reported privately through GitHub Security Advisories for GLinnik21/plx-native. Please do not include Plex tokens, server addresses or personal media information in a report.",
+    "value": "Privacy questions may be sent to BradSainty@users.noreply.github.com.\n\nSecurity vulnerabilities may be reported privately through GitHub Security Advisories for BradSainty/jf-native. Please do not include Jellyfin tokens, server addresses or personal media information in a report.",
     "description": "Settings, account, onboarding or privacy UI: settings.legal.contact.body"
   },
   "settings.legal.opensource.body": {
@@ -535,14 +535,14 @@
     "description": "Settings, account, onboarding or privacy UI: settings.legal.opensource.body"
   },
   "settings.legal.source.body": {
-    "value": "Source for build {build}:\n\nhttps://github.com/GLinnik21/plx-native/tree/{build}\n\nLocal migration candidates may contain unpublished changes. Their matching source snapshot is provided with the candidate evidence. A published binary must be accompanied by its version-specific complete source bundle and build instructions; a moving branch is not the corresponding-source record. See LICENSING.md in the package.",
+    "value": "Source for build {build}:\n\nhttps://github.com/BradSainty/jf-native/tree/{build}\n\nLocal migration candidates may contain unpublished changes. Their matching source snapshot is provided with the candidate evidence. A published binary must be accompanied by its version-specific complete source bundle and build instructions; a moving branch is not the corresponding-source record. See LICENSING.md in the package.",
     "description": "Settings, account, onboarding or privacy UI: settings.legal.source.body",
     "args": {
       "build": "str"
     }
   },
   "settings.about.body": {
-    "value": "Version {version}\nBuild {build}\n\nDeveloped by Gleb Linnik\n© 2026 Gleb Linnik\n\nOpen source under GPL-3.0-or-later\ngithub.com/GLinnik21/plx-native\n\nJF Native is an independent, unofficial application. It is not produced by, endorsed by, or affiliated with Plex, Inc. or LG Electronics Inc.",
+    "value": "Version {version}\nBuild {build}\n\nBased on PlxNative by Gleb Linnik\n© 2026 Gleb Linnik and contributors\n\nOpen source under GPL-3.0-or-later\ngithub.com/BradSainty/jf-native\n\nJF Native is an independent, unofficial application. It is not produced by, endorsed by, or affiliated with the Jellyfin project or LG Electronics Inc.",
     "description": "Settings, account, onboarding or privacy UI: settings.about.body",
     "args": {
       "build": "str",

@@ -197,7 +197,7 @@
   "browse.auth.insecure": "Сервер Plex знойдзены, але без бяспечнага злучэння (HTTPS). Праверце, ці дазваляе ён такія злучэнні, і паспрабуйце зноў.",
   "browse.auth.no_access": "Профіль {profile} не мае доступу да сервераў",
   "browse.auth.no_source_access": "Профіль {profile} не мае доступу да гэтага сервера",
-  "browse.auth.tls_untrusted": "Тэлевізар не давярае сертыфікату бяспекі вашага сервера. Абнавіце PlxNative і паспрабуйце зноў.",
+  "browse.auth.tls_untrusted": "Тэлевізар не давярае сертыфікату бяспекі вашага сервера. Абнавіце JF Native і паспрабуйце зноў.",
   "browse.kind.episodes": "Серыі",
   "browse.kind.collections": "Калекцыі",
   "browse.kind.films": "Фільмы",
