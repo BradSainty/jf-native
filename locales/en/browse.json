@@ -67,6 +67,22 @@
     "value": "Released",
     "description": "browse detail released"
   },
+  "browse.detail.info_genres": {
+    "value": "Genres",
+    "description": "Detail credits table: the genres row"
+  },
+  "browse.detail.info_directors": {
+    "value": "Directors",
+    "description": "Detail credits table: the row of several directors (one director uses browse.crew.director)"
+  },
+  "browse.detail.info_writers": {
+    "value": "Writers",
+    "description": "Detail credits table: the row of several writers (one writer uses browse.crew.writer)"
+  },
+  "browse.detail.info_studio": {
+    "value": "Studio",
+    "description": "Detail credits table: the studio row"
+  },
   "browse.detail.runtime": {
     "value": "Run Time",
     "description": "browse detail runtime"

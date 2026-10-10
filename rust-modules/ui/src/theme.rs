@@ -401,6 +401,12 @@ pub const CONTROL_CAST_FOCUS: [(f32, f32, f32); 2] = [(5.0, 32.0, 0.34), (1.0, 6
 /// JF Native: the owner's Jellyfin theme's dark navy (`gfx::tokens::GROUND`), in place of the gray; the
 /// lighter top of its gradient is painted by `frame_clear`.
 pub const SURFACE_APP: [f32; 4] = GROUND;
+/// JF Native: the plate of the detail page's credits table (Genres, Director, Writers, Studio) —
+/// one step lighter than the navy ground it sits on, in the ground's own hue, so it reads as a
+/// panel of the page rather than a gray card dropped on it.
+pub const INFO_TABLE_FILL: [f32; 4] = rgb8(0x1c, 0x23, 0x31);
+/// The credits table's border and the rules between its rows — the same navy, lifted further.
+pub const INFO_TABLE_RULE: [f32; 4] = rgb8(0x34, 0x3c, 0x4b);
 /// Opaque sheet drawn over the hardware video plane when a detail page scrolls the hero away.
 /// Same stop as [`SURFACE_APP`] so the rising page and the cover are one surface. Different role:
 /// this hides the plane. It is not atmosphere, so [`scrim`] is the wrong token.

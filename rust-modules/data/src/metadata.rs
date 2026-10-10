@@ -1570,6 +1570,10 @@ pub struct Detail {
     /// `excludeFields=summary,tagline` — the batched `metadata_many` and the section listing — so
     /// anything derived from THOSE has never seen it and never will.
     pub tagline: String,
+    /// The studio that made it (`studio`; Jellyfin's first `Studios` entry) — a row of the
+    /// detail page's credits table. Empty when the server names none.
+    #[serde(default, skip_serializing_if = "String::is_empty")]
+    pub studio: String,
     pub aired: String,
     pub dur_ms: i64,
     pub resume_ms: i64, // viewOffset (0 = not partially watched) — the resume position
@@ -2145,6 +2149,7 @@ fn fetch_detail(sid: plx_plex::plex::ServerId, rk: &str) -> Option<(Detail, Stri
         rating: it.content_rating.clone(),
         summary: it.summary.clone(),
         tagline: it.tagline.clone(),
+        studio: it.studio.clone(),
         aired: it.originally_available_at.clone(),
         dur_ms: it.duration,
         resume_ms: it.view_offset,

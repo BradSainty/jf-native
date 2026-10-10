@@ -65,6 +65,13 @@ use super::registry::{AppFx, AppMsg, ContentArg, ContentLike, ContentReq, PageMe
 /// `FIRST_ITEM_ELEM`, above every local block, and stay below `dispatch::STRIP_BASE`.
 const SECTION_BLOCK: u32 = 1 << 24;
 const FIRST_ITEM_ELEM: u32 = 1 << 31;
+/// JF Native shows no critic/audience rating marks (TMDB, Rotten Tomatoes, IMDb) under the
+/// identity line — the owner's call. Upstream's row stays behind this switch, and the hero's
+/// stack reserves no room for it.
+const SHOW_RATINGS: bool = false;
+/// Nor a CC chip on the identity line (the owner's call): nearly everything carries subtitles, so
+/// it said little; the About footer's Accessibility plate still lists them. SDH and AD keep theirs.
+const SHOW_CC_CHIP: bool = false;
 
 const SECTION_GAP: f32 = theme::space::XL;
 const TAB_EP_GAP: f32 = theme::space::MD;
@@ -938,7 +945,7 @@ impl DetailScreen {
             .measure_h(plx_ui::detail_layout::HERO_TEXT_W);
         plx_ui::detail_layout::hero_chain(
             synopsis_h,
-            d.is_some_and(|detail| !detail.ratings.is_empty()),
+            SHOW_RATINGS && d.is_some_and(|detail| !detail.ratings.is_empty()),
             measure,
         )
     }
@@ -1699,7 +1706,8 @@ impl<H: ContentLike + crate::registry::MetadataLike> Focusable<H> for DetailScre
                 let base = if i == 0 {
                     self.about_rows.card_rect(d, top, measure)
                 } else {
-                    self.about_rows.languages_rect(top, measure)
+                    // only ever a stop when there is a track sheet to open (`about::locate`)
+                    self.about_rows.languages_rect(d, top, true, measure)
                 };
                 (base, base, Some(i as u32))
             }
@@ -2695,7 +2703,7 @@ impl DetailScreen {
         let lerp = |a: f32, b: f32| a + (b - a) * t;
         let band = Rect::new(
             lerp(plx_ui::consts::MARGIN_X, plx_ui::detail_layout::PREVIEW_LOGO_X),
-            lerp(TITLE_BOTTOM - hero_band, plx_ui::detail_layout::PREVIEW_LOGO_Y),
+            lerp(TITLE_BOTTOM - plx_ui::detail_layout::LOGO_AIR - hero_band, plx_ui::detail_layout::PREVIEW_LOGO_Y),
             lerp(HERO_TEXT_W, plx_ui::detail_layout::PREVIEW_LOGO_MAX_W),
             lerp(hero_band, compact_band),
         );
@@ -2726,7 +2734,9 @@ impl DetailScreen {
         let prose = p.alpha(self.preview_chrome * self.preview_prose);
         if let Some(d) = d {
             self.draw_identity_line(prose, d, chain.meta_y, cx.measure);
-            self.draw_ratings(prose, d, chain.ratings_y, cx.measure);
+            if SHOW_RATINGS {
+                self.draw_ratings(prose, d, chain.ratings_y, cx.measure);
+            }
         }
         if !synopsis.is_empty() {
             synopsis_view.draw(
@@ -2771,24 +2781,20 @@ impl DetailScreen {
                 parts.push(&ordinal);
             }
         } else {
-            parts.push(if d.is_show { plx_platform::i18n::msg::browse_kind_tv_show() } else { plx_platform::i18n::msg::browse_kind_movie() });
+            // (JF Native names no kind here — "Movie"/"TV Show" says nothing the page does not)
             parts.extend(d.genres.iter().take(2).map(String::as_str));
         }
         if !d.rating.is_empty() {
             parts.push(&d.rating);
         }
-        let mut x = plx_ui::consts::MARGIN_X
-            + plx_ui::widgets::dotted_run(
-                p,
-                &parts,
-                plx_ui::consts::MARGIN_X,
-                y,
-                theme::size::BODY,
-                theme::TEXT_SECONDARY,
-                theme::space::SM,
-            );
-        if x > plx_ui::consts::MARGIN_X {
-            x += theme::space::SM;
+        // JF Native: every member — word or badge — sits `FACT_GAP` from the next, so the line is
+        // evenly spaced (upstream's `pad · pad` between words, then smaller gaps between badges).
+        let gap = plx_ui::detail_layout::FACT_GAP;
+        let mut x = plx_ui::consts::MARGIN_X;
+        for part in parts.iter().filter(|s| !s.is_empty()) {
+            if let Ok(text) = std::ffi::CString::new(*part) {
+                x += p.text(text.as_ptr(), x, y, theme::size::BODY, theme::TEXT_SECONDARY, 0, 0) + gap;
+            }
         }
         let (top, base) = plx_gfx::text::text_cap_band(theme::size::BODY, 0);
         let cy = y + (top + base) * 0.5;
@@ -2801,16 +2807,15 @@ impl DetailScreen {
                 None,
                 plx_ui::widgets::BadgeStyle::Filled,
                 measure,
-            ) + theme::space::XS;
+            ) + gap;
         }
         for (present, label) in [
-            (!d.subs.is_empty(), plx_platform::i18n::msg::widgets_badge_cc()),
+            (SHOW_CC_CHIP && !d.subs.is_empty(), plx_platform::i18n::msg::widgets_badge_cc()),
             (d.subs.iter().any(|s| s.sdh), plx_platform::i18n::msg::widgets_badge_sdh()),
             (d.audio.iter().any(|s| s.ad), plx_platform::i18n::msg::widgets_badge_ad()),
         ] {
             if present {
-                x += plx_ui::widgets::keyline_chip(p, x, cy, label, theme::TEXT_SECONDARY, measure)
-                    + theme::space::XS;
+                x += plx_ui::widgets::keyline_chip(p, x, cy, label, theme::TEXT_SECONDARY, measure) + gap;
             }
         }
     }

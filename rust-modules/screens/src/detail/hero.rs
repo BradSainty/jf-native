@@ -61,10 +61,18 @@ const PEOPLE_MAX_LINES: usize = 2;
 const PEOPLE_SUMMARY: usize = 3;
 const PEOPLE_LABEL_INK: [f32; 4] = theme::TEXT_TERTIARY;
 const FACTS_SEP_PAD: f32 = theme::space::SM;
+/// **JF Native's hero is leaner than upstream's** (the owner's call): no people column pinned to
+/// the right edge over the artwork — the credits are a table in the About section instead
+/// (`about::Rows`) — and no "how it will play" fragment (Direct Play, Direct Stream, conversion
+/// notes) on the facts row. Upstream's code stays behind these switches.
+const SHOW_PEOPLE: bool = false;
+const SHOW_PLAY_MODE: bool = false;
+/// Whether the facts row separates its members with upstream's `pad · pad`; JF Native spaces them
+/// by `detail_layout::FACT_GAP` alone.
+const FACTS_DOT: bool = false;
 const FACTS_R: f32 = plx_ui::consts::SCR_W
     - plx_ui::consts::MARGIN_X
-    - plx_ui::detail_layout::PEOPLE_W
-    - theme::space::SM;
+    - if SHOW_PEOPLE { plx_ui::detail_layout::PEOPLE_W + theme::space::SM } else { 0.0 };
 
 /// Duplicated from `widgets::Button`'s own PRIVATE `BTN_ICON_RATIO`/`BTN_ICON_GAP` (1.15, 12.0):
 /// those two constants are `widgets.rs`-internal, and this module may not reach past that file's
@@ -498,10 +506,13 @@ pub fn hero_credit(d: &Detail) -> Option<(&'static str, Vec<&str>)> {
 }
 
 pub fn has_people(d: &Detail) -> bool {
-    !d.cast.is_empty() || hero_credit(d).is_some()
+    SHOW_PEOPLE && (!d.cast.is_empty() || hero_credit(d).is_some())
 }
 
 pub fn draw_people(p: Painter, d: &Detail, button_y: f32, measure: &dyn Measure) {
+    if !SHOW_PEOPLE {
+        return;
+    }
     use plx_ui::detail_layout::PEOPLE_W;
     let x = plx_ui::consts::SCR_W - plx_ui::consts::MARGIN_X - PEOPLE_W;
     let mut bottom = button_y + CD;
@@ -536,12 +547,21 @@ fn people_line(p: Painter, label: &str, names: &[&str], x: f32, bottom: f32, mea
     h
 }
 
+/// The year of a release: `year` when the server gave one, else the first four digits of its
+/// `YYYY-MM-DD` air date, else nothing. JF Native's facts row names the year, never the full date.
+fn release_year(aired: &str, year: i64) -> String {
+    if year > 0 {
+        return year.to_string();
+    }
+    aired.get(..4).filter(|y| y.bytes().all(|b| b.is_ascii_digit())).unwrap_or("").to_string()
+}
+
 fn hero_facts(d: &Detail) -> (String, Option<String>) {
     if let Some(ep) = hero_episode(d) {
         let runtime = (ep.dur_ms >= 60_000).then(|| plx_ui::fmt::dur_long(ep.dur_ms));
-        return (plx_ui::fmt::pretty_date(&ep.aired, 0), runtime);
+        return (release_year(&ep.aired, 0), runtime);
     }
-    let date = plx_ui::fmt::pretty_date(&d.aired, d.year);
+    let date = release_year(&d.aired, d.year);
     if d.is_show {
         let seasons = d.seasons.len();
         if seasons == 0 {
@@ -604,6 +624,9 @@ const FACTS_BITS: usize = 8;
 fn play_mode_bits(d: &Detail, after: bool) -> ([Bit; FACTS_BITS], usize) {
     let mut bits = [Bit::Air(0.0); FACTS_BITS];
     let mut n = 0;
+    if !SHOW_PLAY_MODE {
+        return (bits, 0);
+    }
     let Some(preview) = plx_media::route::playback_preview(d) else {
         return (bits, 0);
     };
@@ -747,6 +770,10 @@ fn facts_flow(
     mode: impl FnOnce(f32, bool) -> f32,
 ) -> f32 {
     fn separator(run: &mut impl FnMut(&str, f32, c_int, [f32; 4]) -> f32, dx: f32) -> f32 {
+        // JF Native: no dot, one even gap (`detail_layout::FACT_GAP`)
+        if !FACTS_DOT {
+            return plx_ui::detail_layout::FACT_GAP;
+        }
         2.0 * FACTS_SEP_PAD
             + run(
                 "\u{b7}",
