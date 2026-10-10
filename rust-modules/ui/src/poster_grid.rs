@@ -348,18 +348,20 @@ mod tests {
     }
 
     /// C2: a row focused below the first scrolls the page so a row's top rests exactly on the
-    /// content edge — the row above the focused one, when both fit — and never cuts a row; row 0
-    /// shows the head again.
+    /// content edge — the row above the focused one, when both fit, else the focused row itself —
+    /// and never cuts a row; row 0 shows the head again. (With every tile labelled a row is too
+    /// tall for the row above it to stay, so here the focused row takes the edge each time.)
     #[test]
     fn a_snapped_page_rests_a_row_on_the_content_edge() {
         let (top, edge, len) = (520.0, 96.0, 18);
         let at = snap_row(0.0, 1, len, top, edge);
-        assert_eq!(cell(0, top, at, &settled(Some(1))).y, edge, "row 0 rests on the edge");
         let focused = cell(6, top, at, &settled(Some(1)));
+        assert_eq!(focused.y, edge, "the focused row rests on the edge");
+        assert!(cell(0, top, at, &settled(Some(1))).y + CARD_H + UNDER_LABEL_H <= edge, "and the row above has left");
         assert!(focused.y + CARD_H + UNDER_LABEL_H <= SCR_H - MARGIN_Y, "and the focused row shows whole");
         let at2 = snap_row(at, 2, len, top, edge);
-        assert_eq!(cell(6, top, at2, &settled(Some(2))).y, edge, "down again: the next row takes the edge");
-        assert_eq!(snap_row(at2, 1, len, top, edge), at2, "up to a row already on screen: no move");
+        assert_eq!(cell(12, top, at2, &settled(Some(2))).y, edge, "down again: the next row takes the edge");
+        assert_eq!(snap_row(at2, 2, len, top, edge), at2, "the row already on the edge: no move");
         assert_eq!(snap_row(at2, 0, len, top, edge), 0.0, "row 0 reveals the head");
     }
 
@@ -392,7 +394,7 @@ mod tests {
         let closing = geometry.iter().find(|b| b.row == 0).unwrap().expansion;
         assert!(opened > 0.0 && opened < 1.0 && closing > 0.0 && closing < 1.0);
         assert!((opened + closing - 1.0).abs() < 0.0001);
-        assert_eq!(card_row::band_reveal(opened), 0.0, "caption waits until its space is open");
+        assert_eq!(card_row::band_reveal(opened), 1.0, "every row's captions are always shown: there is no space to wait for");
         for _ in 0..120 { bands.tick(k, 1.0 / 60.0); }
         let (_, moving) = plx_machine::idle::scoped_motion(|| bands.tick(k, 1.0 / 60.0));
         assert!(!moving, "a settled grid lets idle suppression sleep");

@@ -897,6 +897,44 @@ pub fn draw_focused(
     draw_label_block(p, rect, sty, label, ty, measure);
 }
 
+/// **The label block under a RESTING tile** — the same title and caption the focused tile carries,
+/// on the same two baselines and in the same card-wide window, so moving focus changes how the
+/// lines are drawn and never where. A line that does not fit ends in an ellipsis; focusing the
+/// tile drops the ellipsis and glides the whole line instead ([`draw_label_block`]). Quieter than
+/// the focused block (regular weight, one rung dimmer each) so the focused title still leads.
+///
+/// `rect` and `s` are what the tile was drawn with, as for [`draw_focused`]. The Continue-Watching
+/// play glyph belongs to the focused tile alone and is not drawn here.
+pub fn draw_tile_label(
+    p: Painter,
+    rect: Rect,
+    s: f32,
+    sty: &RowStyle,
+    label: &TileLabel,
+    measure: &dyn plx_machine::machine::Measure,
+) {
+    if label.reveal <= 0.0 || (label.title.is_none() && label.caption.is_none()) {
+        return;
+    }
+    let p = p.alpha(label.reveal);
+    let mut y = rect.y + rect.h * 0.5 + (rect.h / s) * 0.5 + UNDER_DROP;
+    let full = under_budget(sty);
+    let at = place_label(p, rect, sty, full, label.settle_lag);
+    let lines = [
+        (label.title.as_deref(), theme::size::LABEL, theme::TEXT_SECONDARY, UNDER_LINE_H + UNDER_LINE_GAP),
+        (label.caption.as_deref(), theme::size::CAPTION, theme::TEXT_TERTIARY, 0.0),
+    ];
+    for (text, sz, ink, advance) in lines {
+        let Some(text) = text else { continue };
+        // `fit_line` is the capability's memoised elide: a screenful of resting titles costs a
+        // hash lookup each per frame, not a binary search through the font.
+        let shown = measure.fit_line(&text.to_string_lossy(), at.w, sz, false);
+        let run = measure.width(&shown, sz, false);
+        p.text(shown.as_ptr(), at.run_x(run), y, sz, ink, 0, 0);
+        y += advance;
+    }
+}
+
 /// **The one trailing FACT under a focused tile** — the caption rung, for every poster shelf in the
 /// app and for the Library grid.
 ///
@@ -1007,23 +1045,14 @@ const UNDER_CAPTION_H: f32 = 28.0;
 pub const UNDER_LABEL_H: f32 = UNDER_DROP + UNDER_LINE_H + UNDER_LINE_GAP + UNDER_CAPTION_H;
 
 /// **What an UNFOCUSED shelf reserves where the focused one reserves [`UNDER_LABEL_H`]** — the
-/// collapsed half of the band, and the reason it is a subtraction rather than a taste number.
+/// same: every tile is labelled ([`draw_tile_label`]), so every shelf reserves the whole block.
 ///
-/// A shelf's label block only exists while that shelf holds focus. Reserving all 92px of it on
-/// every shelf all the time — which is what `consts::ROW_PITCH` did until 2026-09-05 — spends most
-/// of a 1080 panel's vertical budget on emptiness: on a three-shelf screen it is 184px of nothing,
-/// two thirds of a poster. The owner reported it as "the gap from the previous shelf feels a bit
-/// too large".
-///
-/// So the band OPENS on focus and closes again behind it ([`CardRow::under_band`]), and what stays
-/// behind is the only thing an unfocused shelf actually owes its neighbour: the air between a
-/// poster's bottom edge and the next section's heading. That distance is a REGION gap in the design
-/// system's own vocabulary — one titled block of content to the next — so it is `space::LG`, and
-/// this constant is whatever is left of it once `consts::UNDER_LABEL_AIR` (already inside the pitch,
-/// below the block) is taken out. Authoring the 18 directly would be a number nobody could check;
-/// authoring the rung makes the claim falsifiable, and the test beside it does.
-pub const LABEL_BAND_COLLAPSED: f32 =
-    crate::theme::space::LG - crate::consts::UNDER_LABEL_AIR;
+/// Upstream drew a label under the focused tile only and opened the band for it on focus, closing
+/// it behind (`space::LG` of air left under an unfocused shelf). JF Native names every film and
+/// show all the time, so there is nothing to open: the band is constant, the rows never move when
+/// focus does, and the opening machinery ([`under_band`], [`band_reveal`], [`BAND_OPEN`]) stays in
+/// place with zero travel rather than being torn out of every screen that reads it.
+pub const LABEL_BAND_COLLAPSED: f32 = UNDER_LABEL_H;
 
 /// The label band a shelf reserves at expansion `e` (0 collapsed → 1 focused) — **the ONE
 /// expression every screen's row pitch is built from**, so Home, the Library, Search and the person
@@ -1184,6 +1213,8 @@ impl LabelPlace {
 
 /// Air kept between a label block and the PANEL's edge (or a band the screen reserves there).
 /// A label belongs to its card, not to the safe area: it is never moved toward the safe frame.
+/// (Only [`anchor_label`]'s tests read it now: [`place_label_wide`] centres every block on its card.)
+#[cfg_attr(not(test), allow(dead_code))]
 const EDGE_PAD: f32 = 16.0;
 
 /// The horizontal room a label block may use, in the painter's space — see [`anchor_label`].
@@ -1261,15 +1292,15 @@ pub fn place_label(p: Painter, rect: Rect, sty: &RowStyle, w: f32, lag: f32) -> 
 /// (`RowStyle::right_reserve` — the Library's A–Z rail); the left one the row's content margin
 /// ([`RowStyle::margin_x`]). The card's edges are the UNSCALED card's, so a focus pop never moves
 /// the block or re-keys the width-keyed wrap/elide caches.
-pub fn place_label_wide(p: Painter, rect: Rect, sty: &RowStyle, w: f32, want: f32, lag: f32) -> LabelPlace {
-    let settled_dx = p.dx() + lag;
-    let room = LabelRoom {
-        lo: EDGE_PAD - settled_dx,
-        hi: SCR_W - sty.right_reserve - EDGE_PAD - settled_dx,
-        floor: sty.margin_x - settled_dx,
-    };
-    let lead = rect.cx() - sty.w * 0.5;
-    anchor_label(lead, lead + sty.w, w, want, room)
+pub fn place_label_wide(_p: Painter, rect: Rect, sty: &RowStyle, w: f32, _want: f32, _lag: f32) -> LabelPlace {
+    // JF Native labels every tile, so a block never reaches past its own card ([`under_budget`])
+    // and the card is already where the screen laid it out, clear of the panel edge and of any
+    // reserved band. So every block is simply centred on its card: [`anchor_label`]'s
+    // leading/trailing fallbacks only ever fired for a card-wide block in the last column beside
+    // the Library's rail, where they right-aligned the resting titles but not the (narrower)
+    // focused one.
+    let w = w.min(sty.w);
+    LabelPlace { x: rect.cx() - w * 0.5, w, align: LabelAlign::Centre }
 }
 
 /// The focused tile's single-line title, drawn in the block `at`: plain whenever the run fits the
@@ -1367,7 +1398,9 @@ fn title_w(text: *const c_char, measure: &dyn plx_machine::machine::Measure) -> 
 /// breaks mid-pop. The block's y anchor is already unscaled two lines up, for the same reason.
 #[inline]
 fn under_budget(sty: &RowStyle) -> f32 {
-    2.0 * sty.w + 2.0 * sty.gap
+    // JF Native labels every tile, so the focused block may no longer reach into its neighbours'
+    // room: their own titles are there. It keeps to its card, and a title wider than that marquees.
+    sty.w
 }
 
 /// **Where a focused tile's label block actually lands on the panel** — its left edge and its
@@ -1402,7 +1435,7 @@ fn draw_label_block(
     let caption_w = caption_str.as_ref().map_or(0.0, |s| measure.width_str(s, csz, false));
     // …and the UNCAPPED widest run, which only a block that reaches left of its card may use
     // ([`anchor_label`]).
-    let want = title_w_val.map_or(0.0, |w| lead + w).max(caption_w);
+    let want = title_w_val.map_or(0.0, |w| lead + w).max(caption_w).min(full);
     let at = place_label_wide(p, rect, sty, title_run.max(caption_w.min(full)), want, label.settle_lag);
     #[cfg(feature = "devtriggers")]
     {
@@ -1457,8 +1490,8 @@ fn credit_role_dy(measure: &dyn plx_machine::machine::Measure) -> f32 {
 }
 
 /// **A persistent two-line label under a headshot** — the name, then the role / job, drawn for
-/// EVERY tile of a shelf, focused or not (a poster shelf draws only the focused tile's block, see
-/// [`draw_label_block`]; a cast shelf names everyone). `at` is the label's box: its left edge and
+/// EVERY tile of a shelf, focused or not (as a poster shelf does too, through [`draw_tile_label`]
+/// and [`draw_label_block`]). `at` is the label's box: its left edge and
 /// width (the text budget) and the cap top of the name line.
 ///
 /// **One shape in every state.** The name is ONE line and the role is ONE line, always, on the same
@@ -1729,7 +1762,7 @@ mod tests {
                         match at.align {
                             LabelAlign::Centre => {
                                 assert_eq!(at.x + at.w * 0.5, rect.cx(), "a centred block shares the card's centre");
-                                assert_eq!(at.w, w);
+                                assert_eq!(at.w, w.min(sty.w), "and keeps to the card");
                             }
                             LabelAlign::Leading => {
                                 assert_eq!(at.x, rect.x, "a leading block starts at the card's leading edge");
@@ -1815,16 +1848,15 @@ mod tests {
         assert_eq!(at, LabelPlace { x: 100.0, w: 1804.0, align: LabelAlign::Leading });
     }
 
-    /// Title and caption are one unit: at the right edge both end at the card's right edge, so a
-    /// short caption under a long title ends where the title does.
+    /// Every tile is labelled, so a label keeps to its own card even at the end of a row: the
+    /// widest block is the card, centred under it, never reaching over a neighbour's title.
     #[test]
-    fn title_and_caption_share_the_trailing_edge_at_the_end_of_a_row() {
+    fn a_label_keeps_to_its_card_even_at_the_end_of_a_row() {
         let sty = RowStyle::HOME;
         let rect = Rect::new(SCR_W - MARGIN_X - sty.w, 300.0, sty.w, sty.h);
         let at = place_label(Painter::root(), rect, &sty, under_budget(&sty), 0.0);
-        assert_eq!(at.align, LabelAlign::Trailing);
-        assert_eq!(at.run_x(60.0) + 60.0, rect.x + sty.w);
-        assert_eq!(at.run_x(at.w) + at.w, rect.x + sty.w);
+        assert_eq!(at, LabelPlace { x: rect.x, w: sty.w, align: LabelAlign::Centre });
+        assert_eq!(at.run_x(60.0) + 30.0, rect.cx());
         let mid = Rect::new(700.0, 300.0, sty.w, sty.h);
         let centred = place_label(Painter::root(), mid, &sty, 200.0, 0.0);
         assert_eq!(centred.align, LabelAlign::Centre, "a block with room stays centred on its card");
@@ -1840,9 +1872,7 @@ mod tests {
             let p = Painter::root().translate(dx, 0.0);
             let rect = Rect::new(SCR_W - MARGIN_X - sty.w - dx, 300.0, sty.w, sty.h);
             let (x, width) = label_band(p, rect, &sty);
-            assert_eq!(x + width, rect.x + sty.w, "the widest label ends on its card's right edge");
-            assert!(width > sty.w, "and reaches left over the room the neighbours leave");
-            assert!(x + dx >= sty.margin_x - 0.01, "never past the content margin");
+            assert_eq!((x, width), (rect.x, sty.w), "the widest label is its own card, wherever the shelf is");
         }
     }
 
@@ -1864,77 +1894,78 @@ mod tests {
         (t, c, rect)
     }
 
-    /// Drawn: the last card of a shelf with a title wider than its card and than the room on its
-    /// right but narrower than the room on its left — the title and caption each draw ONE still
-    /// run, ending on the card's right edge and inside the content bounds.
+    /// Drawn: a focused title wider than its card glides inside the card's own window — a run and
+    /// its follower, the glide starting at the card's left edge — while a short caption under it
+    /// stays still and centred on the card. The neighbours' titles are beside it, so it may not
+    /// spill over them.
     #[test]
-    fn a_right_anchored_caption_draws_inside_the_content_bounds_and_ends_at_the_cards_edge() {
-        let _serial = plx_base::testlock::serial();
-        TITLE_CLOCK.with(|c| c.release());
-        plx_machine::idle::frame_begin(1.0 / 60.0);
-        let title = "Wallace & Gromit: Vengeance Most Fowl and the Curse of the Were-Rabbit";
-        let caption = "A caption wider than the card";
-        let (t, c, rect) = end_of_row_runs(title, caption);
-        let edge = rect.x + RowStyle::HOME.w;
-        let title_w = measure_w(title, theme::size::LABEL);
-        let caption_w = measure_w(caption, theme::size::CAPTION);
-        assert!(title_w > under_budget(&RowStyle::HOME), "the title is wider than the shared reach");
-        assert!(title_w > SCR_W - EDGE_PAD - rect.x, "the title overflows the room on the card's right");
-        assert!(title_w < edge - MARGIN_X, "and fits the room on its left");
-        assert_eq!((t.len(), c.len()), (1, 1), "both lines fit the window: one still run each ({t:?} {c:?})");
-        assert!((t[0] + title_w - edge).abs() < 0.5, "the title ends on the card's right edge: {t:?}");
-        assert!((c[0] + caption_w - edge).abs() < 0.5, "and so does the caption: {c:?}");
-        assert!(t[0] >= MARGIN_X && c[0] >= MARGIN_X, "inside the content margin: {t:?} {c:?}");
-        assert!(edge <= SCR_W - MARGIN_X, "and the right margin");
-    }
-
-    /// And a title too long even for the room to the left glides inside the clamped window — a run
-    /// and its follower, the glide starting at the window's left edge (the content margin), never
-    /// at the card — while a short caption under it still ends on the card's edge.
-    #[test]
-    fn a_title_too_long_for_both_sides_glides_inside_the_clamped_window() {
+    fn a_long_focused_title_glides_inside_its_own_card() {
         let _serial = plx_base::testlock::serial();
         TITLE_CLOCK.with(|c| c.release());
         plx_machine::idle::frame_begin(1.0 / 60.0);
         let (t, c, rect) = end_of_row_runs(LONG_TITLE, "1979");
         assert_eq!(t.len(), 2, "a run and its follower: {t:?}");
-        assert!((leftmost(&t) - MARGIN_X).abs() < 0.5, "the glide starts at the content margin: {t:?}");
+        assert!((leftmost(&t) - rect.x).abs() < 0.5, "the glide starts at the card's left edge: {t:?}");
         assert_eq!(c.len(), 1);
-        assert!((c[0] + measure_w("1979", theme::size::CAPTION) - (rect.x + RowStyle::HOME.w)).abs() < 0.5,
-            "the short caption still ends on the card's edge: {c:?}");
+        assert!((c[0] + measure_w("1979", theme::size::CAPTION) * 0.5 - rect.cx()).abs() < 0.5,
+            "the short caption is centred on the card: {c:?}");
     }
 
+    /// A RESTING tile is named too: its title and caption are drawn on the focused block's
+    /// baselines, and a title wider than the card ends in an ellipsis inside the card's width
+    /// rather than gliding (only the focused tile glides).
     #[test]
-    fn an_oversized_label_block_leads_from_its_card_and_stops_at_the_rail() {
-        let sty = RowStyle { w: SCR_W, ..RowStyle::HOME.with_right_reserve(112.0) };
-        let (x, width) = label_band(Painter::root(), Rect::new(0.0, 0.0, sty.w, sty.h), &sty);
-        assert_eq!(x, 0.0);
-        assert_eq!(width, SCR_W - sty.right_reserve - EDGE_PAD);
+    fn a_resting_tile_names_itself_and_elides_inside_its_card() {
+        let _serial = plx_base::testlock::serial();
+        let sty = RowStyle::HOME;
+        let rect = Rect::new(700.0, 300.0, sty.w, sty.h);
+        let label = TileLabel::titled(LONG_TITLE, "1979");
+        let mut log = Vec::new();
+        let runs = plx_gfx::text::capture_text_runs_for_test(|| {
+            log = crate::draw_census::capture(|| {
+                draw_tile_label(Painter::recording(), rect, 1.0, &sty, &label, &crate::fixture::FixtureMeasure);
+            });
+        });
+        assert_eq!(runs.len(), 2, "one still run per line: {runs:?}");
+        assert!(runs[0].ends_with('\u{2026}') && runs[0].len() < LONG_TITLE.len(), "the title is elided: {runs:?}");
+        assert!(measure_w(&runs[0], theme::size::LABEL) <= sty.w, "inside the card's width");
+        assert_eq!(runs[1], "1979");
+        let ty = rect.y + rect.h + UNDER_DROP;
+        let xs: Vec<f32> = log.iter().filter(|(tag, r)| *tag == 100 && r.y >= ty - 8.0).map(|(_, r)| r.x).collect();
+        assert!(xs.iter().all(|&x| x >= rect.x - 0.5 && x <= rect.x + sty.w), "drawn under its card: {xs:?}");
+        let empty = plx_gfx::text::capture_text_runs_for_test(|| {
+            draw_tile_label(Painter::recording(), rect, 1.0, &sty, &TileLabel::default(), &crate::fixture::FixtureMeasure);
+        });
+        assert!(empty.is_empty(), "a tile with no label (a headshot, an avatar) draws nothing");
+    }
+
+    /// The last column beside the Library's rail: the resting block and the focused one are both
+    /// centred on the card, whatever the reserve, so focusing it never re-aligns its title.
+    #[test]
+    fn the_last_column_beside_the_rail_is_centred_like_every_other() {
+        let sty = RowStyle::HOME.with_right_reserve(112.0);
+        let rect = Rect::new(SCR_W - MARGIN_X - sty.w, 300.0, sty.w, sty.h);
+        let resting = place_label(Painter::root(), rect, &sty, under_budget(&sty), 0.0);
+        let focused = place_label(Painter::root(), rect, &sty, 120.0, 0.0);
+        assert_eq!(resting, LabelPlace { x: rect.x, w: sty.w, align: LabelAlign::Centre });
+        assert_eq!(focused.run_x(60.0), resting.run_x(60.0), "the same run lands in the same place");
     }
 
     const DT: f32 = 1.0 / 60.0;
 
+    /// Every tile is labelled, so focus never opens room: a shelf taking focus and letting it go
+    /// reserves the same band on every frame, and its label is fully shown throughout.
     #[test]
-    fn a_label_band_reveal_defers_art_and_then_settles() {
-        use crate::card_motion::{History, Identity, Verdict};
+    fn focus_never_moves_a_shelfs_label_band() {
         let mut row = CardRow::new();
-        let mut history = History::default();
-        let mut saw_fast = false;
-        let mut last = Verdict::Unknown;
-        for frame in 0..600 {
-            let before = row.under_band();
-            row.update(3, Some(0), &RowStyle::HOME, DT);
-            assert_eq!(row.scroll_x(), 0.0);
-            history.begin();
-            last = history.observe(Identity { owner: 1, asset: 1 },
-                Rect::new(0.0, ROW_PITCH_FIXED + row.under_band(), 250.0, 375.0), frame * 16);
-            if frame > 0 && (row.under_band() - before).abs() / DT > 120.0 {
-                assert_eq!(last, Verdict::Moving, "band-only displacement classifies as Moving");
-                saw_fast = true;
-            }
+        let rest = row.under_band();
+        assert_eq!(rest, UNDER_LABEL_H);
+        for frame in 0..240 {
+            let focus = if frame < 120 { Some(0) } else { None };
+            row.update(3, focus, &RowStyle::HOME, DT);
+            assert_eq!(row.under_band(), rest, "frame {frame}");
+            assert_eq!(row.band_reveal(), 1.0, "frame {frame}");
         }
-        assert!(saw_fast, "the fixture must exercise a fast band reveal");
-        assert_eq!(last, Verdict::Settled);
     }
 
     /// The full clearance a HOME shelf's heading needs over a popped tile — asked of
@@ -2289,35 +2320,21 @@ mod tests {
 
     // ---- The collapsing label band -------------------------------------------------------------
 
-    /// The two endpoints and the rung the collapsed one is derived from. `under_band(1)` has to be
+    /// An unfocused shelf reserves exactly what a focused one does — the whole label block plus its
+    /// trailing air — because every tile on it is labelled. `under_band(1)` has to be
     /// `UNDER_LABEL_H` exactly or a focused shelf is not the geometry every clearance test in the
-    /// app was written against; `under_band(0)` has to leave the design system's REGION gap between
-    /// a poster's bottom edge and the next section's heading, which is the claim
-    /// [`LABEL_BAND_COLLAPSED`] makes and the only reason it is a subtraction.
+    /// app was written against, and `under_band(0)` now equals it.
     #[test]
-    fn a_collapsed_shelf_still_leaves_the_region_gap_before_the_next_heading() {
+    fn an_unfocused_shelf_reserves_the_whole_label_block() {
         assert_eq!(under_band(1.0), UNDER_LABEL_H);
-        assert_eq!(under_band(0.0), LABEL_BAND_COLLAPSED);
-        // clamped, so a spring's overshoot (there is none here — it is critically damped — or a
-        // caller's stray value) can never make a shelf taller than its focused self
+        assert_eq!(under_band(0.0), UNDER_LABEL_H);
         assert_eq!(under_band(1.4), UNDER_LABEL_H);
-        assert_eq!(under_band(-0.2), LABEL_BAND_COLLAPSED);
-
-        // a collapsed shelf: card bottom → the next section's heading cap top
+        assert_eq!(under_band(-0.2), UNDER_LABEL_H);
+        assert_eq!(BAND_OPEN, 0.0);
         use crate::consts::{CARD_DY, CARD_H, TITLE_DY, UNDER_LABEL_AIR};
         let pitch = ROW_PITCH_FIXED + under_band(0.0);
-        let card_bottom = CARD_DY + CARD_H;
-        let next_heading = pitch - TITLE_DY;
-        assert_eq!(
-            next_heading - card_bottom,
-            crate::theme::space::LG,
-            "an unfocused shelf owes its neighbour one region gap and nothing more"
-        );
-        // …and that gap is exactly what the block's own trailing air grew into
-        assert_eq!(
-            LABEL_BAND_COLLAPSED + UNDER_LABEL_AIR,
-            crate::theme::space::LG
-        );
+        assert_eq!(pitch - TITLE_DY - (CARD_DY + CARD_H), UNDER_LABEL_H + UNDER_LABEL_AIR,
+            "card bottom → the next heading: the label block and its air");
     }
 
     /// The document is 74px shorter per unfocused shelf, and [`settled_top`] is the closed form of

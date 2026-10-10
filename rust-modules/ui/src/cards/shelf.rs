@@ -768,6 +768,7 @@ impl Shelf {
             }
         } else {
             card_row::draw_tile(pr, src.art(i), rect, s, self.style, src.progress(i));
+            card_row::draw_tile_label(pr, rect, s, self.style, &src.label(i), f.measure);
         }
         let tile = Tile { rect, scale: s, radius: self.style.tile_radius(rect, s), focused };
         src.overlay(pr, i, &tile, f.measure);

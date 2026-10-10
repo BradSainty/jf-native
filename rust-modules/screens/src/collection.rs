@@ -1408,11 +1408,12 @@ mod tests {
         for n in 0..240 { tick_at(&mut screen, &store, Some(key), 16 + n * 16); }
         let scroll = screen.stack.scroll();
         assert!(scroll > 0.0);
-        // the scroll rounds up to some row's top on the edge (row 1's: the first row `Grid` does
-        // not cull), so that row's posters rest exactly there and the row above has left
-        let row = screen.rest_cell(&store, cols);
+        // the scroll rounds up to some row's top on the edge (with every poster labelled a row is
+        // too tall for row 1 to stay above the focused row 2, so it is row 2's), so that row's
+        // posters rest exactly there and the row above has left
+        let row = screen.rest_cell(&store, 2 * cols);
         assert!((row.y - CONTENT_TOP).abs() < 0.5, "the snapped row rests at {}", row.y);
-        assert!(screen.rest_cell(&store, 0).y + CARD_H < CONTENT_TOP, "nothing of the row above shows");
+        assert!(screen.rest_cell(&store, cols).y + CARD_H < CONTENT_TOP, "nothing of the row above shows");
         assert_eq!(head_alpha(scroll), 0.0, "no remnant of the header");
         assert_eq!(head_alpha(0.0), 1.0);
     }
@@ -1690,6 +1691,8 @@ mod tests {
         let _serial = plx_base::testlock::serial();
         let _pseudo = plx_platform::i18n::pseudo_on_this_thread_for_test();
         let server = ["Set", "Qwerty", "Zzyzx", "Vlox"];
+        // the seeded members' titles, drawn whole under every resting poster
+        let members = ["a", "b", "c"];
         let season = PmsMovie { rk: "s".into(), kind: 2, season_index: 3, title: "Zzyzx".into(),
             show_title: "Vlox".into(), ..Default::default() };
         let mut stray = Vec::new();
@@ -1711,7 +1714,7 @@ mod tests {
             });
             assert!(runs.iter().any(|run| run.contains("[!!")), "{status:?} drew catalog text: {runs:?}");
             let pseudo = |run: &str| run.contains("[!!") || run.contains(['á', 'ë', 'ï', 'ö', 'ü']);
-            stray.extend(runs.into_iter().filter(|run| !pseudo(run)).filter(|run| {
+            stray.extend(runs.into_iter().filter(|run| !pseudo(run) && !members.contains(&run.as_str())).filter(|run| {
                 let mut rest = run.replace('\u{a0}', " ");
                 for value in server { rest = rest.replace(value, ""); }
                 rest.chars().any(char::is_alphabetic)

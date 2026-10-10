@@ -534,13 +534,13 @@ impl Grid {
             return;
         }
         let rect = super::to_local(p, self.cell(i, bands)).scaled(s);
-        if !card_row::paint_visible(p, rect, s, focused) {
+        if !card_row::paint_visible(p, rect, s, true) {
             return;
         }
+        let row = i / self.spec.cols;
+        let open = bands.iter().find(|band| band.row == row).map_or(0.0, |band| band.expansion);
+        let label = src.label(i).revealed(card_row::band_reveal(open));
         if focused {
-            let row = i / self.spec.cols;
-            let open = bands.iter().find(|band| band.row == row).map_or(0.0, |band| band.expansion);
-            let label = src.label(i).revealed(card_row::band_reveal(open));
             #[cfg(feature = "devtriggers")]
             crate::card_probe::begin_card();
             card_row::draw_focused(p, src.art(i), rect, s, &self.spec.style, src.progress(i), &label, f.measure);
@@ -552,6 +552,7 @@ impl Grid {
             }
         } else {
             card_row::draw_tile(p, src.art(i), rect, s, &self.spec.style, src.progress(i));
+            card_row::draw_tile_label(p, rect, s, &self.spec.style, &label, f.measure);
         }
         src.overlay(p, i, &Tile { rect, scale: s, radius: self.spec.style.tile_radius(rect, s), focused }, f.measure);
     }
