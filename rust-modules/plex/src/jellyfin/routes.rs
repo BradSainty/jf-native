@@ -98,6 +98,7 @@ pub fn handle(origin: &Origin, path: &str, method: Method, headers: &[&str]) -> 
         (_, ["library", "people", id, "media"]) => r.person_media(id),
         (_, ["library", "streams", n]) => r.subtitle(n),
         (_, ["library", "all"]) => empty(),
+        (_, ["library", "collections", id, "children"]) => r.collection_members(id),
         (_, ["library", "collections", ..]) => empty(),
         (Method::Post, ["playQueues"]) => r.play_queue(),
         (_, ["video", ":", "transcode", "universal", "decision"]) => r.decision(),
@@ -239,6 +240,13 @@ impl Route<'_> {
 
     /// The sort menu the grid's Sort button lists, and its Jellyfin spelling.
     fn sort_options(kind: &str) -> Value {
+        if kind == "collection" {
+            // A collection has no release date, rating or runtime of its own to sort by.
+            return json!({ "Type": [{ "active": 1, "Sort": [
+                { "key": "titleSort", "descKey": "titleSort:desc", "defaultDirection": "asc", "title": "Title" },
+                { "key": "addedAt", "descKey": "addedAt:desc", "defaultDirection": "desc", "title": "Date Added" },
+            ] }] });
+        }
         let mut opts = vec![
             json!({ "key": "titleSort", "descKey": "titleSort:desc", "defaultDirection": "asc", "title": "Title" }),
             json!({ "key": "addedAt", "descKey": "addedAt:desc", "defaultDirection": "desc", "title": "Date Added" }),
@@ -269,7 +277,11 @@ impl Route<'_> {
 
     fn section_all(&self, k: &str) -> Answer {
         let Some(v) = self.view(k) else { return empty() };
-        let plex_type = self.q.int("type").unwrap_or(if v.kind == "show" { 2 } else { 1 });
+        let plex_type = self.q.int("type").unwrap_or(match v.kind {
+            "show" => 2,
+            "collection" => 18,
+            _ => 1,
+        });
         let (by, order) = Self::jf_sort(self.q.str("sort"));
         let start = self.start();
         let size = self.size(60);
@@ -295,6 +307,20 @@ impl Route<'_> {
             mc["Meta"] = Self::sort_options(v.kind);
         }
         ok(mc)
+    }
+
+    /// `/library/collections/{rk}/children` — a collection's films and shows, paged as the
+    /// Collection page asks, in release order across both (a show by its first air date). Each
+    /// member keeps its own library: a collection gathers items from any of them.
+    fn collection_members(&self, id: &str) -> Answer {
+        let start = self.start();
+        let size = self.size(60);
+        let body = self.items(&format!(
+            "parentId={id}&sortBy=PremiereDate,ProductionYear,SortName&sortOrder=Ascending&startIndex={start}&limit={}",
+            size.max(1)
+        ))?;
+        let md = if size == 0 { Vec::new() } else { map::list(&body, &self.env) };
+        ok(map::container_of(md, int(&body, "TotalRecordCount"), start))
     }
 
     fn genres(&self, k: &str) -> Answer {
@@ -347,6 +373,7 @@ impl Route<'_> {
         let count = self.q.int("count").unwrap_or(12);
         let hubs: Vec<Value> = api::views(self.conn, self.ctx, false)
             .iter()
+            .filter(|v| v.holds_media())
             .filter_map(|v| self.recently_added_hub(v, count))
             .collect();
         ok(json!({ "size": hubs.len(), "Hub": hubs }))
@@ -365,7 +392,7 @@ impl Route<'_> {
         let u = self.uid();
         let views = match parent {
             Some(v) => vec![v.clone()],
-            None => api::views(self.conn, self.ctx, false),
+            None => api::views(self.conn, self.ctx, false).into_iter().filter(View::holds_media).collect(),
         };
         let mut out: Vec<Value> = Vec::new();
         for v in &views {
@@ -422,7 +449,7 @@ impl Route<'_> {
     }
 
     fn section_hubs(&self, k: &str) -> Answer {
-        let Some(v) = self.view(k) else { return ok(json!({ "size": 0, "Hub": [] })) };
+        let Some(v) = self.view(k).filter(View::holds_media) else { return ok(json!({ "size": 0, "Hub": [] })) };
         let count = self.q.int("count").unwrap_or(12);
         let mut hubs = Vec::new();
         let resume = self.resume_and_next(Some(&v), count);

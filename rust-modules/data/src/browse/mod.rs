@@ -342,6 +342,8 @@ impl LibraryType {
         match kind {
             SecKind::Movie => &[Self::Primary, Self::Collections],
             SecKind::Show => &[Self::Primary, Self::Seasons, Self::Episodes, Self::Collections],
+            // the Collections folder's own listing IS its collections: there is nothing to switch to
+            SecKind::Collection => &[Self::Primary],
         }
     }
 
@@ -355,7 +357,8 @@ impl LibraryType {
             (Self::Primary, SecKind::Show) => plx_platform::i18n::msg::browse_kind_tv_shows_in(locale),
             (Self::Seasons, _) => plx_platform::i18n::msg::browse_kind_seasons_in(locale),
             (Self::Episodes, _) => plx_platform::i18n::msg::browse_kind_episodes_in(locale),
-            (Self::Collections, _) => plx_platform::i18n::msg::browse_kind_collections_in(locale),
+            (Self::Collections, _) | (Self::Primary, SecKind::Collection) =>
+                plx_platform::i18n::msg::browse_kind_collections_in(locale),
         }
     }
 
@@ -368,7 +371,8 @@ impl LibraryType {
             (Self::Primary, SecKind::Show) => plx_platform::i18n::msg::browse_library_no_shows(library),
             (Self::Seasons, _) => plx_platform::i18n::msg::browse_library_no_seasons(library),
             (Self::Episodes, _) => plx_platform::i18n::msg::browse_library_no_episodes(library),
-            (Self::Collections, _) => plx_platform::i18n::msg::browse_library_no_collections(library),
+            (Self::Collections, _) | (Self::Primary, SecKind::Collection) =>
+                plx_platform::i18n::msg::browse_library_no_collections(library),
         }
     }
 
@@ -381,16 +385,17 @@ impl LibraryType {
             (Self::Primary, SecKind::Show) => Some(2),
             (Self::Seasons, _) => Some(3),
             (Self::Episodes, _) => Some(4),
-            (Self::Collections, _) => Some(18),
+            (Self::Collections, _) | (Self::Primary, SecKind::Collection) => Some(18),
         }
     }
 
     /// Do the Unwatched and Genre filters apply? A collection has no watch state of its own and
-    /// no genre, so both are hidden — and not sent — while collections are listed. The section's
-    /// Unwatched switch is kept for when its own type is listed again (a genre never survives a
-    /// type change, in the session or in the saved view: it names one type's menu).
-    pub fn filters(self) -> bool {
-        self != Self::Collections
+    /// no genre, so both are hidden — and not sent — while collections are listed (in a section's
+    /// Collections type, or anywhere in the Collections folder). The section's Unwatched switch is
+    /// kept for when its own type is listed again (a genre never survives a type change, in the
+    /// session or in the saved view: it names one type's menu).
+    pub fn filters(self, kind: SecKind) -> bool {
+        self.plex_type(kind) != Some(18)
     }
 
     /// The word the saved view records this listing as ([`plx_plex::plex::session::LibraryView::listing`]):
@@ -748,7 +753,7 @@ impl SecState {
         if let Some(kind) = self.library_type.plex_type(section_kind) {
             filters.push(("type".into(), kind.to_string()));
         }
-        if !self.library_type.filters() {
+        if !self.library_type.filters(section_kind) {
             return filters;
         }
         if self.unwatched {
@@ -2979,10 +2984,15 @@ fn project_sections(mc: &plx_plex::plex::MediaContainer) -> Vec<(i64, String, Se
 /// grid an artist opens the movie detail page, which has nothing to play, so the pill led to a dead
 /// end that looked like a feature. Re-add a variant here in the commit that builds its level, not
 /// before — the projection is ready for it and needs no change.
+///
+/// **`Collection` is JF Native's level**: Jellyfin keeps every collection in one folder of its
+/// own (the `boxsets` view), and its tab lists them as a grid of collection tiles, each of which
+/// opens the Collection page (films and shows together). Its listing is always `type=18`.
 #[derive(Clone, Copy, PartialEq, Eq, Debug)]
 pub enum SecKind {
     Movie,
     Show,
+    Collection,
 }
 
 impl SecKind {
@@ -2994,6 +3004,7 @@ impl SecKind {
         match s {
             "movie" => Some(SecKind::Movie),
             "show" => Some(SecKind::Show),
+            "collection" => Some(SecKind::Collection),
             _ => None,
         }
     }
@@ -3005,6 +3016,7 @@ impl SecKind {
         match self {
             SecKind::Movie => "movie",
             SecKind::Show => "show",
+            SecKind::Collection => "collection",
         }
     }
     /// The same thing as a standalone label ("Films"), for a row whose count has not landed yet.
@@ -3012,6 +3024,7 @@ impl SecKind {
         match self {
             SecKind::Movie => plx_platform::i18n::msg::browse_kind_films(),
             SecKind::Show => plx_platform::i18n::msg::browse_kind_tv_shows_sentence(),
+            SecKind::Collection => plx_platform::i18n::msg::browse_kind_collections(),
         }
     }
 }
@@ -3031,6 +3044,8 @@ pub const PLAYS_SORT_KEY: &str = "viewCount";
 fn kind_offers_plays_sort(kind: SecKind) -> bool {
     match kind {
         SecKind::Movie | SecKind::Show => true,
+        // a collection has no play count of its own
+        SecKind::Collection => false,
     }
 }
 
@@ -3108,7 +3123,7 @@ fn activate_source_of(_i: usize) {
 
 /// Every type this product has a pill for, in strip order. A pill is only DRAWN when the
 /// favourite set can fill it — see [`tab_kinds`] — so this is the vocabulary, not the strip.
-pub const TAB_KINDS: [SecKind; 2] = [SecKind::Movie, SecKind::Show];
+pub const TAB_KINDS: [SecKind; 3] = [SecKind::Movie, SecKind::Show, SecKind::Collection];
 
 // ---- favourites: the ONE control, it governs the WHOLE APP, and it is PER PROFILE ------------
 //
@@ -3210,13 +3225,12 @@ pub struct SrcRow {
 }
 
 fn count_line(count: i64, kind: SecKind) -> String {
-    if count >= 0 {
-        match kind {
-            SecKind::Movie => plx_platform::i18n::msg::browse_person_films(count),
-            SecKind::Show => plx_platform::i18n::msg::browse_person_shows(count),
-        }
-    } else {
-        kind.plural().to_string()
+    match kind {
+        SecKind::Movie if count >= 0 => plx_platform::i18n::msg::browse_person_films(count),
+        SecKind::Show if count >= 0 => plx_platform::i18n::msg::browse_person_shows(count),
+        // the catalog has no counted phrase for collections: the type word stands in, as it does
+        // for every kind before its count lands
+        _ => kind.plural().to_string(),
     }
 }
 

@@ -14,6 +14,16 @@ pub(crate) enum Pill {
     Search,
 }
 
+/// A library pill's stable strip id (`STRIP_BASE + id`): Home 0, Movies 1, TV Shows 2, Search 3, the
+/// account chip 4, and JF Native's Collections 5.
+fn strip_id(kind: SecKind) -> u32 {
+    match kind {
+        SecKind::Movie => 1,
+        SecKind::Show => 2,
+        SecKind::Collection => 5,
+    }
+}
+
 pub(crate) fn tab_count(directory: DirectoryView<'_>) -> usize {
     1 + directory.tab_count() + 1
 }
@@ -82,11 +92,12 @@ impl ChromeSnapshot {
             self.keys.push(STRIP_BASE);
             for i in 0..directory.tab_count() {
                 let Some(kind) = directory.tab_kind(i) else { continue };
-                self.labels.push(match kind { SecKind::Movie => plx_platform::i18n::msg::browse_kind_movies(), SecKind::Show => plx_platform::i18n::msg::browse_kind_tv_shows() }.into());
-                self.keys.push(STRIP_BASE + match kind {
-                    SecKind::Movie => 1,
-                    SecKind::Show => 2,
-                });
+                self.labels.push(match kind {
+                    SecKind::Movie => plx_platform::i18n::msg::browse_kind_movies(),
+                    SecKind::Show => plx_platform::i18n::msg::browse_kind_tv_shows(),
+                    SecKind::Collection => plx_platform::i18n::msg::browse_kind_collections(),
+                }.into());
+                self.keys.push(STRIP_BASE + strip_id(kind));
             }
             self.labels.push(String::new());
             self.keys.push(STRIP_BASE + 3);
@@ -114,7 +125,7 @@ impl ChromeSnapshot {
     }
 
     pub(crate) fn library_selection(&self, kind: SecKind) -> u32 {
-        let elem = STRIP_BASE + match kind { SecKind::Movie => 1, SecKind::Show => 2 };
+        let elem = STRIP_BASE + strip_id(kind);
         self.keys.iter().position(|key| *key == elem).unwrap_or(0) as u32
     }
 

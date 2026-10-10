@@ -93,6 +93,7 @@ impl TestBrowse {
         match self.state.tab_kinds().nth(tab) {
             Some(SecKind::Movie) => "Movies",
             Some(SecKind::Show) => "TV Shows",
+            Some(SecKind::Collection) => "Collections",
             None => "",
         }
     }
@@ -155,6 +156,7 @@ pub(super) fn registered_page_source_of_kind(
     let title = match kind {
         SecKind::Movie => "Movies",
         SecKind::Show => "TV Shows",
+        SecKind::Collection => "Collections",
     };
     browse.append_sections(0, vec![(1, title.into(), kind)]);
     (cleanup, browse, sid, client)

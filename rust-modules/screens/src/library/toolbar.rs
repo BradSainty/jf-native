@@ -18,7 +18,7 @@ impl LibraryScreen {
     /// Every library lists more than one type ([`plx_data::browse::LibraryType::offered`]), so TYPE
     /// always leads; FILTER goes while the listed type takes no filters (collections).
     pub(super) fn toolbar_elems(&self) -> &'static [u32] {
-        if self.listed.filters() { &[TYPE, SORT, FILTER] } else { &[TYPE, SORT] }
+        if self.listed.filters(self.kind) { &[TYPE, SORT, FILTER] } else { &[TYPE, SORT] }
     }
 
     pub(super) fn view_section<H: LibraryLike>(&self, cx: &Cx<'_, H>) -> Option<usize> {

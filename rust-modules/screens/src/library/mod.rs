@@ -873,6 +873,7 @@ impl LibraryScreen {
             Some(2) => Some(LibraryReq::Tab(HomeTab::Shows)),
             Some(3) => Some(LibraryReq::Tab(HomeTab::Search)),
             Some(4) => Some(LibraryReq::Account),
+            Some(5) => Some(LibraryReq::Tab(HomeTab::Collections)),
             _ => None,
         };
         if let Some(req) = req { fx.push(Fx::App(AppFx::Library(req))); return Handled::Yes; }
@@ -1567,8 +1568,8 @@ impl<H: LibraryLike> Screen<H> for LibraryScreen {
 impl LogicalState for LibraryScreen {
     fn write(&self, c: &mut Canon) {
         c.u32(self.entry.0).u32(self.instance.0);
-        c.u32(match self.kind { SecKind::Movie => 0, SecKind::Show => 1 });
-        c.option(self.wanted_kind, |c, kind| { c.u32(match kind { SecKind::Movie => 0, SecKind::Show => 1 }); });
+        c.u32(match self.kind { SecKind::Movie => 0, SecKind::Show => 1, SecKind::Collection => 2 });
+        c.option(self.wanted_kind, |c, kind| { c.u32(match kind { SecKind::Movie => 0, SecKind::Show => 1, SecKind::Collection => 2 }); });
         c.f32(self.scroll.pos).f32(self.scroll.vel).f32(self.scroll_target);
         c.option(self.restore_scroll, |c, value| { c.f32(value); });
         c.bool(self.live).bool(self.initial);

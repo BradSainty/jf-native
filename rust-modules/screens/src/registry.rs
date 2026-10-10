@@ -239,6 +239,8 @@ pub enum HomeTab {
     Movies,
     Shows,
     Search,
+    /// JF Native: the Collections folder (`SecKind::Collection`).
+    Collections,
 }
 
 /// Addressed bootstrap/diagnostic intentions. They use the same owned step and focus engine as

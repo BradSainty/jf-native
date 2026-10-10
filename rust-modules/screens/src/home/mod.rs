@@ -91,6 +91,8 @@ pub const STRIP_MOVIES_ELEM: u32 = plx_ui::dispatch::STRIP_BASE + 1;
 pub const STRIP_SHOWS_ELEM: u32 = plx_ui::dispatch::STRIP_BASE + 2;
 pub const STRIP_SEARCH_ELEM: u32 = plx_ui::dispatch::STRIP_BASE + 3;
 pub const STRIP_ACCOUNT_ELEM: u32 = plx_ui::dispatch::STRIP_BASE + 4;
+/// JF Native's Collections pill. After the account chip, so no upstream key moves.
+pub const STRIP_COLLECTIONS_ELEM: u32 = plx_ui::dispatch::STRIP_BASE + 5;
 
 const MAX_ITEMS: usize = plx_data::pms::MAX_SHELF_ITEMS;
 const HERO_FLIP_CD: f32 = 0.35;
@@ -1358,6 +1360,7 @@ impl HomeScreen {
             STRIP_HOME_ELEM => HomeReq::Tab(HomeTab::Home),
             STRIP_MOVIES_ELEM => HomeReq::Tab(HomeTab::Movies),
             STRIP_SHOWS_ELEM => HomeReq::Tab(HomeTab::Shows),
+            STRIP_COLLECTIONS_ELEM => HomeReq::Tab(HomeTab::Collections),
             STRIP_SEARCH_ELEM => HomeReq::Tab(HomeTab::Search),
             STRIP_ACCOUNT_ELEM => HomeReq::Account,
             _ => return None,
@@ -1418,6 +1421,7 @@ impl HomeScreen {
                     HomeTab::Home => STRIP_HOME_ELEM,
                     HomeTab::Movies => STRIP_MOVIES_ELEM,
                     HomeTab::Shows => STRIP_SHOWS_ELEM,
+                    HomeTab::Collections => STRIP_COLLECTIONS_ELEM,
                     HomeTab::Search => STRIP_SEARCH_ELEM,
                 };
                 self.strip_chosen = true;

@@ -870,6 +870,7 @@ fn home_tab_available(
     let kind = match tab {
         HomeTab::Movies => Some(plx_data::stores::browse::SecKind::Movie),
         HomeTab::Shows => Some(plx_data::stores::browse::SecKind::Show),
+        HomeTab::Collections => Some(plx_data::stores::browse::SecKind::Collection),
         _ => None,
     };
     kind.is_none_or(|kind| directory.tab_of_kind(kind).is_some())

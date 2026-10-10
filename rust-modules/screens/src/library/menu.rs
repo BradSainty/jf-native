@@ -102,6 +102,7 @@ fn stamp_kind(stamp: &mut Stamp, kind: Option<plx_data::browse::SecKind>) {
         None => 0,
         Some(plx_data::browse::SecKind::Movie) => 1,
         Some(plx_data::browse::SecKind::Show) => 2,
+        Some(plx_data::browse::SecKind::Collection) => 3,
     });
 }
 
