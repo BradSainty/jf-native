@@ -360,7 +360,9 @@ pub fn item(it: &Value, env: &Env) -> Option<Value> {
         o.insert("originallyAvailableAt".into(), json!(&premiere[..10]));
     }
     o.insert("duration".into(), json!(ticks_ms(int(it, "RunTimeTicks"))));
-    o.insert("viewOffset".into(), json!(ticks_ms(int(&ud, "PlaybackPositionTicks"))));
+    let offset = ticks_ms(int(&ud, "PlaybackPositionTicks"));
+    let offset = if leaf { super::position_ms(id, offset) } else { offset };
+    o.insert("viewOffset".into(), json!(offset));
     o.insert("lastViewedAt".into(), json!(unix_secs(s(&ud, "LastPlayedDate"))));
     o.insert("updatedAt".into(), json!(unix_secs(s(it, "DateCreated"))));
     o.insert("addedAt".into(), json!(unix_secs(s(it, "DateCreated"))));

@@ -55,6 +55,51 @@ pub fn runtime_ms_for_stream(path: &str) -> Option<i64> {
     runtimes().lock().ok()?.get(id).copied().filter(|ms| *ms > 0)
 }
 
+/// The last position this app reported for an item, kept until the server agrees with it.
+///
+/// Leaving the player refreshes the item page at once, but the `/Sessions/Playing/Stopped` that
+/// carries the final position is still in flight (it takes seconds on a busy server), so the
+/// refresh used to read the position from the play BEFORE and Resume restarted there. The app is
+/// the one place that knows the newest position, so a report it made wins over what the server
+/// answers until the server answers the same, or until the entry is too old to trust over a play
+/// on another device.
+struct Reported {
+    ms: i64,
+    at: std::time::Instant,
+}
+
+const REPORTED_TTL: std::time::Duration = std::time::Duration::from_secs(15 * 60);
+
+fn reported() -> &'static std::sync::Mutex<std::collections::HashMap<String, Reported>> {
+    static R: std::sync::OnceLock<std::sync::Mutex<std::collections::HashMap<String, Reported>>> =
+        std::sync::OnceLock::new();
+    R.get_or_init(|| std::sync::Mutex::new(std::collections::HashMap::new()))
+}
+
+fn note_position(id: &str, ms: i64) {
+    if let Ok(mut r) = reported().lock() {
+        r.insert(id.to_string(), Reported { ms, at: std::time::Instant::now() });
+    }
+}
+
+fn forget_position(id: &str) {
+    if let Ok(mut r) = reported().lock() {
+        r.remove(id);
+    }
+}
+
+/// The position to show for `id`, given the one the server answered: the app's own newer report
+/// while the server has not caught up with it, otherwise the server's.
+fn position_ms(id: &str, server_ms: i64) -> i64 {
+    let Ok(mut r) = reported().lock() else { return server_ms };
+    let Some(mine) = r.get(id) else { return server_ms };
+    if mine.at.elapsed() > REPORTED_TTL || (mine.ms - server_ms).abs() < 2_000 {
+        r.remove(id);
+        return server_ms;
+    }
+    mine.ms
+}
+
 /// Is `origin` a Jellyfin server? Everything except the plex.tv family is: this fork has no PMS.
 /// plex.tv itself is left alone so the remaining account code fails the way it always did when
 /// plex.tv is unreachable, rather than being answered by a server that has no idea what it means.
@@ -77,4 +122,22 @@ static TEST_INTERCEPT: std::sync::atomic::AtomicBool = std::sync::atomic::Atomic
 #[cfg(any(test, feature = "test-support"))]
 pub fn intercept_in_tests(on: bool) {
     TEST_INTERCEPT.store(on, std::sync::atomic::Ordering::Relaxed);
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn a_reported_position_wins_until_the_server_catches_up() {
+        let id = "position-test-item";
+        assert_eq!(position_ms(id, 1_000), 1_000, "nothing reported: the server's");
+        note_position(id, 4_135_000);
+        assert_eq!(position_ms(id, 2_568_000), 4_135_000, "a stale server answer loses");
+        assert_eq!(position_ms(id, 4_134_500), 4_134_500, "the server caught up");
+        assert_eq!(position_ms(id, 2_568_000), 2_568_000, "and the report is spent");
+        note_position(id, 4_135_000);
+        forget_position(id);
+        assert_eq!(position_ms(id, 0), 0, "marking played forgets the report");
+    }
 }
