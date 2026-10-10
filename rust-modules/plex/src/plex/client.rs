@@ -472,7 +472,15 @@ impl Client {
     /// How this server is reached, `None` while nothing has said. Feed it to
     /// [`super::transcoder::link_policy`] rather than matching on it at a call site — a relay is
     /// not the only fact a tier could ever carry, and the policy is the one place that decides.
+    ///
+    /// A Jellyfin server is always `Local`. The tiers are plex.tv's: `Remote` sends playback
+    /// through Auto's bandwidth probing and a server remux, and the only thing this fork could base
+    /// it on is the address — a household's server on its own domain name (a reverse proxy on the
+    /// LAN) reads as remote by that rule, and lost direct play to it.
     pub fn link(&self) -> Option<Location> {
+        if crate::jellyfin::intercepts(&self.origin) {
+            return Some(Location::Local);
+        }
         decode_link(self.link.load(Relaxed))
     }
     pub fn ip_version(&self) -> Option<IpVersion> {
