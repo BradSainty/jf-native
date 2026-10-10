@@ -5164,25 +5164,25 @@ fn keyline_left(label_x: f32, text: &str, m: &dyn plx_machine::machine::Measure)
     (left, left + plx_ui::widgets::keyline_chip_w(text, m))
 }
 
-/// **The identity line: the chips stand `SM` after the dotted run and `XS` apart.**
+/// **The identity line (JF Native): words and chips stand one `FACT_GAP` apart**, with no kind
+/// word and no CC chip (SDH keeps its own).
 #[test]
-fn the_identity_line_paints_sm_after_the_run_and_xs_between_chips() {
+fn the_identity_line_paints_its_members_one_fact_gap_apart() {
     let _guard = plx_base::testlock::serial();
     let screen = bare_held(ServerId::UNSET, "rk");
-    let d = identity_detail(false);
+    let mut d = identity_detail(false);
+    d.genres = vec!["Drama".into()];
     let m = &plx_base::fontcov::advances::ShippedMeasure;
     let runs = plx_ui::draw_census::capture_runs(|| screen.draw_identity_line(plx_ui::Painter::recording(), &d, 300.0, m));
-    let kind = plx_platform::i18n::msg::browse_kind_movie();
-    let kind_run = runs.iter().find(|r| r.text == kind).expect("the kind label is painted");
-    let run_right = kind_run.at.x + kind_run.at.w;
+    assert!(runs.iter().all(|r| r.text != plx_platform::i18n::msg::browse_kind_movie()), "no kind word");
+    let genre = runs.iter().find(|r| r.text == "Drama").expect("the genre is painted");
+    let gap = plx_ui::detail_layout::FACT_GAP;
     let res = filled_left(painted_x(&runs, "1080p").expect("resolution chip"), "1080p", m);
-    let cc_label = plx_platform::i18n::msg::widgets_badge_cc();
+    assert!((res.0 - (genre.at.x + genre.at.w) - gap).abs() < 0.5, "FACT_GAP after the words: {}", res.0);
+    assert!(painted_x(&runs, plx_platform::i18n::msg::widgets_badge_cc()).is_none(), "no CC chip");
     let sdh_label = plx_platform::i18n::msg::widgets_badge_sdh();
-    let cc = keyline_left(painted_x(&runs, cc_label).expect("CC chip"), cc_label, m);
     let sdh = keyline_left(painted_x(&runs, sdh_label).expect("SDH chip"), sdh_label, m);
-    assert!((res.0 - run_right - theme::space::SM).abs() < 0.5, "SM after the dotted run: {} vs {run_right}", res.0);
-    assert!((cc.0 - res.1 - theme::space::XS).abs() < 0.5, "XS between the badge and the first chip");
-    assert!((sdh.0 - cc.1 - theme::space::XS).abs() < 0.5, "XS between the chips");
+    assert!((sdh.0 - res.1 - gap).abs() < 0.5, "FACT_GAP between the badge and the chip");
 }
 
 /// **An empty dotted run owes no gap**: the first chip stands on the margin itself.

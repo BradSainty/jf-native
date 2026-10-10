@@ -3721,6 +3721,11 @@ fn meta_drawn_w(view: &TextView<'_>, text: &str, width: f32, measure: &dyn Measu
     }
     measure.width_str(text, theme::size::BODY, false).min(width)
 }
+/// **JF Native's billboard line names the year alone** (the owner's call): no "Movie"/"Show" — the
+/// artwork already says which — and no rating, which the detail page carries. Upstream's line stays
+/// behind this switch.
+const HERO_YEAR_ONLY: bool = true;
+
 fn hero_content(hero: &PmsMovie, source: &str, p: Painter, dx: f32, measure: &dyn Measure) {
     if !on_axis(
         MARGIN_X + dx,
@@ -3748,6 +3753,8 @@ fn hero_content(hero: &PmsMovie, source: &str, p: Painter, dx: f32, measure: &dy
         }
         text.push_str(&hero.title);
         text
+    } else if HERO_YEAR_ONLY {
+        if hero.year > 0 { hero.year.to_string() } else { String::new() }
     } else {
         format!(
             "{}{gap}{}{gap}{}",

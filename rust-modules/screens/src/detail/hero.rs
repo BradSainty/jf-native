@@ -59,7 +59,8 @@ pub const HERO_GROUP: GroupId = GroupId(0);
 // the disc-unfurl budget and the meta line) lives in `appkit::hero_layout`, so the catalog page lays
 // out with the same numbers.
 pub use plx_appkit::hero_layout::{HeroWidths, CD, DISCS, MAX_CTLS};
-use plx_appkit::hero_layout::{FACTS_R, PW};
+// (`FACTS_R` is this file's own: JF Native's hero has no People column to stop short of.)
+use plx_appkit::hero_layout::PW;
 #[cfg(test)]
 use plx_appkit::hero_layout::CGAP;
 const PEOPLE_MAX_LINES: usize = 2;
@@ -68,6 +69,18 @@ const PEOPLE_MAX_LINES: usize = 2;
 const PEOPLE_SUMMARY: usize = 3;
 const PEOPLE_LABEL_INK: [f32; 4] = theme::TEXT_TERTIARY;
 const FACTS_SEP_PAD: f32 = theme::space::SM;
+/// **JF Native's hero is leaner than upstream's** (the owner's call): no people column pinned to
+/// the right edge over the artwork — the credits are a table in the About section instead
+/// (`about::Rows`) — and no "how it will play" fragment (Direct Play, Direct Stream, conversion
+/// notes) on the facts row. Upstream's code stays behind these switches.
+const SHOW_PEOPLE: bool = false;
+const SHOW_PLAY_MODE: bool = false;
+/// Whether the facts row separates its members with upstream's `pad · pad`; JF Native spaces them
+/// by `detail_layout::FACT_GAP` alone.
+const FACTS_DOT: bool = false;
+const FACTS_R: f32 = plx_ui::consts::SCR_W
+    - plx_ui::consts::MARGIN_X
+    - if SHOW_PEOPLE { plx_ui::detail_layout::PEOPLE_W + theme::space::SM } else { 0.0 };
 
 /// The Alt pill's trailing mark: drawn by `Button::trailing_icon` and counted by [`alt_pill_w`], so
 /// the pill is sized to the very glyph it carries.
@@ -495,10 +508,13 @@ pub fn hero_credit(d: &Detail) -> Option<(&'static str, Vec<&str>)> {
 }
 
 pub fn has_people(d: &Detail) -> bool {
-    !d.cast.is_empty() || hero_credit(d).is_some()
+    SHOW_PEOPLE && (!d.cast.is_empty() || hero_credit(d).is_some())
 }
 
 pub fn draw_people(p: Painter, d: &Detail, button_y: f32, measure: &dyn Measure) {
+    if !SHOW_PEOPLE {
+        return;
+    }
     use plx_ui::detail_layout::PEOPLE_W;
     let x = plx_ui::consts::SCR_W - plx_ui::consts::MARGIN_X - PEOPLE_W;
     let cast_names: Vec<&str> = d
@@ -547,8 +563,24 @@ fn people_view<'a>(names: &'a str, label: &'a str, measure: &'a dyn Measure) -> 
         .lead_quiet(label, PEOPLE_LABEL_INK)
 }
 
+/// The year of a release: `year` when the server gave one, else the first four digits of its
+/// `YYYY-MM-DD` air date, else nothing. JF Native's facts row names the year, never the full date.
+fn release_year(aired: &str, year: i64) -> String {
+    if year > 0 {
+        return year.to_string();
+    }
+    aired.get(..4).filter(|y| y.bytes().all(|b| b.is_ascii_digit())).unwrap_or("").to_string()
+}
+
 fn hero_facts(d: &Detail) -> (String, Option<String>) {
-    plx_appkit::hero_layout::meta_facts(d, hero_episode(d))
+    let episode = hero_episode(d);
+    let (_, extent) = plx_appkit::hero_layout::meta_facts(d, episode);
+    // JF Native names the year alone, never the full release date
+    let year = match episode {
+        Some(ep) => release_year(&ep.aired, 0),
+        None => release_year(&d.aired, d.year),
+    };
+    (year, extent)
 }
 
 #[derive(Clone, Copy, PartialEq, Eq, Debug)]
@@ -595,6 +627,9 @@ enum Bit {
 const FACTS_BITS: usize = 8;
 
 fn play_mode_bits(d: &Detail, after: bool) -> ([Bit; FACTS_BITS], usize) {
+    if !SHOW_PLAY_MODE {
+        return ([Bit::Air(0.0); FACTS_BITS], 0);
+    }
     match plx_media::route::playback_preview(d) {
         Some(preview) => play_mode_bits_for(preview, d.hdr, item_subscription(d), after),
         None => ([Bit::Air(0.0); FACTS_BITS], 0),
@@ -768,10 +803,15 @@ fn facts_flow(
     // The date, the extent and the dots between them are one `Flow` whose gap is the dot's pad; the
     // play-mode clause carries its own leading dot (`mode` is told whether something precedes it),
     // so the credit's flow starts at the clause's end with a zero-width item standing for it.
+    // JF Native (`FACTS_DOT` off): no dot, and the members one even `detail_layout::FACT_GAP` apart.
+    let gap = if FACTS_DOT { FACTS_SEP_PAD } else { plx_ui::detail_layout::FACT_GAP };
     let dot = |run: &mut dyn FnMut(&str, f32, c_int, [f32; 4]) -> f32, x: f32| {
+        if !FACTS_DOT {
+            return Item::absent();
+        }
         Item::new(run("\u{b7}", x, theme::size::CAPTION, theme::TEXT_SEPARATOR))
     };
-    let mut flow = Flow::new(0.0, FACTS_SEP_PAD);
+    let mut flow = Flow::new(0.0, gap);
     let mut any = false;
     for part in parts.iter().filter(|part| !part.is_empty()) {
         if any {
@@ -783,7 +823,7 @@ fn facts_flow(
     // the clause abuts the run before it: it stands its own dot `FACTS_SEP_PAD` out
     let mode_w = mode(flow.end(), any);
     any |= mode_w > 0.0;
-    let mut flow = Flow::new(flow.end() + mode_w, FACTS_SEP_PAD);
+    let mut flow = Flow::new(flow.end() + mode_w, gap);
     if !credit.is_empty() {
         if any {
             flow.push(Item::new(0.0)); // the run in front (the last run or the clause)
@@ -1243,47 +1283,32 @@ mod tests {
         assert_eq!(events.into_inner().last(), Some(&Event::Mode));
     }
 
-    /// Q2, painted: the facts line is flowed and PAINTED through a recording painter, and every
-    /// dot on it, the one before the play-mode clause included, stands `FACTS_SEP_PAD` after the
-    /// run before it and `FACTS_SEP_PAD` before the run after it. With nothing in front of the
-    /// clause there is no dot.
+    /// JF Native, painted: the facts line has no dots (`FACTS_DOT` off) and no play-mode clause
+    /// (`SHOW_PLAY_MODE` off); its members, the source credit included, stand one
+    /// `detail_layout::FACT_GAP` apart.
     #[test]
-    fn a_painted_facts_line_pads_the_play_mode_dot_like_every_other_dot() {
-        use plx_media::route::Preview;
-        use plx_plex::plex::serverinfo::Subscription;
+    fn a_painted_facts_line_spaces_its_members_one_fact_gap_apart() {
         let _g = plx_base::testlock::serial();
-        let measure = plx_ui::widgets::LegacyMeasure;
-        let paint = |parts: &[&str]| {
-            let mut runs = plx_ui::draw_census::capture_runs(|| {
-                let p = Painter::recording();
-                facts_flow(
-                    parts,
-                    "",
-                    |text, dx, size, color| {
-                        let text = CString::new(text).unwrap();
-                        p.text(text.as_ptr(), 100.0 + dx, 50.0, size, color, 0, 0)
-                    },
-                    |dx, after| {
-                        let (bits, n) = play_mode_bits_for(Preview::DirectPlay, false, Subscription::No, after);
-                        paint_bits(p, &bits[..n], 100.0 + dx, 50.0, &measure)
-                    },
-                );
-            });
-            runs.sort_by(|a, b| a.at.x.total_cmp(&b.at.x));
-            runs
-        };
-        let line = paint(&["2021", "1h 40m"]);
-        let dots: Vec<usize> = (0..line.len()).filter(|&i| line[i].text == "\u{b7}").collect();
-        assert_eq!(dots.len(), 2, "one dot between the facts and one before the clause: {line:?}");
-        for i in dots {
-            let (before, after) = (&line[i - 1], &line[i + 1]);
-            let lead = line[i].at.x - (before.at.x + before.at.w);
-            let trail = after.at.x - (line[i].at.x + line[i].at.w);
-            assert!((lead - FACTS_SEP_PAD).abs() < 0.5, "run {} -> dot: {lead}", i - 1);
-            assert!((trail - FACTS_SEP_PAD).abs() < 0.5, "dot -> run {}: {trail}", i + 1);
+        let mut runs = plx_ui::draw_census::capture_runs(|| {
+            let p = Painter::recording();
+            facts_flow(
+                &["2021", "1h 40m"],
+                "friend",
+                |text, dx, size, color| {
+                    let text = CString::new(text).unwrap();
+                    p.text(text.as_ptr(), 100.0 + dx, 50.0, size, color, 0, 0)
+                },
+                |_, _| 0.0,
+            );
+        });
+        runs.sort_by(|a, b| a.at.x.total_cmp(&b.at.x));
+        assert_eq!(runs.iter().map(|r| r.text.as_str()).collect::<Vec<_>>(), ["2021", "1h 40m", "friend"], "no dot");
+        for pair in runs.windows(2) {
+            let gap = pair[1].at.x - (pair[0].at.x + pair[0].at.w);
+            assert!((gap - plx_ui::detail_layout::FACT_GAP).abs() < 0.5, "{} -> {}: {gap}", pair[0].text, pair[1].text);
         }
-        let bare = paint(&["", ""]);
-        assert!(bare.iter().all(|r| r.text != "\u{b7}"), "nothing in front of the clause, no dot: {bare:?}");
+        let d = Detail::default();
+        assert_eq!(play_mode_bits(&d, true).1, 0, "no play-mode clause");
     }
 
     #[test]
@@ -1973,24 +1998,4 @@ mod tests {
         );
     }
 
-    /// The people lines are one bottom-anchored stack: the cast line stays pinned to the button row's
-    /// bottom whether or not a credit line exists above it, and the credit stands wholly above it.
-    #[test]
-    fn the_people_lines_stack_up_from_the_button_row() {
-        let _g = plx_base::testlock::serial();
-        let measure = plx_ui::fixture::FixtureMeasure;
-        let credit = |tag: &str| plx_data::metadata::Cast { tag: tag.into(), role: String::new(), thumb: String::new(), id: 0, tag_key: String::new() };
-        let cast_only = Detail { cast: vec![credit("An Actor")], ..Default::default() };
-        let both = Detail { directors: vec!["A Director".into()], ..cast_only.clone() };
-        let ys = |d: &Detail| {
-            let runs = plx_ui::draw_census::capture_runs(|| draw_people(Painter::recording(), d, 100.0, &measure));
-            runs.iter().map(|r| r.at.y).collect::<Vec<_>>()
-        };
-        let alone = ys(&cast_only);
-        let pair = ys(&both);
-        let cast_y = alone.iter().cloned().fold(f32::MIN, f32::max);
-        assert!(pair.len() > alone.len());
-        assert!((pair.iter().cloned().fold(f32::MIN, f32::max) - cast_y).abs() < 0.01);
-        assert!(pair.iter().cloned().fold(f32::MAX, f32::min) < alone.iter().cloned().fold(f32::MAX, f32::min));
-    }
 }

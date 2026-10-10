@@ -7,6 +7,11 @@ use super::{consts::SCR_W, Rect};
 
 pub const HERO_TEXT_W: f32 = 943.0;
 pub const TITLE_BOTTOM: f32 = 566.0;
+/// JF Native: air between the hero's logo (or title) and [`TITLE_BOTTOM`], on top of the `SM` the
+/// identity line already keeps below it — so a logo that fills its band to the bottom stands a
+/// region gap (`SM + MD` = `LG`) clear of the genres line instead of sitting on it. The logo moves
+/// up into the artwork; nothing below it moves.
+pub const LOGO_AIR: f32 = theme::space::MD;
 pub const PEOPLE_W: f32 = 560.0;
 pub const PEOPLE_LEAD: f32 = 32.0;
 pub const PEOPLE_MAX_LINES: usize = 4;
@@ -21,6 +26,12 @@ pub const PEOPLE_INK: [f32; 4] = theme::TEXT_SECONDARY;
 /// to show. One ink step costs nothing on screen and takes the row to the ordinary 3.0 floor,
 /// exactly as [`PEOPLE_INK`] did for the people column.
 pub const FACTS_INK: [f32; 4] = theme::TEXT_SECONDARY;
+/// **JF Native's one gap between two facts on a hero row** — the identity line under the logo
+/// (genres, rating, resolution badge, access chips) and the facts row (year, runtime) alike, so
+/// both rows space every member the same. Upstream drew `pad · pad` there; with the dot made
+/// transparent (`theme::TEXT_SEPARATOR`) that left a gap nearly twice this one, and the badges
+/// after the text kept smaller gaps of their own. The same air `fmt::GAP` leaves in a joined string.
+pub const FACT_GAP: f32 = theme::space::MD;
 pub const COMPACT_TITLE_BOT: f32 = MARGIN_Y + theme::logo::COMPACT_H_MAX;
 pub const TOP_MARGIN: f32 = COMPACT_TITLE_BOT + 26.0;
 
