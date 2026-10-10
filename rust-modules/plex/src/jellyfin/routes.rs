@@ -747,8 +747,21 @@ impl Route<'_> {
             "" => format!("jfnative-{rk}"),
             s => s.to_string(),
         };
-        let ticks = self.q.int("time").unwrap_or(0).max(0) * 10_000;
+        let ms = self.q.int("time").unwrap_or(0).max(0);
+        let ticks = ms * 10_000;
         let state = self.q.str("state");
+        // Past 90% Jellyfin counts the item played and clears its position; remembering one there
+        // would bring back a Resume the server has rightly dropped.
+        let near_end = super::runtimes()
+            .lock()
+            .ok()
+            .and_then(|r| r.get(&rk).copied())
+            .is_some_and(|run| run > 0 && ms * 10 > run * 9);
+        if near_end {
+            super::forget_position(&rk);
+        } else if ms > 0 {
+            super::note_position(&rk, ms);
+        }
         let body = |paused: bool| {
             json!({
                 "ItemId": rk,
@@ -760,6 +773,7 @@ impl Route<'_> {
             })
         };
         if state == "stopped" {
+            log(&format!("jellyfin: report stopped playSessionId={session} at {}s", ms / 1000));
             started().lock().map(|mut s| s.remove(&session)).ok();
             self.conn.post("/Sessions/Playing/Stopped", Some(&body(false)))?;
             return ok_bare();
@@ -781,6 +795,7 @@ impl Route<'_> {
             s => s,
         };
         if !session.is_empty() {
+            log(&format!("jellyfin: stop encoder playSessionId={session}"));
             self.conn.delete(&format!(
                 "/Videos/ActiveEncodings?deviceId={}&playSessionId={}",
                 enc(&super::api::device_id()),
@@ -795,6 +810,7 @@ impl Route<'_> {
         if id.is_empty() {
             return not_found();
         }
+        super::forget_position(id);
         let u = self.uid();
         let new = format!("/UserPlayedItems/{id}?userId={u}");
         let old = format!("/Users/{u}/PlayedItems/{id}");
@@ -811,6 +827,7 @@ impl Route<'_> {
         if id.is_empty() {
             return not_found();
         }
+        super::forget_position(id);
         let status = self.conn.post(
             &format!("/UserItems/{id}/UserData?userId={}", self.uid()),
             Some(&json!({ "PlaybackPositionTicks": 0 })),
