@@ -38,6 +38,12 @@ pub(super) fn without_window(key: &str) -> String {
     if query.is_empty() { path.to_owned() } else { format!("{path}?{query}") }
 }
 
+/// The window a request carries, read back by a backend that answers PMS requests in-process
+/// (`crate::jellyfin`): `(start, size)`, each `None` when the request does not name it.
+pub fn requested_window(param: impl Fn(&str) -> Option<i64>) -> (Option<i64>, Option<i64>) {
+    (param("X-Plex-Container-Start"), param("X-Plex-Container-Size"))
+}
+
 #[cfg(test)]
 mod tests {
     use super::{paged_path, PageReq};
