@@ -54,6 +54,10 @@ INSTALL_IDENTITIES = json.loads((ROOT / "ci/install-identities.json").read_text(
 FLAVORS = tuple(identity["name"] for identity in INSTALL_IDENTITIES)
 STABLE_ID = next(identity["app_id"] for identity in INSTALL_IDENTITIES
                  if identity["name"] == "stable")
+# JF Native: the debug flavour is the one install the owner runs (CI packages it), so its tile reads
+# the bare title — "Jellyfin+", not "Jellyfin+ debug". Upstream's lowercase suffix is `"debug"`;
+# its id still differs from stable's, so the two can never be confused by the system.
+DEBUG_TITLE_SUFFIX = ""
 
 
 def _release_line_content() -> "str | None":
@@ -106,8 +110,9 @@ def appinfo_for(flavor: str, nightly_date: "str | None" = None) -> dict:
     # at a list — `dev/listApps` and SAM's own dialogs show the title, not the icon. Nightly's own
     # title is a product decision ("PlxNative Nightly", capitalised) rather than the bare lowercase
     # suffix debug uses, so it is spelled out rather than titlecased generically.
-    suffix = "Nightly" if flavor == "nightly" else flavor
-    a["title"] = f"{a['title']} {suffix}"
+    suffix = "Nightly" if flavor == "nightly" else DEBUG_TITLE_SUFFIX
+    if suffix:
+        a["title"] = f"{a['title']} {suffix}"
     # NIGHTLY ONLY: the package version itself moves — to the next minor (or next patch, on a
     # maintenance line) with the CUT DATE as its patch (`version_rule.nightly_package_triplet`),
     # e.g. `0.7.20260919`. Two properties are wanted and both come from that. It is ahead of
@@ -174,15 +179,17 @@ def _selftest() -> int:
     # ...and a flavoured one really is a different app, on every witness webOS reads.
     dbg = appinfo_for("debug")
     check(dbg["id"] == f"{STABLE_ID}.debug", f'debug appinfo id == {STABLE_ID}.debug (got {dbg["id"]})')
-    check(dbg["title"] != tracked_appinfo["title"],
-          f'debug appinfo title differs from stable ({dbg["title"]!r})')
+    want_dbg_title = " ".join(filter(None, (tracked_appinfo["title"], DEBUG_TITLE_SUFFIX)))
+    check(dbg["title"] == want_dbg_title,
+          f'debug appinfo title is {want_dbg_title!r} (got {dbg["title"]!r})')
     check(f"Package: {STABLE_ID}.debug" in control_for(tracked_control, "debug"),
           "debug control Package is the debug id")
     # Everything else must be untouched. A drifted `requiredMemory` or `transparent` is a
     # behaviour change that would show up only on the television, on the flavour nobody releases.
     moved = {k for k in tracked_appinfo if dbg.get(k) != tracked_appinfo[k]}
-    check(moved == {"id", "title"},
-          f"only id and title differ between debug and stable (also saw {sorted(moved - {'id', 'title'})})")
+    may_move = {"id", "title"} if DEBUG_TITLE_SUFFIX else {"id"}
+    check(moved == may_move,
+          f"only {sorted(may_move)} differ between debug and stable (also saw {sorted(moved - may_move)})")
 
     # Nightly is a different app too, AND its package version moves ahead of the tracked one —
     # the one flavour allowed to widen the `moved` set, asserted explicitly rather than by relaxing
