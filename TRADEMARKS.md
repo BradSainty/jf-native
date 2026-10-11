@@ -12,8 +12,10 @@ is stated in `LICENSING.md`; this trademark guidance remains separate.
 JF Native is a fork of [PlxNative](https://github.com/GLinnik21/plx-native). The PlxNative author
 reserves the name **PlxNative** and the PLX logo and splash artwork (`assets/logo-master.png`,
 `assets/splash-master.png`) as the identity of that project, and asks that forks ship under their
-own name and mark. This fork does: it is distributed as **JF Native**, with its own icons and
-splash in `pkg/`, and is not endorsed by or affiliated with the PlxNative author.
+own name and mark. This fork does: it is distributed as **JF Native**, and is not endorsed by or
+affiliated with the PlxNative author. Its launcher tile reads **Jellyfin+** and carries the Jellyfin
+logo (CC BY-SA 4.0; see [`THIRD-PARTY-NOTICES.md`](THIRD-PARTY-NOTICES.md) §2.2), so the owner can
+tell this client from the official one on their own television.
 
 ## Third-party components
 
@@ -25,8 +27,9 @@ well as in this repository.
 ## Jellyfin
 
 This is an unofficial, third-party client. It is **not** affiliated with, endorsed by, or sponsored
-by the Jellyfin project. "Jellyfin" is used here only to describe what this software interoperates
-with.
+by the Jellyfin project. "Jellyfin" is used to describe what this software interoperates with, and
+on the launcher tile (the **Jellyfin+** title and the Jellyfin logo, under CC BY-SA 4.0) of a build
+its owner runs on their own television.
 
 ## Other marks
 

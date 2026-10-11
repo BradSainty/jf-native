@@ -190,6 +190,17 @@ stroke colour set to white.
 The remaining icons in the application are original work by the PlxNative author. See section 4
 for a trademark note that applies to some of them.
 
+**Jellyfin logo and banner** — the launcher icons (`pkg/icon.png`, `pkg/largeIcon.png`,
+`pkg/icon160.png`, `pkg/icon320.png`, `pkg/icon400.png`, `pkg/dev/*.png`, `pkg/nightly/*.png`) and
+the splash (`pkg/splash.png`)
+Copyright the Jellyfin contributors (https://github.com/jellyfin/jellyfin-ux,
+`branding/web/icon-transparent.png` and `branding/web/banner-light.png`). Licence: **Creative
+Commons Attribution-ShareAlike 4.0 International** (https://creativecommons.org/licenses/by-sa/4.0/).
+*Modified*: the icons are composited on the Jellyfin TV navy `#000B25` and scaled to LG's
+launcher-icon geometry by `tools/mkicons.py` (the nightly set carries a NIGHTLY bar); the splash
+centres the banner on the app's own navy gradient (`#1D2635` → `#111827`). These derived images
+are distributed under the same licence.
+
 ### 2.3 Fonts
 
 **Inter** — `appfont.ttf`, `appfont-bold.ttf`
