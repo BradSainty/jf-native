@@ -200,12 +200,16 @@ impl Route<'_> {
         Env { prefix: self.env.prefix.clone(), section: Some((v.key, v.name.clone())) }
     }
 
+    fn window(&self) -> (Option<i64>, Option<i64>) {
+        crate::plex::requested_window(|k| self.q.int(k))
+    }
+
     fn start(&self) -> i64 {
-        self.q.int("X-Plex-Container-Start").unwrap_or(0).max(0)
+        self.window().0.unwrap_or(0).max(0)
     }
 
     fn size(&self, default: i64) -> i64 {
-        self.q.int("X-Plex-Container-Size").or_else(|| self.q.int("count")).unwrap_or(default)
+        self.window().1.or_else(|| self.q.int("count")).unwrap_or(default)
     }
 
     fn view(&self, k: &str) -> Option<View> {
@@ -369,6 +373,8 @@ impl Route<'_> {
         ))
     }
 
+    /// Home's shelves, one Recently Added per library. The list pages BY HUB, so a window names
+    /// hubs, not cards.
     fn home_hubs(&self) -> Answer {
         let count = self.q.int("count").unwrap_or(12);
         let hubs: Vec<Value> = api::views(self.conn, self.ctx, false)
@@ -376,7 +382,11 @@ impl Route<'_> {
             .filter(|v| v.holds_media())
             .filter_map(|v| self.recently_added_hub(v, count))
             .collect();
-        ok(json!({ "size": hubs.len(), "Hub": hubs }))
+        let total = hubs.len();
+        let start = self.start() as usize;
+        let size = self.window().1.map_or(total, |n| n.max(0) as usize);
+        let hubs: Vec<Value> = hubs.into_iter().skip(start).take(size).collect();
+        ok(json!({ "size": hubs.len(), "totalSize": total, "offset": start, "Hub": hubs }))
     }
 
     /// Resume points first, then the next episode of each show in progress — what Plex's
@@ -424,21 +434,26 @@ impl Route<'_> {
         out
     }
 
+    /// Jellyfin has no count of resume points plus next episodes, so a page reads ONE row past its
+    /// window: when that row exists the total runs past the window's end and the row asks for the
+    /// next page, and when it does not the list ends here.
+    fn continue_window(&self, parent: Option<&View>, start: i64, size: i64) -> (Vec<Value>, i64) {
+        let md = self.resume_and_next(parent, start + size + 1);
+        let total = md.len() as i64;
+        (md.into_iter().skip(start as usize).take(size.max(0) as usize).collect(), total)
+    }
+
     fn continue_watching(&self) -> Answer {
         let count = self.q.int("count").unwrap_or(12);
-        let md = self.resume_and_next(None, count.max(24));
-        let total = md.len() as i64;
-        let md: Vec<Value> = md.into_iter().take(count.max(0) as usize).collect();
+        let (md, total) = self.continue_window(None, 0, count);
         let hub = map::hub("home.continue", "/hubs/continueWatching/items", "Continue Watching", "mixed", md, total);
         ok(json!({ "size": 1, "Hub": [hub] }))
     }
 
     fn continue_watching_items(&self) -> Answer {
         let start = self.start();
-        let size = self.size(24);
-        let md = self.resume_and_next(None, start + size);
-        let total = md.len() as i64;
-        ok(map::container_of(md.into_iter().skip(start as usize).collect(), total, start))
+        let (md, total) = self.continue_window(None, start, self.size(24));
+        ok(map::container_of(md, total, start))
     }
 
     fn recently_added_page(&self) -> Answer {
@@ -458,10 +473,9 @@ impl Route<'_> {
 
     fn section_resume_page(&self, k: &str) -> Answer {
         let Some(v) = self.view(k) else { return empty() };
-        let (start, size) = (self.start(), self.size(24));
-        let md = self.resume_and_next(Some(&v), start + size);
-        let total = md.len() as i64;
-        ok(map::container_of(md.into_iter().skip(start as usize).collect(), total, start))
+        let start = self.start();
+        let (md, total) = self.continue_window(Some(&v), start, self.size(24));
+        ok(map::container_of(md, total, start))
     }
 
     fn search(&self) -> Answer {
@@ -602,8 +616,13 @@ impl Route<'_> {
             }
             _ => self.items(&format!("parentId={id}&sortBy=SortName"))?,
         };
+        // A season's episodes page through here; the whole listing is read and the window cut
+        // from it, the way it arrives without one.
         let md = map::list(&body, &self.env);
-        ok(json!({ "size": md.len(), "totalSize": md.len(), "Metadata": md }))
+        let total = md.len() as i64;
+        let start = self.start();
+        let size = self.window().1.unwrap_or(total).max(0) as usize;
+        ok(map::container_of(md.into_iter().skip(start as usize).take(size).collect(), total, start))
     }
 
     fn all_leaves(&self, id: &str) -> Answer {
