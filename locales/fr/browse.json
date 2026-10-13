@@ -188,7 +188,7 @@
   "browse.auth.insecure": "Serveur Plex trouvé, mais connexion HTTPS impossible. Vérifiez qu’il autorise les connexions sécurisées.",
   "browse.auth.no_access": "{profile} n’a pas accès au serveur",
   "browse.auth.no_source_access": "{profile} n’a pas accès à ce serveur",
-  "browse.auth.tls_untrusted": "Cette TV ne fait pas confiance au certificat de sécurité de votre serveur. Mettez PlxNative à jour et réessayez.",
+  "browse.auth.tls_untrusted": "Cette TV ne fait pas confiance au certificat de sécurité de votre serveur. Mettez JF Native à jour et réessayez.",
   "browse.kind.episodes": "Épisodes",
   "browse.kind.collections": "Collections",
   "browse.kind.films": "Films",
