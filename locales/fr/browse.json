@@ -16,6 +16,10 @@
   "browse.detail.about": "À propos",
   "browse.detail.about_heading": "À PROPOS",
   "browse.detail.released": "Sortie",
+  "browse.detail.info_genres": "Genres",
+  "browse.detail.info_directors": "Réalisation",
+  "browse.detail.info_writers": "Scénario",
+  "browse.detail.info_studio": "Studio",
   "browse.detail.runtime": "Durée",
   "browse.detail.rated": "Classification",
   "browse.detail.origins": "Pays d’origine",
@@ -114,9 +118,9 @@
   "browse.person.library_one": "{titles} dans cette bibliothèque",
   "browse.person.library_both": "{films} et {shows} dans cette bibliothèque",
   "browse.person.credits": {
-    "one": "{count} crédit · Les plus récents d’abord.",
-    "many": "{count} crédits · Les plus récents d’abord.",
-    "other": "{count} crédits · Les plus récents d’abord."
+    "one": "{count} crédit   Les plus récents d’abord.",
+    "many": "{count} crédits   Les plus récents d’abord.",
+    "other": "{count} crédits   Les plus récents d’abord."
   },
   "browse.detail.seasons": {
     "one": "{count} saison",
@@ -187,7 +191,7 @@
   "browse.auth.insecure": "Serveur Plex trouvé, mais connexion HTTPS impossible. Vérifiez qu’il autorise les connexions sécurisées.",
   "browse.auth.no_access": "{profile} n’a pas accès au serveur",
   "browse.auth.no_source_access": "{profile} n’a pas accès à ce serveur",
-  "browse.auth.tls_untrusted": "Cette TV ne fait pas confiance au certificat de sécurité de votre serveur. Mettez PlxNative à jour et réessayez.",
+  "browse.auth.tls_untrusted": "Cette TV ne fait pas confiance au certificat de sécurité de votre serveur. Mettez JF Native à jour et réessayez.",
   "browse.kind.episodes": "Épisodes",
   "browse.kind.collections": "Collections",
   "browse.kind.films": "Films",

@@ -104,16 +104,16 @@
     "other": "{count} pistes"
   },
   "widgets.tracks.count_detail": {
-    "one": "{description} · {count} piste",
-    "many": "{description} · {count} pistes",
-    "other": "{description} · {count} pistes"
+    "one": "{description}   {count} piste",
+    "many": "{description}   {count} pistes",
+    "other": "{description}   {count} pistes"
   },
   "widgets.tracks.count_heading": {
-    "one": "{heading} · {count} PISTE",
-    "many": "{heading} · {count} PISTES",
-    "other": "{heading} · {count} PISTES"
+    "one": "{heading}   {count} PISTE",
+    "many": "{heading}   {count} PISTES",
+    "other": "{heading}   {count} PISTES"
   },
-  "widgets.reason.jail_help": "La réparation nécessite une TV rootée et Homebrew Channel. Aide : plxnative.com/troubleshooting/#playback-reports-jail_missing_rtkmem",
+  "widgets.reason.jail_help": "La réparation nécessite une TV rootée et Homebrew Channel.",
   "widgets.tracks.empty": "Aucune piste",
   "widgets.tracks.bytes": {
     "one": "{count} octet",
@@ -123,7 +123,7 @@
   "widgets.tracks.fps": "{rate} i/s",
   "widgets.tracks.mbps": "{rate} Mb/s",
   "widgets.tracks.kbps": "{rate} kb/s",
-  "widgets.panel.jail": "le bac à sable de cette installation bloque l’accès à /dev/rtkmem ; PlxNative peut proposer une réparation confirmée via l’accès root de Homebrew Channel",
+  "widgets.panel.jail": "le bac à sable de cette installation bloque l’accès à /dev/rtkmem ; JF Native peut proposer une réparation confirmée via l’accès root de Homebrew Channel",
   "widgets.panel.refused": "le serveur a refusé l’élément sur /decision : il ne peut ni le lire en direct ni le convertir",
   "widgets.panel.audio_only_no_pass": "le serveur n’a envoyé que l’audio : il n’a trouvé aucune cible de transcodage vidéo utilisable (le serveur n’a pas de Plex Pass)",
   "widgets.panel.audio_only": "le serveur n’a envoyé que l’audio : il n’a trouvé aucune cible de transcodage vidéo utilisable",
@@ -139,15 +139,15 @@
   "widgets.panel.forced_playback": "La lecture directe forcée n’a pas pu utiliser le flux d’origine ; le repli automatique est désactivé",
   "widgets.reason.forced_playback": "La lecture directe forcée n’a pas pu lire ce flux",
   "widgets.reason.forced_playback_help": "La lecture directe forcée est activée : le serveur n’a donc pas pu proposer un flux converti.",
-  "widgets.repair.question": "Réparer le bac à sable de PlxNative ?",
-  "widgets.repair.body": "Utilisez l’accès root de Homebrew Channel pour mettre à jour le bac à sable de PlxNative avec le profil natif de LG. Cela nécessite une TV rootée. Fermez puis rouvrez PlxNative ensuite.",
+  "widgets.repair.question": "Réparer le bac à sable de JF Native ?",
+  "widgets.repair.body": "Utilisez l’accès root de Homebrew Channel pour mettre à jour le bac à sable de JF Native avec le profil natif de LG. Cela nécessite une TV rootée. Fermez puis rouvrez JF Native ensuite.",
   "widgets.repair.action": "Réparer",
   "widgets.repair.running": "Réparation du bac à sable de l’application…",
   "widgets.repair.wait": "Attendez le résultat avant de fermer l’application.",
   "widgets.repair.completed": "Réparation du bac à sable terminée",
-  "widgets.repair.reopen": "Fermez puis rouvrez PlxNative avant de lire une vidéo.",
+  "widgets.repair.reopen": "Fermez puis rouvrez JF Native avant de lire une vidéo.",
   "widgets.repair.failed": "La réparation du bac à sable n’a pas pu être confirmée",
-  "widgets.repair.start_failed": "Impossible de lancer la réparation. Fermez puis rouvrez PlxNative pour réessayer.",
+  "widgets.repair.start_failed": "Impossible de lancer la réparation. Fermez puis rouvrez JF Native pour réessayer.",
   "widgets.repair.hbc_unavailable": "Le service Homebrew Channel est indisponible.",
   "widgets.repair.not_root": "Le service Homebrew Channel ne s’exécute pas en tant que root.",
   "widgets.repair.command_failed": "La commande de réparation du bac à sable a échoué.",
