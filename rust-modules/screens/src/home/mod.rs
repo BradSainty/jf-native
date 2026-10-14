@@ -9,6 +9,7 @@
 //! The container's first-`Cover`/last-`Uncover` lifecycle pauses hero auto-rotation beneath every
 //! modal style and restarts its countdown when the page becomes active again.
 
+mod row_ahead; // JF Native: the rows' at-rest poster lookahead
 use std::borrow::Cow;
 use std::collections::{HashMap, HashSet};
 use std::ffi::CString;
@@ -605,6 +606,9 @@ pub struct HomeScreen {
     /// catalog. Not canon.
     #[cfg(test)]
     cost: SyncCost,
+    /// JF Native: whether the page has rested, for the rows' poster lookahead (`row_ahead`).
+    /// Render history; not canon.
+    row_ahead: row_ahead::Rest,
 
     /// Selected hero ITEM identity. It is data, not focus.
     carousel: Option<(plx_plex::plex::ServerId, String)>,
@@ -678,6 +682,7 @@ impl HomeScreen {
             since_prune: 0,
             #[cfg(test)]
             cost: SyncCost::default(),
+            row_ahead: row_ahead::Rest::default(),
             carousel: None,
             carousel_anchor: None,
             outgoing: None,
@@ -2508,6 +2513,8 @@ impl LogicalState for HomeScreen {
             // `elem_at` is derived from `rows`, which the census already covers via its elems.
             // `item_index` / `group_index` are caches of `items` / `groups`, which are covered.
             rows: _, elem_at: _, item_index: _, group_index: _, projected_generation: _, cw_cards: _, cw_offset: _, carousel_anchor: _, rebound: _, ghost_cards: _, restored_scroll: _, restore_reveal: _, hold: _, since_prune: _, #[cfg(test)] cost: _, carousel: _,
+            // JF Native: the lookahead's rest count is render history, read by no input or reveal.
+            row_ahead: _,
             outgoing: _, hero_flip_cd: _, hero_slide: _, hero_dir: _, hero_auto: _, hero_pinned: _, covered: _,
             snap_target: _,
             visible_activation: _, cta_available: _, strip_chosen: _, snap: _, status_ms: _,
@@ -3212,7 +3219,9 @@ impl<H: HomeLike> Screen<H> for HomeScreen {
     fn crumb(&self, _cx: &Cx<'_, H>) -> Option<Cow<'_, str>> {
         None
     }
-    fn prepare(&mut self, _budget: &mut Budget, _cx: &Cx<'_, H>) {}
+    fn prepare(&mut self, _budget: &mut Budget, cx: &Cx<'_, H>) {
+        self.prepare_row_ahead(cx);
+    }
     fn draw(&mut self, f: &mut DrawFrame<'_, '_, H>) {
         self.draw_page(f);
     }
