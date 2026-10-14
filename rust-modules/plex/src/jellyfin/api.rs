@@ -3,6 +3,11 @@
 //! Every call goes through libcurl (`plx_net::net::request`) rather than the plaintext socket the
 //! PMS path uses for http origins: Jellyfin's write endpoints (`/Sessions/Playing*`, user data)
 //! take a JSON BODY, which the raw socket cannot send. libcurl handles http and https alike.
+//!
+//! No call follows a redirect. Each carries the access token in its `Authorization` header, and
+//! libcurl would re-send that header to whatever host a `Location:` names, so `net::request`
+//! refuses the pairing outright. A server that answers 3xx is logged as such: the address the app
+//! was given (discovery, Quick Connect, `jellyfin-server.txt`) has to be the one that answers.
 
 use std::collections::HashMap;
 use std::sync::{Mutex, OnceLock};
@@ -162,11 +167,16 @@ impl Conn {
             verb,
             payload.as_deref(),
             plx_net::net::BULK,
-            true,
+            false,
             None,
             None,
         );
         match &r {
+            Some(r) if (300..400).contains(&r.status) => log(&format!(
+                "jellyfin: {verb} {} -> {} — the server redirected; give the app the address it redirects to",
+                endpoint(path_q),
+                r.status
+            )),
             Some(r) => log(&format!(
                 "jellyfin: {verb} {} -> {} ({} bytes, {} ms)",
                 endpoint(path_q),
