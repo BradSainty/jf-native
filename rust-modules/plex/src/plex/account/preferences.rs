@@ -100,6 +100,10 @@ impl PreferenceRequest {
     fn request(&self, method: &str, path: &str, query: &str)
         -> Result<plx_net::net::Resp, PreferenceError>
     {
+        // JF Native: the Jellyfin user's configuration answers these (`jellyfin::account`).
+        if let Some(response) = super::jellyfin_account(method, path, query, &self.user) {
+            return accepted(response);
+        }
         let base = super::plex_tv();
         let base = if path.ends_with("/profile") && base == super::PLEX_TV {
             CLIENTS_PLEX_TV

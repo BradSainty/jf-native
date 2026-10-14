@@ -505,8 +505,10 @@ fn field_options(field: PickerKind, quality: Quality, direct_play: DirectPlayMod
             .map(|m| (resolution_label(m), Value::UiResolution(m))).collect(),
         PickerKind::SubtitleMode => [(plx_platform::i18n::msg::settings_audio_manual(), 0), (plx_platform::i18n::msg::settings_audio_foreign(), 1), (plx_platform::i18n::msg::settings_audio_always(), 2)]
             .into_iter().map(|(label, mode)| (label.into(), Value::Mode(mode))).collect(),
-        PickerKind::ForcedSubtitles => [plx_platform::i18n::msg::settings_audio_prefer_regular(), plx_platform::i18n::msg::settings_audio_prefer_forced(), plx_platform::i18n::msg::settings_audio_only_forced(), plx_platform::i18n::msg::settings_audio_only_regular()]
-            .into_iter().enumerate().map(|(i, s)| (s.into(), Value::Forced(i as i64))).collect(),
+        // JF Native: Jellyfin keeps only "forced only" (its OnlyForced subtitle mode, `jellyfin::account`),
+        // so the two forced preferences it cannot store are not offered.
+        PickerKind::ForcedSubtitles => [(plx_platform::i18n::msg::settings_audio_prefer_regular(), 0), (plx_platform::i18n::msg::settings_audio_only_forced(), 2)]
+            .into_iter().map(|(s, i)| (s.into(), Value::Forced(i))).collect(),
         PickerKind::AudioLanguage | PickerKind::SubtitleLanguage => {
             let mut result = vec![(if field == PickerKind::AudioLanguage { plx_platform::i18n::msg::settings_audio_original() } else { plx_platform::i18n::msg::settings_audio_no_preference() }.into(), Value::Language(String::new()))];
             result.extend(plx_plex::plex::languages::picker()

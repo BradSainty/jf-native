@@ -358,7 +358,7 @@ fn every_pushed_picker_opens_on_its_checked_line_and_pops_to_its_row() {
         let language_line = |code: &str| 1 + plx_plex::plex::languages::picker().position(|l| l.code == code)
             .unwrap_or_else(|| panic!("{code} is in the language picker")) as u32;
         let prefs = AudioPreferences { stated_language: Some("fr".into()), subtitle_language: Some("de".into()),
-            subtitle_mode: 2, subtitle_forced: 3, ..Default::default() };
+            subtitle_mode: 2, subtitle_forced: 2, ..Default::default() };
         let (request, snapshot) = PreferenceRequest::fixture_for_test(user, 81, prefs.clone());
         let items = super::super::preferences::nav_items_for_test(super::super::preferences::Kind::AudioSubtitles, Some(&prefs));
         assert_eq!(items.len(), 4, "every Audio & Subtitles picker is in the table: {items:?}");
@@ -368,7 +368,8 @@ fn every_pushed_picker_opens_on_its_checked_line_and_pops_to_its_row() {
                 PickerKind::AudioLanguage => language_line("fr"),
                 PickerKind::SubtitleLanguage => language_line("de"),
                 PickerKind::SubtitleMode => 2,
-                PickerKind::ForcedSubtitles => 3,
+                // JF Native offers the two forced choices Jellyfin can keep: 0, then 2 ("forced only")
+                PickerKind::ForcedSubtitles => 1,
                 other => panic!("{other:?} is not an Audio & Subtitles picker"),
             };
             assert_a_pushed_picker_opens_on_its_checked_line_and_pops_to_its_row(&format!("audio {kind:?}"), &|| {
