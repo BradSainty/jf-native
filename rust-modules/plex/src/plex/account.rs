@@ -65,6 +65,20 @@ fn loopback_http(v: &str) -> bool {
         .map(|rest| rest.strip_suffix('/').unwrap_or(rest));
     port.is_some_and(|p| !p.is_empty() && p.len() <= 5 && p.bytes().all(|b| b.is_ascii_digit()))
 }
+/// JF Native: an account-preference call answered from the signed-in Jellyfin user
+/// (`jellyfin::account`) instead of plex.tv, which this fork never contacts. `None` when the current
+/// server is not a Jellyfin one or did not answer, and the caller goes on as it was written.
+pub(crate) fn jellyfin_account(method: &str, path: &str, query: &str, user: &super::session::UserRef)
+    -> Option<plx_net::net::Resp>
+{
+    let client = super::client_opt()?;
+    if !crate::jellyfin::intercepts(client.origin()) {
+        return None;
+    }
+    let token = client.token.read().map(|t| t.clone()).unwrap_or_default();
+    crate::jellyfin::account::answer(client.origin(), &token, user.id, &user.uuid, method, path, query)
+        .map(|(status, body)| plx_net::net::Resp { status, body, peer_pin: None })
+}
 const AUDIO_PREFERENCES_SUCCESS_TTL: Duration = Duration::from_secs(5 * 60);
 const AUDIO_PREFERENCES_FAILURE_TTL: Duration = Duration::from_secs(45);
 const AUDIO_PREFERENCES_FAILURE_TTL_MAX: Duration = Duration::from_secs(10 * 60);
@@ -317,8 +331,12 @@ impl AccountClient {
         timeouts: plx_net::net::Timeouts) -> AudioPreferencesOutcome
     {
         let url = format!("{}/api/v2/user", plex_tv());
-        let response = plx_net::net::request_evidence(&url, &self.headers(), "GET", None,
-            timeouts, false, None, None);
+        // JF Native: the signed-in Jellyfin user's preferences, never plex.tv's.
+        let response = match jellyfin_account("GET", "/api/v2/user", "", expected) {
+            Some(response) => Ok(response),
+            None => plx_net::net::request_evidence(&url, &self.headers(), "GET", None,
+                timeouts, false, None, None),
+        };
         note_response_contact(&url, &response);
         match response {
             Err(failure) if failure.cause == plx_net::net::RequestError::TimedOut =>
