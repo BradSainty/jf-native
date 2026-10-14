@@ -20,6 +20,7 @@
 //! the GUID rides through unchanged and needs no table.
 #![allow(dead_code)]
 
+pub mod account; // Settings → Audio & subtitles, kept in the Jellyfin user's configuration
 mod api;
 mod ids;
 pub mod login;

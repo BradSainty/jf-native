@@ -177,7 +177,7 @@ fn back_is_held_while_an_account_write_is_in_flight() {
     let _session = plx_plex::plex::session::TempSession::new("picker-back-held");
     let account = Account::new("picker-back-held", 24, AudioPreferences::default());
     let mut page = audio_picker(&account, PickerKind::ForcedSubtitles);
-    let other = key_of(&page, &Value::Forced(1));
+    let other = key_of(&page, &Value::Forced(2));
     drive(&mut page, ScreenEvent::Activate(other), other);
     let back = ScreenEvent::Input(InputEvent { at: Tick::default(), source: Source::RemoteFifo,
         kind: InputKind::Key { key: Key::Back, edge: Edge::Down, sym: 0, wcode: 0, at_edge: false } });
