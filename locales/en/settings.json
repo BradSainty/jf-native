@@ -80,7 +80,7 @@
     "description": "Settings, account, onboarding or privacy UI: settings.about.detail"
   },
   "settings.root.copy": {
-    "value": "Manage this television and your Plex profile. Audio and subtitle language preferences sync with your Plex account; playback settings belong to each profile, and the app language applies to this television.",
+    "value": "Manage this television and your Jellyfin account. Audio and subtitle language preferences are saved to your Jellyfin account; playback settings belong to each profile, and the app language applies to this television.",
     "description": "Settings, account, onboarding or privacy UI: settings.root.copy"
   },
   "settings.libraries.count": {
@@ -644,7 +644,7 @@
     "description": "Settings, consent or sign-in UI: settings.audio.title"
   },
   "settings.audio.detail": {
-    "value": "Language preferences synced with your Plex account.",
+    "value": "Language preferences saved to your Jellyfin account.",
     "description": "Settings, consent or sign-in UI: settings.audio.detail"
   },
   "settings.playback.quality": {
@@ -778,7 +778,7 @@
     "description": "Settings, consent or sign-in UI: settings.playback.force_note"
   },
   "settings.audio.account_note": {
-    "value": "Saved to this Plex profile and shared with your other Plex apps. Changes may take time to affect playback; selections already made for an item still take priority.",
+    "value": "Saved to your Jellyfin account and shared with your other Jellyfin apps. Changes may take time to affect playback; selections already made for an item still take priority.",
     "description": "Settings, consent or sign-in UI: settings.audio.account_note"
   },
   "settings.playback.copy_profile": {
@@ -800,11 +800,11 @@
     "description": "Explanation under the title of the Video & playback page while NO profile is seated (a normal session always has one, because Settings is opened through a profile; a developer-token run and a controlled replay have none, see session::Seat): replaces settings.playback.copy_profile. The page's rows then show the values every profile starts from, dimmed and unopenable, because a pick must belong to a profile; 'this' is those rows."
   },
   "settings.playback.quality.copy": {
-    "value": "The highest quality a video plays at. Larger files are converted by your Plex server to fit. Also available in the player's More menu.",
+    "value": "The highest quality a video plays at. Larger files are converted by your Jellyfin server to fit. Also available in the player's More menu.",
     "description": "Explanation under the title of the Default quality picker (Settings, Video & playback). Describes the ceiling and says the same control is in the player's More menu (the More menu drops its Quality section only under Forced Direct Play, where this text is replaced by the Force note)."
   },
   "settings.playback.direct_play.copy": {
-    "value": "Auto plays the original file when this television can; otherwise your Plex server converts it. Disabled always converts. Force skips every check: for troubleshooting only.",
+    "value": "Auto plays the original file when this television can; otherwise your Jellyfin server converts it. Disabled always converts. Force skips every check: for troubleshooting only.",
     "description": "Explanation under the title of the Direct Play picker. Names its three modes in order: Auto, Disabled and Force (the picker's third option, 'Force Direct Play (advanced)'). While Force is on the Force note replaces it."
   },
   "settings.playback.subtitle_size.copy": {
@@ -840,11 +840,11 @@
     "description": "Settings, consent or sign-in UI: settings.playback.force_question"
   },
   "settings.audio.saving": {
-    "value": "Saving to your Plex account…",
+    "value": "Saving to your Jellyfin account…",
     "description": "Settings, consent or sign-in UI: settings.audio.saving"
   },
   "settings.audio.loading": {
-    "value": "Loading your Plex account preferences…",
+    "value": "Loading your Jellyfin account preferences…",
     "description": "Settings, consent or sign-in UI: settings.audio.loading"
   },
   "settings.playback.saving": {
@@ -928,7 +928,7 @@
     "description": "Settings, consent or sign-in UI: settings.audio.retry_detail"
   },
   "settings.audio.sign_in_again": {
-    "value": "Sign in to this Plex profile again to edit its account preferences.",
+    "value": "Sign in to Jellyfin again to edit these preferences.",
     "description": "Settings, consent or sign-in UI: settings.audio.sign_in_again"
   },
   "settings.playback.save_failed": {
