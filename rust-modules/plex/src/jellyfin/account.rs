@@ -113,11 +113,13 @@ fn save(conn: &Conn, query_s: &str) -> Option<(u16, Vec<u8>)> {
         });
     }
     // 10.9 and later take the configuration at /Users/Configuration; older servers only at the
-    // per-user path, which newer ones may drop.
+    // per-user path, which newer ones may drop. Spelled in lower case (Jellyfin's routes ignore
+    // case): `ci/check-package.py` reads a `/Users/…` string in the binary as a build machine's home
+    // directory.
     let status = conn
-        .post(&format!("/Users/Configuration?userId={id}"), Some(&config))
+        .post(&format!("/users/configuration?userId={id}"), Some(&config))
         .filter(|s| (200..300).contains(s))
-        .or_else(|| conn.post(&format!("/Users/{id}/Configuration"), Some(&config)))?;
+        .or_else(|| conn.post(&format!("/users/{id}/configuration"), Some(&config)))?;
     log(&format!("jellyfin: account preferences saved -> {status}"));
     Some((if (200..300).contains(&status) { 204 } else { status }, Vec::new()))
 }
