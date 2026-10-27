@@ -163,10 +163,10 @@ fn build(policy: &CaptionPolicy, facts: &CaptionFacts, state: Option<String>, st
 
 /// A poster shelf tile's label under `policy`: Home's shelves and the Library's Recommended
 /// shelves. The tile keeps what its caption carries as a STATE: on the Continue Watching deck
-/// (`is_continue`) its time left ("8m left", "S3 · E4 · 8m left", or "S2 · E1 · New episode" for a
+/// (`is_continue`) its time left ("8m left", "S3 E4   8m left", or "S2 E1   New episode" for a
 /// next-up episode; an unnumbered episode leads with its show's name instead of the address) is the details line
 /// whatever kind the setting asks for. An
-/// episode's default details line is its address ("S1 · E8"), as it was on a shelf. On the deck that
+/// episode's default details line is its address ("S1 E8"), as it was on a shelf. On the deck that
 /// line is shown under Nothing too ([`deck_policy`]); a deck tile with no state to show draws no
 /// fallback line under Nothing (the shelf's band stays open, per shelf).
 pub fn shelf_label(policy: &CaptionPolicy, item: &plx_data::pms::PmsMovie, is_continue: bool) -> TileLabel {
@@ -234,9 +234,9 @@ mod tests {
             aired: "2016-04-21".into(), ..Default::default() };
         let date = plx_ui::fmt::pretty_date("2016-04-21", 0);
         assert_eq!(lines(&still_label(&ep, "")), [Some("Pilot".into()), Some(date.clone())]);
-        assert_eq!(lines(&still_label(&ep, "pal")), [Some("Pilot".into()), Some(format!("{date} \u{b7} pal"))]);
+        assert_eq!(lines(&still_label(&ep, "pal")), [Some("Pilot".into()), Some(format!("{date}   pal"))]);
         let untitled = plx_data::pms::PmsMovie { title: "Show".into(), ..ep.clone() };
-        assert_eq!(lines(&still_label(&untitled, ""))[0].as_deref(), Some("S1 \u{b7} E8"),
+        assert_eq!(lines(&still_label(&untitled, ""))[0].as_deref(), Some("S1 E8"),
             "a title that only repeats the show reads the address");
         let extra = still_block("Making of", "Featurette");
         assert_eq!(lines(&extra), [Some("Making of".into()), Some("Featurette".into())]);
@@ -256,7 +256,7 @@ mod tests {
         assert_eq!(lines(&with(true, DetailParts::NONE)), [Some("Heat".into()), None], "Nothing shows no state either");
         let episode = CaptionFacts { title: Some("Pilot".into()), episode: Some((1, 8)), ..Default::default() };
         let p = CaptionPolicy::same(false, DetailParts::MOVIE_DEFAULT);
-        assert_eq!(lines(&label(&p, &episode, None)), [None, Some("S1 \u{b7} E8".into())]);
+        assert_eq!(lines(&label(&p, &episode, None)), [None, Some("S1 E8".into())]);
     }
 
     fn deck_episode() -> plx_data::pms::PmsMovie {
@@ -272,9 +272,9 @@ mod tests {
         let ep = deck_episode();
         let movie = plx_data::pms::PmsMovie { kind: 1, title: "Heat".into(), dur_ns: 45 * 60 * 1_000_000_000, resume_ms: 20 * 60 * 1000, ..Default::default() };
         let at = |title, item: &plx_data::pms::PmsMovie, deck| lines(&shelf_label(&CaptionPolicy::same(title, DetailParts::NONE), item, deck));
-        assert_eq!(at(false, &ep, true), [None, Some("S2 \u{b7} E5 \u{b7} 25m left".into())]);
+        assert_eq!(at(false, &ep, true), [None, Some("S2 E5   25m left".into())]);
         assert_eq!(at(false, &movie, true), [None, Some("25m left".into())]);
-        assert_eq!(at(true, &ep, true), [Some("Pilot".into()), Some("S2 \u{b7} E5 \u{b7} 25m left".into())]);
+        assert_eq!(at(true, &ep, true), [Some("Pilot".into()), Some("S2 E5   25m left".into())]);
         assert_eq!(at(false, &ep, false), [None, None], "off the deck Nothing with Title Off draws no line");
     }
 

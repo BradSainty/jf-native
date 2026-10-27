@@ -51,7 +51,7 @@
   "browse.detail.converts": "Канвертуецца на серверы",
   "browse.detail.direct_play": "Прамое прайграванне",
   "browse.detail.direct_stream": "Прамы паток",
-  "browse.detail.original_audio_converted": "Арыгінал · гук канвертаваны",
+  "browse.detail.original_audio_converted": "Арыгінал   гук канвертаваны",
   "browse.detail.hardware_needs": "апаратнае канвертаванне патрабуе",
   "browse.detail.tonemap_needs": "танальная кампрэсія патрабуе",
   "browse.home.failed": "Не ўдалося злучыцца з вашым серверам Plex",
@@ -122,10 +122,10 @@
   "browse.person.library_one": "{titles} у гэтай бібліятэцы",
   "browse.person.library_both": "{films} і {shows} у гэтай бібліятэцы",
   "browse.person.credits": {
-    "one": "{count} праца · Спачатку новыя.",
-    "few": "{count} працы · Спачатку новыя.",
-    "many": "{count} прац · Спачатку новыя.",
-    "other": "{count} працы · Спачатку новыя."
+    "one": "{count} праца   Спачатку новыя.",
+    "few": "{count} працы   Спачатку новыя.",
+    "many": "{count} прац   Спачатку новыя.",
+    "other": "{count} працы   Спачатку новыя."
   },
   "browse.detail.seasons": {
     "one": "{count} сезон",
@@ -143,9 +143,9 @@
   "browse.detail.season_number": "Сезон {number}",
   "browse.detail.episode_number": "СЕРЫЯ {number}",
   "browse.library.unwatched": "Непрагледжанае",
-  "browse.library.genre_unwatched": "{genre} · Непрагледжанае",
+  "browse.library.genre_unwatched": "{genre}   Непрагледжанае",
   "browse.library.unreachable": "Не ўдалося злучыцца з {name}",
-  "browse.library.shared_unreachable": "Агульны доступ ад {owner} · ваш сервер працуе спраўна.",
+  "browse.library.shared_unreachable": "Агульны доступ ад {owner}   ваш сервер працуе спраўна.",
   "browse.library.no_movies": "У бібліятэцы {library} няма фільмаў",
   "browse.library.no_shows": "У бібліятэцы {library} няма серыялаў",
   "browse.search.people": {
@@ -182,7 +182,7 @@
   },
   "browse.search.searching": "Пошук: {sources}",
   "browse.search.unreachable": "Недаступныя: {sources}",
-  "browse.search.partial": "Недаступныя: {unreachable} · вынікі толькі з {available}",
+  "browse.search.partial": "Недаступныя: {unreachable}   вынікі толькі з {available}",
   "browse.auth.timeout": "Час чакання ўваходу скончыўся — паспрабуйце зноў.",
   "browse.auth.no_servers": "У гэтага ўліковага запісу Plex пакуль няма сервера.",
   "browse.auth.no_servers_signed_in_as": "Вы ўвайшлі як {account}.\nУ гэтага ўліковага запісу Plex пакуль няма сервера.",
@@ -273,7 +273,7 @@
   "browse.collection.unavailable": "Гэтая калекцыя недаступная для гэтага профілю",
   "browse.collection.unavailable_reason": "Яе бібліятэка не адкрыта для вас, або ўладальнік сервера абмежаваў да яе доступ.",
   "browse.collection.kind": "Калекцыя",
-  "browse.collection.meta": "{items} · Калекцыя",
+  "browse.collection.meta": "{items}   Калекцыя",
   "browse.collection.season_mark": "СЕЗОН {number}",
   "browse.home.hub.on_deck": "На чарзе",
   "browse.home.hub.recent_playlists": "Нядаўнія плэйлісты",

@@ -123,8 +123,6 @@ fn show(title: &str, year: i32, genre: &str) -> PmsMovie {
     PmsMovie { kind: 1, ..poster(title, year, genre) }
 }
 
-const DOT: char = '\u{b7}';
-
 /// Move focus on `page` to `key`, as the engine would.
 fn focus(page: &mut impl Machine<InnerHost, Ev = ScreenEvent<InnerHost>>, entry: EntryId, key: RowKey) {
     let mut out = Vec::new();
@@ -186,8 +184,8 @@ fn each_details_row_reads_its_kinds_names_and_opens_its_own_picker() {
     let _live = Live::set(UnderPosters::DEFAULT);
     let mut page = UnderPostersPage::new(EntryId(0));
     for (id, kind, label, want) in [
-        (UpId::MovieDetails, PosterKind::Movie, "Movie details", format!("Year {DOT} Length")),
-        (UpId::ShowDetails, PosterKind::Show, "TV show details", format!("Year {DOT} Seasons")),
+        (UpId::MovieDetails, PosterKind::Movie, "Movie details", format!("Year, Length")),
+        (UpId::ShowDetails, PosterKind::Show, "TV show details", format!("Year, Seasons")),
     ] {
         let i = page.form.index_of_key(id.key()).unwrap();
         let row = page.form.table.sections.iter().flat_map(|s| s.rows.iter()).nth(i).unwrap();
@@ -207,8 +205,8 @@ fn a_details_value_is_the_names_nothing_or_a_count() {
     let _en = language_on_this_thread_for_test(plx_platform::i18n::Preference::En);
     assert_eq!(names_value(DetailParts::NONE), "Nothing");
     assert_eq!(names_value(parts(&[P::Year])), "Year");
-    assert_eq!(names_value(parts(&[P::Length, P::Year])), format!("Year {DOT} Length"), "the line's order, not the order ticked");
-    assert_eq!(names_value(parts(&[P::Year, P::Length, P::Genre])), format!("Year {DOT} Length {DOT} Genre"));
+    assert_eq!(names_value(parts(&[P::Length, P::Year])), format!("Year, Length"), "the line's order, not the order ticked");
+    assert_eq!(names_value(parts(&[P::Year, P::Length, P::Genre])), format!("Year, Length, Genre"));
     assert_eq!(names_value(parts(&[P::Year, P::Length, P::Genre, P::Score])), "4 details");
     assert_eq!(names_value(parts(&[P::Year, P::Length, P::VideoQuality])), "3 details", "names past the budget read their count");
 }
@@ -224,7 +222,7 @@ fn the_rows_read_each_kinds_stored_parts_independently() {
         page.form.table.sections.iter().flat_map(|s| s.rows.iter()).nth(i).and_then(|r| r.value.clone())
     };
     assert_eq!(value_of(UpId::MovieDetails).as_deref(), Some("Video quality"));
-    assert_eq!(value_of(UpId::ShowDetails), Some(format!("Age rating {DOT} Score")));
+    assert_eq!(value_of(UpId::ShowDetails), Some(format!("Age rating, Score")));
 }
 
 #[test]
@@ -268,7 +266,7 @@ fn the_movie_picker_lists_six_parts_each_with_its_sample_and_checks_the_current(
         ("Year".to_string(), Some("2024".to_string())),
         ("Length".to_string(), Some("1h 52m".to_string())),
         ("Genre".to_string(), Some("Drama".to_string())),
-        ("Video quality".to_string(), Some(format!("4K {DOT} HDR"))),
+        ("Video quality".to_string(), Some(format!("4K, HDR"))),
         ("Age rating".to_string(), Some("PG-13".to_string())),
         ("Score".to_string(), Some("7.8".to_string())),
     ]);
@@ -469,11 +467,11 @@ fn the_picture_draws_each_kinds_whole_column_at_its_opacity() {
     let alpha = |runs: &[plx_ui::draw_census::Run], text: &str| runs.iter().find(|r| r.text == text).unwrap_or_else(|| panic!("{text:?} not drawn")).ink[3];
     let full = alphas([1.0, 1.0]);
     let dimmed = alphas([1.0, DIM]);
-    for (text, rest) in [("MOVIE", theme::TEXT_READING), ("Movie", theme::TEXT_PRIMARY), (&*format!("2024 {DOT} 1h 52m"), theme::CAPTION_DETAIL_INK)] {
+    for (text, rest) in [("MOVIE", theme::TEXT_READING), ("Movie", theme::TEXT_PRIMARY), (&*format!("2024, 1h 52m"), theme::CAPTION_DETAIL_INK)] {
         assert_eq!(alpha(&full, text), rest[3], "{text}: full strength is its own ink");
         assert_eq!(alpha(&dimmed, text), rest[3], "{text}: the chosen column is untouched");
     }
-    for (text, rest) in [("TV SHOW", theme::TEXT_READING), ("Show", theme::TEXT_PRIMARY), (&*format!("2019 {DOT} 6 seasons"), theme::CAPTION_DETAIL_INK)] {
+    for (text, rest) in [("TV SHOW", theme::TEXT_READING), ("Show", theme::TEXT_PRIMARY), (&*format!("2019, 6 seasons"), theme::CAPTION_DETAIL_INK)] {
         assert!((alpha(&dimmed, text) - rest[3] * DIM).abs() < 1e-4, "{text}: caption, title and line of the other column are at {DIM}: {} vs {}", alpha(&dimmed, text), rest[3]);
     }
 }
@@ -508,7 +506,7 @@ fn every_part_has_its_own_sentence_with_a_real_example_and_its_own_blocked_one()
     assert_eq!(sentence(PosterKind::Movie, two, P::Length, "1h 52m"), "Shows the running time, like 1h 52m.");
     assert_eq!(sentence(PosterKind::Show, two, P::Seasons, "6 seasons"), "Shows how many seasons it has, like 6 seasons.");
     assert_eq!(sentence(PosterKind::Movie, two, P::Genre, "Drama"), "Shows the genre, like Drama.");
-    assert_eq!(sentence(PosterKind::Movie, two, P::VideoQuality, "4K \u{b7} HDR"), "Shows the video quality, like 4K \u{b7} HDR.");
+    assert_eq!(sentence(PosterKind::Movie, two, P::VideoQuality, "4K   HDR"), "Shows the video quality, like 4K   HDR.");
     assert_eq!(sentence(PosterKind::Movie, two, P::AgeRating, "PG-13"), "Shows the age rating, like PG-13.");
     assert_eq!(sentence(PosterKind::Movie, two, P::Score, "7.8"), "Shows the audience score, like 7.8.");
     let mut blocked = Vec::new();
@@ -681,20 +679,20 @@ fn the_picture_is_captioned_by_the_same_policy() {
     }
     let default = lines(UnderPosters::DEFAULT, PosterKind::Movie);
     assert_eq!(default[0], None, "the default shows no title");
-    assert_eq!(default[1].as_deref(), Some("2024 \u{b7} 1h 52m"));
-    assert_eq!(lines(UnderPosters::DEFAULT, PosterKind::Show)[1].as_deref(), Some("2019 \u{b7} 6 seasons"));
+    assert_eq!(default[1].as_deref(), Some("2024   1h 52m"));
+    assert_eq!(lines(UnderPosters::DEFAULT, PosterKind::Show)[1].as_deref(), Some("2019   6 seasons"));
     let both = lines(up(true, &[P::Genre], &[P::Genre]), PosterKind::Movie);
     assert_eq!(both[0].as_deref(), Some("Movie"));
     assert_eq!(both[1].as_deref(), Some("Drama"));
     let video = UnderPosters { details: parts(&[P::VideoQuality]), ..UnderPosters::DEFAULT };
-    assert_eq!(lines(video, PosterKind::Movie)[1].as_deref(), Some("4K \u{b7} HDR"));
-    assert_eq!(lines(video, PosterKind::Show)[1].as_deref(), Some("2019 \u{b7} 6 seasons"), "a show's own parts, not the movie's");
+    assert_eq!(lines(video, PosterKind::Movie)[1].as_deref(), Some("4K   HDR"));
+    assert_eq!(lines(video, PosterKind::Show)[1].as_deref(), Some("2019   6 seasons"), "a show's own parts, not the movie's");
     let age = up(false, &[P::AgeRating, P::Score], &[P::AgeRating, P::Score]);
-    assert_eq!(lines(age, PosterKind::Movie)[1].as_deref(), Some("PG-13 \u{b7} 7.8"));
-    assert_eq!(lines(age, PosterKind::Show)[1].as_deref(), Some("TV-14 \u{b7} 8.4"));
+    assert_eq!(lines(age, PosterKind::Movie)[1].as_deref(), Some("PG-13   7.8"));
+    assert_eq!(lines(age, PosterKind::Show)[1].as_deref(), Some("TV-14   8.4"));
     // four parts, the line's fixed order, joined by the middle dot
     let four = up(false, &[P::Score, P::VideoQuality, P::Genre, P::Year], &[]);
-    assert_eq!(lines(four, PosterKind::Movie)[1].as_deref(), Some("2024 \u{b7} Drama \u{b7} 4K \u{b7} HDR \u{b7} 7.8"));
+    assert_eq!(lines(four, PosterKind::Movie)[1].as_deref(), Some("2024   Drama   4K   HDR   7.8"));
 }
 
 // ---- the root row ----------------------------------------------------------------------------
@@ -741,11 +739,11 @@ fn the_root_row_reads_the_setting() {
     let _en = language_on_this_thread_for_test(plx_platform::i18n::Preference::En);
     let read = |title, details: &[DetailPart]| root_row_text(&RootInputs { under_posters: UnderPosters { title, details: parts(details), ..UnderPosters::DEFAULT }, ..text_fit_inputs() });
     let (value, sub) = read(false, &[P::Year, P::Length]);
-    assert_eq!(value.as_deref(), Some("Year \u{b7} Length"), "the default reads its names");
+    assert_eq!(value.as_deref(), Some("Year   Length"), "the default reads its names");
     assert_eq!(sub, "", "Settings v2: the root row has no sub-line");
     assert_eq!(super::super::sentence_for(Some(&RootId::UnderPosters)), "Choose what appears under posters, for movies and TV shows alike.",
         "the sentence moved beside the table");
-    assert_eq!(read(true, &[P::Year, P::Length]).0.as_deref(), Some("Year \u{b7} Length"), "the title is the page's own row");
+    assert_eq!(read(true, &[P::Year, P::Length]).0.as_deref(), Some("Year   Length"), "the title is the page's own row");
     assert_eq!(read(true, &[P::Genre]).0.as_deref(), Some("Genre"));
     assert_eq!(read(false, &[P::VideoQuality]).0.as_deref(), Some("Video quality"));
     assert_eq!(read(true, &[]).0.as_deref(), Some("Title"));

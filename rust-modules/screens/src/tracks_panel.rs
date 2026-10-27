@@ -326,7 +326,7 @@ pub fn fmt_depth_chroma(bit_depth: i64, chroma: &str) -> Option<String> {
     let d = (bit_depth > 0).then(|| plx_platform::i18n::msg::widgets_tracks_depth(bit_depth));
     let c = (!chroma.trim().is_empty()).then(|| chroma.trim().to_string());
     match (d, c) {
-        (Some(d), Some(c)) => Some(format!("{d} \u{b7} {c}")),
+        (Some(d), Some(c)) => Some(format!("{d}{}{c}", plx_ui::fmt::GAP)),
         (Some(d), None) => Some(d),
         (None, Some(c)) => Some(c),
         (None, None) => None,
@@ -440,7 +440,7 @@ pub fn audio_detail(s: &Stream) -> String {
     if s.selected {
         parts.push(plx_platform::i18n::msg::widgets_tracks_playing().to_string());
     }
-    parts.join(" \u{b7} ")
+    parts.join(plx_ui::fmt::GAP)
 }
 
 /// The audio section's rows — the server's own `Stream[]` order, one row per track, NOT grouped.
@@ -504,7 +504,7 @@ pub fn subtitle_rows(subs: &[Stream]) -> Vec<TrackRow> {
                 head = if head.is_empty() {
                     tag.to_string()
                 } else {
-                    format!("{head} \u{b7} {tag}")
+                    format!("{head}{}{tag}", plx_ui::fmt::GAP)
                 };
             }
         }
@@ -512,7 +512,7 @@ pub fn subtitle_rows(subs: &[Stream]) -> Vec<TrackRow> {
             head = if head.is_empty() {
                 label.source.clone()
             } else {
-                format!("{head} \u{b7} {}", label.source.trim())
+                format!("{head}{}{}", plx_ui::fmt::GAP, label.source.trim())
             };
         }
         let key = format!("{}\u{0}{}", name, head);
@@ -1427,14 +1427,14 @@ mod tests {
         assert_eq!(
             details,
             vec![
-                "AC3 5.1 \u{b7} 448 kbps",
-                "AC3 5.1 \u{b7} 640 kbps",
-                "AC3 5.1 \u{b7} 384 kbps",
-                "EAC3 5.1 \u{b7} 768 kbps",
-                "AC3 5.1 \u{b7} 384 kbps",
-                "AC3 Stereo \u{b7} 384 kbps",
-                "AC3 Stereo \u{b7} 320 kbps",
-                "EAC3 5.1 + Atmos \u{b7} 768 kbps \u{b7} playing",
+                "AC3 5.1   448 kbps",
+                "AC3 5.1   640 kbps",
+                "AC3 5.1   384 kbps",
+                "EAC3 5.1   768 kbps",
+                "AC3 5.1   384 kbps",
+                "AC3 Stereo   384 kbps",
+                "AC3 Stereo   320 kbps",
+                "EAC3 5.1 + Atmos   768 kbps   playing",
             ]
         );
         // …and the NAME is the server's own language string, not an English normalisation of it
@@ -1484,8 +1484,8 @@ mod tests {
             "nine identical-by-language tracks are three rows"
         );
         assert_eq!(rows[0].name, "Русский");
-        assert_eq!(rows[0].detail, "MOV_TEXT \u{b7} 6 tracks");
-        assert_eq!(rows[1].detail, "MOV_TEXT \u{b7} 2 tracks");
+        assert_eq!(rows[0].detail, "MOV_TEXT   6 tracks");
+        assert_eq!(rows[1].detail, "MOV_TEXT   2 tracks");
         // a lone track carries NO count — "1 tracks" is wrong and "· 1 track" is noise
         assert_eq!(rows[2].name, "Українська");
         assert_eq!(rows[2].detail, "MOV_TEXT");
@@ -1494,7 +1494,7 @@ mod tests {
         // it is invisible on the section that is not grouped.
         assert_eq!(
             track_head("SUBTITLES", subs.len()),
-            "SUBTITLES \u{b7} 9 TRACKS"
+            "SUBTITLES   9 TRACKS"
         );
         assert_ne!(
             track_head("SUBTITLES", rows.len()),
@@ -1503,7 +1503,7 @@ mod tests {
         );
         assert_eq!(
             track_head("AUDIO", 1),
-            "AUDIO \u{b7} 1 TRACK",
+            "AUDIO   1 TRACK",
             "singular, not '1 TRACKS'"
         );
     }
@@ -1524,9 +1524,9 @@ mod tests {
             sub("English", "subrip"),
         ]);
         assert_eq!(rows.len(), 3, "plain×2, forced, SDH");
-        assert_eq!(rows[0].detail, "SUBRIP \u{b7} 2 tracks");
-        assert_eq!(rows[1].detail, "SUBRIP \u{b7} Forced");
-        assert_eq!(rows[2].detail, "SUBRIP \u{b7} SDH");
+        assert_eq!(rows[0].detail, "SUBRIP   2 tracks");
+        assert_eq!(rows[1].detail, "SUBRIP   Forced");
+        assert_eq!(rows[2].detail, "SUBRIP   SDH");
     }
 
     /// A track flagged BOTH forced and SDH says both, as this panel always has — the shared
@@ -1537,11 +1537,11 @@ mod tests {
         both.forced = true;
         both.sdh = true;
         let rows = subtitle_rows(&[both]);
-        assert_eq!(rows[0].detail, "SUBRIP \u{b7} Forced \u{b7} SDH");
+        assert_eq!(rows[0].detail, "SUBRIP   Forced   SDH");
         // and a title that only spells a kind adds that flag rather than repeating the word
         let mut titled = sub("English", "subrip");
         titled.title = "English SDH".into();
-        assert_eq!(subtitle_rows(&[titled])[0].detail, "SUBRIP \u{b7} SDH");
+        assert_eq!(subtitle_rows(&[titled])[0].detail, "SUBRIP   SDH");
     }
 
     /// The VIDEO and FILE columns, against the design's `streamGroups` for the same item. Each
@@ -1571,7 +1571,7 @@ mod tests {
         assert_eq!(fmt_fps(23.976).as_deref(), Some("23.976 fps"));
         assert_eq!(
             fmt_depth_chroma(10, "4:2:0").as_deref(),
-            Some("10-bit \u{b7} 4:2:0")
+            Some("10-bit   4:2:0")
         );
         // …and the shapes that must NOT draw a row rather than drawing an empty or wrong one
         assert_eq!(fmt_size(0), None);

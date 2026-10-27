@@ -63,7 +63,7 @@ pub fn labels(versions: &[MediaVersion]) -> Vec<(String, String)> {
         .map(|v| {
             let rate = if v.kbps > 0 { plx_ui::fmt::bitrate(v.kbps) } else { String::new() };
             let res = plx_ui::fmt::resolution(&v.resolution, v.width, v.height).unwrap_or_default();
-            let label = join_present(&[&rate, &res], " \u{b7} ");
+            let label = join_present(&[&rate, &res], plx_ui::fmt::GAP);
             let shown: Vec<String> = facts
                 .iter()
                 .zip(&differs)
@@ -71,7 +71,7 @@ pub fn labels(versions: &[MediaVersion]) -> Vec<(String, String)> {
                 .map(|(f, _)| f(v))
                 .collect();
             let shown: Vec<&str> = shown.iter().map(String::as_str).collect();
-            (label, join_present(&shown, " \u{b7} "))
+            (label, join_present(&shown, plx_ui::fmt::GAP))
         })
         .collect()
 }
@@ -117,10 +117,10 @@ mod tests {
     fn a_version_row_says_what_differs() {
         let _g = plx_platform::i18n::language_on_this_thread_for_test(plx_platform::i18n::Preference::En);
         let rows = labels(&sample());
-        assert_eq!(rows[0].0, "25.2 Mbps \u{b7} 4K");
-        assert_eq!(rows[1].0, "10.9 Mbps \u{b7} 1080p");
-        assert_eq!(rows[0].1, format!("HEVC HDR \u{b7} {}", plx_ui::fmt::bytes(30 << 30, (1, 0, 0))));
-        assert_eq!(rows[1].1, format!("H.264 \u{b7} {}", plx_ui::fmt::bytes(8 << 30, (1, 0, 0))));
+        assert_eq!(rows[0].0, "25.2 Mbps   4K");
+        assert_eq!(rows[1].0, "10.9 Mbps   1080p");
+        assert_eq!(rows[0].1, format!("HEVC HDR   {}", plx_ui::fmt::bytes(30 << 30, (1, 0, 0))));
+        assert_eq!(rows[1].1, format!("H.264   {}", plx_ui::fmt::bytes(8 << 30, (1, 0, 0))));
         let same = vec![sample()[0].clone(), sample()[0].clone()];
         assert!(labels(&same).iter().all(|(_, detail)| detail.is_empty()), "nothing differs, nothing to say");
     }

@@ -11,7 +11,7 @@
 //! parts' values joined with " · " in the parts' fixed order, **at most four**
 //! ([`DetailParts::MAX`]); with four ticked the others are DISABLED, the shared control state
 //! (`FormSection::disabled`), and say why in the sentence beside the table. The details rows' value
-//! is the ticked names joined (`Year · Length`), "Nothing", or "3 details" (a count) once the joined
+//! is the ticked names joined (`Year, Length`; JF Native puts no dot between words), "Nothing", or "3 details" (a count) once the joined
 //! names are longer than [`NAMES_BUDGET_CHARS`] ([`names_value`]); the Settings root's Under posters row reads the Movie one ([`summary`]).
 //!
 //! **No panel and no sub-lines.** A row is its label and its value; the sentence that explained it
@@ -146,7 +146,7 @@ fn names_value(parts: DetailParts) -> String {
     if parts.is_empty() {
         return msg::under_posters_none().to_string();
     }
-    let names = parts.iter().map(part_label).collect::<Vec<_>>().join(" \u{b7} ");
+    let names = parts.iter().map(part_label).collect::<Vec<_>>().join(", ");
     if names.chars().count() > NAMES_BUDGET_CHARS { msg::under_posters_details_count(parts.len() as i64) } else { names }
 }
 

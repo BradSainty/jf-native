@@ -225,9 +225,10 @@ pub fn part_value(part: DetailPart, facts: &CaptionFacts, locale: &LocaleContext
     }
 }
 
-/// The facts of one caption line joined with the app's one separator (" · "); no facts, no line.
+/// The facts of one caption line joined with the app's one separator, [`crate::fmt::GAP`] (JF
+/// Native separates facts with space, never a dot); no facts, no line.
 pub fn join(parts: Vec<String>) -> Option<String> {
-    (!parts.is_empty()).then(|| parts.join(" \u{b7} "))
+    (!parts.is_empty()).then(|| parts.join(crate::fmt::GAP))
 }
 
 /// PMS `videoResolution` ("4k", "1080", "720", "sd") as the mark a viewer knows.

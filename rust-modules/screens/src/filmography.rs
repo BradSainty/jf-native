@@ -72,7 +72,7 @@ fn route_layout(measure: &dyn Measure) -> RouteLayout {
 fn credit_row(c: &Credit, server_name: Option<String>) -> TRow {
     let sub = match server_name {
         Some(name) if c.role.is_empty() => name,
-        Some(name) => format!("{} · {}", c.role, name),
+        Some(name) => format!("{}{}{}", c.role, plx_ui::fmt::GAP, name),
         None => c.role.clone(),
     };
     TRow::new(c.title.clone())
@@ -519,7 +519,7 @@ impl FilmographyScreen {
         self.tab_c = self
             .model
             .iter()
-            .map(|d| CString::new(format!("{} · {}", d.title, plx_platform::i18n::current().number(d.total as i64))).unwrap_or_default())
+            .map(|d| CString::new(format!("{}{}{}", d.title, plx_ui::fmt::GAP, plx_platform::i18n::current().number(d.total as i64))).unwrap_or_default())
             .collect();
         let sel = self
             .current_row(focus)

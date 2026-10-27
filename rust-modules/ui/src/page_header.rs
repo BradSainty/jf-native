@@ -228,7 +228,8 @@ fn text_w(s: &str, measure: &dyn Measure) -> f32 {
 }
 
 /// The separator between a label and its value ("Collections · 24").
-const SEP: &str = " \u{b7} ";
+/// What stands between a label and its value: space (JF Native shows no dot between words).
+const SEP: &str = crate::fmt::GAP;
 
 /// What an item is made of, left to right, as stack items with the gap each part wears before it:
 /// the leading mark, the label (not drawn when the control is [`HeaderItem::value_only`]), the

@@ -42,8 +42,8 @@ struct Tile {
 }
 
 fn heat(key: Key) -> Tile {
-    Tile { title: "Heat", key, genre: "Drama".into(), year_length: "1999 \u{b7} 1h 40m".into(),
-        video: "1080p".into(), age: "PG-13 \u{b7} 7.8".into() }
+    Tile { title: "Heat", key, genre: "Drama".into(), year_length: "1999   1h 40m".into(),
+        video: "1080p".into(), age: "PG-13   7.8".into() }
 }
 /// A film with no year, genre or length: Genre has nothing to say, so the line says what it is.
 fn nameless_facts(key: Key) -> Tile {
@@ -75,7 +75,7 @@ fn reach(w: &mut World, title: &str, key: Key) {
 }
 
 /// The grade, on every tile of a page: under Title On + Genre the name over the genre, under Title
-/// Off + Year · Length the year and length alone, under Nothing no line (or the name alone with the
+/// Off + Year   Length the year and length alone, under Nothing no line (or the name alone with the
 /// Title switch on). `state` is a tile's own state line, which stands in for the details line under
 /// every setting but Nothing.
 fn grade(w: &mut World, tiles: &[Tile], state: &dyn Fn(&Tile) -> Option<&'static str>) {

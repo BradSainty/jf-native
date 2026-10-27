@@ -51,7 +51,7 @@
   "browse.detail.converts": "Convertido no servidor",
   "browse.detail.direct_play": "Reprodução direta",
   "browse.detail.direct_stream": "Transmissão direta",
-  "browse.detail.original_audio_converted": "Original · áudio convertido",
+  "browse.detail.original_audio_converted": "Original   áudio convertido",
   "browse.detail.hardware_needs": "requisitos de conversão por hardware",
   "browse.detail.tonemap_needs": "requisitos de mapeamento de tons",
   "browse.home.failed": "Não é possível contactar o seu servidor Plex",
@@ -120,9 +120,9 @@
   "browse.person.library_one": "{titles} nesta biblioteca",
   "browse.person.library_both": "{films} e {shows} nesta biblioteca",
   "browse.person.credits": {
-    "one": "{count} crédito · Mais recentes primeiro.",
-    "many": "{count} de créditos · Mais recentes primeiro.",
-    "other": "{count} créditos · Mais recentes primeiro."
+    "one": "{count} crédito   Mais recentes primeiro.",
+    "many": "{count} de créditos   Mais recentes primeiro.",
+    "other": "{count} créditos   Mais recentes primeiro."
   },
   "browse.detail.seasons": {
     "one": "{count} temporada",
@@ -138,9 +138,9 @@
   "browse.detail.season_number": "Temporada {number}",
   "browse.detail.episode_number": "EPISÓDIO {number}",
   "browse.library.unwatched": "Não vistos",
-  "browse.library.genre_unwatched": "{genre} · Não vistos",
+  "browse.library.genre_unwatched": "{genre}   Não vistos",
   "browse.library.unreachable": "Não é possível contactar {name}",
-  "browse.library.shared_unreachable": "Partilhado por {owner} · o seu próprio servidor está bem.",
+  "browse.library.shared_unreachable": "Partilhado por {owner}   o seu próprio servidor está bem.",
   "browse.library.no_movies": "Não há filmes em {library}",
   "browse.library.no_shows": "Não há séries em {library}",
   "browse.search.people": {
@@ -172,7 +172,7 @@
   },
   "browse.search.searching": "A pesquisar em {sources}",
   "browse.search.unreachable": "{sources} inacessível",
-  "browse.search.partial": "{unreachable} inacessível · resultados apenas de {available}",
+  "browse.search.partial": "{unreachable} inacessível   resultados apenas de {available}",
   "browse.auth.timeout": "O início de sessão expirou — tente novamente.",
   "browse.auth.no_servers": "Esta conta Plex ainda não tem nenhum servidor.",
   "browse.auth.no_servers_signed_in_as": "Sessão iniciada como {account}.\nEsta conta Plex ainda não tem nenhum servidor.",
@@ -261,7 +261,7 @@
   "browse.collection.unavailable": "Esta coleção não está disponível para este perfil",
   "browse.collection.unavailable_reason": "A biblioteca dela não está partilhada consigo, ou o proprietário do servidor restringiu-a.",
   "browse.collection.kind": "Coleção",
-  "browse.collection.meta": "{items} · Coleção",
+  "browse.collection.meta": "{items}   Coleção",
   "browse.collection.season_mark": "TEMPORADA {number}",
   "browse.home.hub.on_deck": "Para continuar",
   "browse.home.hub.recent_playlists": "Listas de reprodução recentes",

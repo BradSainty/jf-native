@@ -51,7 +51,7 @@
   "browse.detail.converts": "Converti sur le serveur",
   "browse.detail.direct_play": "Lecture directe",
   "browse.detail.direct_stream": "Flux direct",
-  "browse.detail.original_audio_converted": "Original · audio converti",
+  "browse.detail.original_audio_converted": "Original   audio converti",
   "browse.detail.hardware_needs": "conversion matérielle requise",
   "browse.detail.tonemap_needs": "mappage tonal requis",
   "browse.home.failed": "Impossible de joindre votre serveur Plex",
@@ -120,9 +120,9 @@
   "browse.person.library_one": "{titles} dans cette bibliothèque",
   "browse.person.library_both": "{films} et {shows} dans cette bibliothèque",
   "browse.person.credits": {
-    "one": "{count} crédit · Les plus récents d’abord.",
-    "many": "{count} crédits · Les plus récents d’abord.",
-    "other": "{count} crédits · Les plus récents d’abord."
+    "one": "{count} crédit   Les plus récents d’abord.",
+    "many": "{count} crédits   Les plus récents d’abord.",
+    "other": "{count} crédits   Les plus récents d’abord."
   },
   "browse.detail.seasons": {
     "one": "{count} saison",
@@ -138,9 +138,9 @@
   "browse.detail.season_number": "Saison {number}",
   "browse.detail.episode_number": "ÉPISODE {number}",
   "browse.library.unwatched": "Non vus",
-  "browse.library.genre_unwatched": "{genre} · Non vus",
+  "browse.library.genre_unwatched": "{genre}   Non vus",
   "browse.library.unreachable": "Impossible de joindre {name}",
-  "browse.library.shared_unreachable": "Partagé par {owner} · votre propre serveur fonctionne.",
+  "browse.library.shared_unreachable": "Partagé par {owner}   votre propre serveur fonctionne.",
   "browse.library.no_movies": "Aucun film dans {library}",
   "browse.library.no_shows": "Aucune série dans {library}",
   "browse.search.people": {
@@ -172,7 +172,7 @@
   },
   "browse.search.searching": "Recherche dans {sources}",
   "browse.search.unreachable": "Source non joignable : {sources}",
-  "browse.search.partial": "Source non joignable : {unreachable} · résultats de {available} uniquement",
+  "browse.search.partial": "Source non joignable : {unreachable}   résultats de {available} uniquement",
   "browse.auth.timeout": "Délai de connexion dépassé — réessayez.",
   "browse.auth.no_servers": "Ce compte Plex n’a pas encore de serveur.",
   "browse.auth.no_servers_signed_in_as": "Connecté en tant que {account}.\nCe compte Plex n’a pas encore de serveur.",
@@ -261,7 +261,7 @@
   "browse.collection.unavailable": "Cette collection n’est pas disponible pour ce profil",
   "browse.collection.unavailable_reason": "Sa bibliothèque n’est pas partagée avec vous, ou le propriétaire du serveur l’a restreinte.",
   "browse.collection.kind": "Collection",
-  "browse.collection.meta": "{items} · Collection",
+  "browse.collection.meta": "{items}   Collection",
   "browse.collection.season_mark": "SAISON {number}",
   "browse.home.hub.on_deck": "À suivre",
   "browse.home.hub.recent_playlists": "Listes de lecture récentes",
