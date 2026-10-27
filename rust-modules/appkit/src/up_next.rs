@@ -473,14 +473,14 @@ mod tests {
             ep_title: "Laura".into(),
             ..Default::default()
         };
-        assert_eq!(caption(&ep), "Up Next \u{b7} S2, E4 \u{b7} Laura");
+        assert_eq!(caption(&ep), format!("Up Next{gap}S2, E4{gap}Laura", gap = plx_ui::fmt::GAP));
         let bare = UpNext {
             ep_title: "Laura".into(),
             ..Default::default()
         };
         assert_eq!(
             caption(&bare),
-            "Up Next \u{b7} Laura",
+            format!("Up Next{}Laura", plx_ui::fmt::GAP),
             "no address, no empty ordinal"
         );
     }

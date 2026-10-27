@@ -1627,8 +1627,8 @@ fn a_poster_result_is_worded_by_the_under_posters_builder() {
     };
     assert_eq!(at(true, Details::Genre, &[]), [Some("Heat".into()), Some("Crime".into())]);
     assert_eq!(at(false, Details::YearLength, &[]), [None, Some("1995".into())]);
-    assert_eq!(at(true, Details::Genre, &friend), [Some("Heat".into()), Some("Crime \u{b7} @alex".into())]);
-    assert_eq!(at(false, Details::YearLength, &friend), [None, Some("1995 \u{b7} @alex".into())]);
+    assert_eq!(at(true, Details::Genre, &friend), [Some("Heat".into()), Some("Crime   @alex".into())]);
+    assert_eq!(at(false, Details::YearLength, &friend), [None, Some("1995   @alex".into())]);
     assert_eq!(at(true, Details::None, &friend), [Some("Heat".into()), None], "Nothing credits no line");
     assert_eq!(at(false, Details::None, &friend), [None, None]);
 
@@ -1636,7 +1636,7 @@ fn a_poster_result_is_worded_by_the_under_posters_builder() {
     let still = Item::Media(PmsMovie { kind: 3, title: "A Grand Day Out".into(), aired: "1989-11-04".into(), ..Default::default() });
     let episode = lines(&label_of(Kind::Episode, still, &friend));
     TEST_UNDER_POSTERS.with(|cell| cell.set(None));
-    assert_eq!(episode, [Some("A Grand Day Out".into()), Some("11/4/1989 \u{b7} @alex".into())], "a still keeps its own block");
+    assert_eq!(episode, [Some("A Grand Day Out".into()), Some("11/4/1989   @alex".into())], "a still keeps its own block");
 }
 
 /// The empty state's header and statement stand one MD apart, and the pair is centred in its area

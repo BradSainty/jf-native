@@ -28,7 +28,8 @@ pub const fn rgb8(r: u8, g: u8, b: u8) -> [f32; 4] {
 // Neutral — achromatic. These two stops are the ones the renderer paints with directly; the rest of
 // the palette is `ui::theme`'s private primitive layer, which imports these so a code is still
 // written down in exactly one place.
-/// The app ground, Apple TV's shelf gray `#2c2c2e` (`theme::SURFACE_APP`'s stop).
+/// Apple TV's shelf gray `#2c2c2e`: upstream's app ground, still the neutral a spent control's fill
+/// is mixed from. JF Native's ground is [`GROUND`].
 pub const NEUTRAL_500: [f32; 4] = rgb8(0x2c, 0x2c, 0x2e);
 /// The scrim ink, near-black `#050508` (`theme::scrim`'s stop). It is NOT merged into `NEUTRAL_950`
 /// (`#08080a`, two perceptual units lighter): the hero-text legibility floor
@@ -42,7 +43,19 @@ pub const NEUTRAL_1000: [f32; 4] = rgb8(0x05, 0x05, 0x08);
 /// seamless dip. Home overdraws it with `SURFACE_APP` (the identical gray). Two punches through to
 /// the hardware video plane use transparent black instead: the player route, and the detail page
 /// while a trailer preview has presented a frame (`gfx::frame_clear_through`).
-pub const CLEAR_RGB: (f32, f32, f32) = (NEUTRAL_500[0], NEUTRAL_500[1], NEUTRAL_500[2]);
+pub const CLEAR_RGB: (f32, f32, f32) = (GROUND[0], GROUND[1], GROUND[2]);
+
+/// **JF Native's ground**: the owner's Jellyfin theme, `linear-gradient(0deg, #111827 35%,
+/// #1D2635)` — this dark navy over the bottom 35% of the panel, rising to [`GROUND_TOP`] at the
+/// top edge. It replaced [`NEUTRAL_500`] as the app ground ([`CLEAR_RGB`], `theme::SURFACE_APP`),
+/// so every wash that leans from the ground toward an artwork leans from this.
+pub const GROUND: [f32; 4] = rgb8(0x11, 0x18, 0x27);
+/// The ground's lighter top stop (`--lighterGradientPoint`), painted by `frame_clear` as the sky
+/// over the clear ([`GROUND_SKY`] of the panel's height).
+pub const GROUND_TOP: [f32; 4] = rgb8(0x1d, 0x26, 0x35);
+/// The share of the panel, from the top, the ground's gradient spans: the CSS's `35%` stop is
+/// measured from the bottom, so the dark stop holds solid below 65%.
+pub const GROUND_SKY: f32 = 0.65;
 
 /// Hero/scroll scrim ink; use via `theme::scrim`.
 pub const SCRIM_INK: [f32; 3] = [NEUTRAL_1000[0], NEUTRAL_1000[1], NEUTRAL_1000[2]];

@@ -120,7 +120,7 @@ fn a_name_the_face_cuts_rides_the_details_line_inside_the_policys_band() {
     let cut = CaptionFacts { name_cut: true, ..films(4) };
     let silent = CaptionPolicy { title: false, details: DetailsKind::None };
     assert_eq!(lines(en, silent, &cut), [None, None], "Nothing opens nothing");
-    assert_eq!(lines(en, CaptionPolicy::DEFAULT, &cut), [None, Some("Starfall Saga \u{b7} 4 films".into())]);
+    assert_eq!(lines(en, CaptionPolicy::DEFAULT, &cut), [None, Some("Starfall Saga   4 films".into())]);
     assert_eq!(lines(en, CaptionPolicy { title: true, ..CaptionPolicy::DEFAULT }, &cut), [Some("Starfall Saga".into()), Some("4 films".into())]);
     assert_eq!(lines(en, silent, &films(4)), [None, None], "a name set whole follows the switch");
     assert_eq!(lines(en, CaptionPolicy::DEFAULT, &films(4)), [None, Some("4 films".into())]);

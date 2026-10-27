@@ -92,7 +92,7 @@ fn a_name_the_face_cuts_rides_the_caption_by_the_one_collection_rule() {
             let want: Vec<String> = match (title, details) {
                 (_, UnderPostersDetails::None) => title.then(|| name.to_owned()).into_iter().collect(),
                 (true, _) => vec![name.to_owned(), count.to_owned()],
-                (false, _) if cut => vec![format!("{name} \u{b7} {count}")],
+                (false, _) if cut => vec![format!("{name}   {count}")],
                 (false, _) => vec![count.to_owned()],
             };
             assert_eq!(caption_under_focused_poster(&mut w), want, "collection {i}: title {title}, details {details:?}");

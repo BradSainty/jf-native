@@ -651,8 +651,8 @@ fn a_matched_titles_caption_reads_its_copys_facts_under_every_details_pick() {
     for (details, want) in [
         (Details::YearLength, "1h 40m"),
         (Details::Genre, "Drama"),
-        (Details::Video, "1080p \u{b7} HDR"),
-        (Details::AgeRatingScore, "PG-13 \u{b7} 7.8"),
+        (Details::Video, "1080p   HDR"),
+        (Details::AgeRatingScore, "PG-13   7.8"),
     ] {
         set(&mut w, false, details);
         assert_eq!(w.drawn().caption_lines(), [want.to_string()], "{details:?}");

@@ -85,10 +85,10 @@ fn details_of(row: &plx_data::watchlist::model::WatchRow, state: TileState, copy
 fn an_available_title_reads_its_matched_copys_facts_under_every_details_pick() {
     let _guard = language_on_this_thread_for_test(Preference::En);
     for (details, want) in [
-        (UnderPostersDetails::YearLength, "2001 \u{b7} 1h 40m"),
+        (UnderPostersDetails::YearLength, "2001   1h 40m"),
         (UnderPostersDetails::Genre, "Drama"),
-        (UnderPostersDetails::Video, "4K \u{b7} HDR"),
-        (UnderPostersDetails::AgeRatingScore, "PG-13 \u{b7} 7.8"),
+        (UnderPostersDetails::Video, "4K   HDR"),
+        (UnderPostersDetails::AgeRatingScore, "PG-13   7.8"),
     ] {
         set(false, details);
         assert_eq!(details_of(&row(1), TileState::Available, &drama()).as_deref(), Some(want), "{details:?}");
@@ -116,7 +116,7 @@ fn a_show_reads_its_seasons_and_its_new_episodes_like_every_show_tile() {
     let mut show = row(1);
     show.kind = Kind::Show;
     let unwatched = ListingFacts { season_count: Some(3), leaf_count: Some(30), viewed_leaf_count: Some(0), ..Default::default() };
-    assert_eq!(details_of(&show, TileState::Available, &unwatched).as_deref(), Some("2001 \u{b7} 3 seasons"));
+    assert_eq!(details_of(&show, TileState::Available, &unwatched).as_deref(), Some("2001   3 seasons"));
     let started = ListingFacts { viewed_leaf_count: Some(12), ..unwatched };
     assert_eq!(details_of(&show, TileState::Available, &started).as_deref(), Some("18 new episodes"));
 }

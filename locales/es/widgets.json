@@ -18,7 +18,7 @@
   "widgets.tracks.mono": "Mono",
   "widgets.tracks.stereo": "Estéreo",
   "widgets.tracks.original": "Original: {language}",
-  "widgets.tracks.converted_by_server": "{track} · convertido por tu servidor",
+  "widgets.tracks.converted_by_server": "{track}   convertido por tu servidor",
   "widgets.action.mark_watched": "Marcar como visto",
   "widgets.action.mark_unwatched": "Marcar como no visto",
   "widgets.action.play_start": "Reproducir desde el principio",
@@ -37,13 +37,13 @@
   "widgets.playback.direct_play": "Reproducción directa",
   "widgets.playback.direct_stream": "Transmisión directa",
   "widgets.playback.converting": "Convirtiendo",
-  "widgets.playback.converting_codec": "Convirtiendo · {codec}",
+  "widgets.playback.converting_codec": "Convirtiendo   {codec}",
   "widgets.chapters.number": "Capítulo {number}",
   "widgets.skip.intro": "Saltar introducción",
   "widgets.skip.credits": "Saltar créditos",
   "widgets.next.episode": "Siguiente episodio",
   "widgets.next.credits": "Ver créditos",
-  "widgets.next.caption": "A continuación · {episode}",
+  "widgets.next.caption": "A continuación   {episode}",
   "widgets.status.preparing": "Preparando…",
   "widgets.status.connecting": "Conectando…",
   "widgets.status.buffering": "Cargando…",
@@ -53,7 +53,7 @@
   "widgets.player.info": "Información",
   "widgets.player.chapters": "Capítulos",
   "widgets.card.new_episode": "Nuevo episodio",
-  "widgets.card.show_new_episode": "{show} · Nuevo episodio",
+  "widgets.card.show_new_episode": "{show}   Nuevo episodio",
   "widgets.failure.jail": "Error de reproducción: el entorno aislado del televisor bloquea el vídeo nativo",
   "widgets.failure.refused": "Error de reproducción: el servidor no puede reproducir ni convertir este archivo",
   "widgets.failure.audio_only": "Error de reproducción: el servidor solo envió audio",
@@ -104,14 +104,14 @@
     "other": "{count} pistas"
   },
   "widgets.tracks.count_detail": {
-    "one": "{description} · {count} pista",
-    "many": "{description} · {count} pistas",
-    "other": "{description} · {count} pistas"
+    "one": "{description}   {count} pista",
+    "many": "{description}   {count} pistas",
+    "other": "{description}   {count} pistas"
   },
   "widgets.tracks.count_heading": {
-    "one": "{heading} · {count} PISTA",
-    "many": "{heading} · {count} PISTAS",
-    "other": "{heading} · {count} PISTAS"
+    "one": "{heading}   {count} PISTA",
+    "many": "{heading}   {count} PISTAS",
+    "other": "{heading}   {count} PISTAS"
   },
   "widgets.reason.jail_help": "La reparación requiere un televisor con root y acceso a Homebrew Channel.",
   "widgets.tracks.empty": "No hay pistas",

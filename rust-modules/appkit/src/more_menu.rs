@@ -294,7 +294,7 @@ fn speed_label(permille: i32) -> String {
 /// opens or rebuilds, never while it is on screen.
 fn quality_readout(ps: &plx_media::route::PlaybackSession, current: plx_media::route::Quality) -> String {
     use plx_media::route::{PlayingQuality, Quality};
-    let joined = |second: String| format!("{} \u{b7} {second}", current.short_label());
+    let joined = |second: String| format!("{}{}{second}", current.short_label(), plx_ui::fmt::GAP);
     match (current, plx_media::route::playing_quality(ps)) {
         (Quality::Original | Quality::Auto, PlayingQuality::Converted) => {
             joined(plx_platform::i18n::msg::widgets_menu_quality_converted().to_owned())
@@ -1014,8 +1014,8 @@ mod tests {
         assert_eq!(order(&quality_page(Quality::Original)), ladder);
     }
 
-    /// **The root's Quality row reads out the CURRENT choice** — "Auto · Original" (an untouched
-    /// file under Auto), "Original", "1080p" (the short name; the page keeps "1080p · 8 Mbps") —
+    /// **The root's Quality row reads out the CURRENT choice** — "Auto   Original" (an untouched
+    /// file under Auto), "Original", "1080p" (the short name; the page keeps "1080p   8 Mbps") —
     /// as its value, and the page checks that rung and no other.
     #[test]
     fn the_quality_row_reads_the_current_rung_and_the_page_checks_it() {
@@ -1023,7 +1023,7 @@ mod tests {
         for q in plx_media::route::QUALITY_LADDER {
             let mut st = menu(false, q);
             let want = if q == plx_media::route::Quality::Auto {
-                format!("{} \u{b7} {}", q.label(), plx_media::route::Quality::Original.label())
+                format!("{}{}{}", q.label(), plx_ui::fmt::GAP, plx_media::route::Quality::Original.label())
             } else {
                 q.short_label()
             };
@@ -1610,7 +1610,7 @@ mod focus_tests {
     /// The panel hugs its widest row up to [`MENU_MAX_W`](plx_ui::table::MENU_MAX_W), and a row
     /// elides its label to what the value beside it leaves — Spanish *Estadísticas avanzadas* and
     /// Belarusian *Падрабязная статыстыка* both ended in `…` beside their *Off*, and a rung's value
-    /// ("1080p · 20 Mbps", "Original", "Автаматычна") shares its row with the label *Quality*.
+    /// ("1080p   20 Mbps", "Original", "Автаматычна") shares its row with the label *Quality*.
     /// Measured with the device's whole-pixel advances.
     #[test]
     fn every_row_fits_the_panel_in_every_language() {
@@ -1678,7 +1678,7 @@ mod focus_tests {
     }
 
     /// **The five situations of the UX board's verdict**, one assertion each: the row reads
-    /// "{choice} · {playing}", the second part left out only when it would repeat the first, and
+    /// "{choice}   {playing}", the second part left out only when it would repeat the first, and
     /// the checked entry's sub-line appears only for a conversion the viewer did not pick by name.
     #[test]
     fn the_quality_row_reads_choice_then_what_is_playing() {
@@ -1696,22 +1696,22 @@ mod focus_tests {
         }
         // 2. Original, the picture converted
         let (v, n) = quality_row(fixture(Some(false), Quality::Original), None);
-        assert_eq!(v, format!("{original} \u{b7} {converted}"), "2");
+        assert_eq!(v, format!("{original}   {converted}"), "2");
         assert_eq!(n, note, "2: the sub-line sits under the checked Original");
         // 3. Auto, the file untouched
         let (v, n) = quality_row(fixture(None, Quality::Auto), None);
-        assert_eq!(v, format!("{auto} \u{b7} {original}"), "3");
+        assert_eq!(v, format!("{auto}   {original}"), "3");
         assert!(!n.contains(note), "3");
         // 4. Auto on a converted rung
         let (v, n) = quality_row(fixture(Some(false), Quality::Auto), Some(plx_media::abr::Rung::P720));
-        assert_eq!(v, format!("{auto} \u{b7} 720p"), "4");
+        assert_eq!(v, format!("{auto}   720p"), "4");
         assert_eq!(n, note, "4");
         // 4b. Auto on a converted route with no rung to name (a burn under Auto, or a picture this
-        // television cannot decode): "Auto · Converted", never "Auto" alone
+        // television cannot decode): "Auto   Converted", never "Auto" alone
         let (v, n) = quality_row(fixture(Some(false), Quality::Auto), None);
-        assert_eq!(v, format!("{auto} \u{b7} {converted}"), "4b");
+        assert_eq!(v, format!("{auto}   {converted}"), "4b");
         assert_eq!(n, note, "4b");
-        // burns re-encode the picture, so the row keeps "Original · Converted": Boost on with an
+        // burns re-encode the picture, so the row keeps "Original   Converted": Boost on with an
         // embedded subtitle (the enhancement's own burn), and a plain Original burn
         let burn_own = EnhTestFixture {
             subtitle_effect: plx_media::route::SubtitleEffect::Embedded,
@@ -1720,13 +1720,13 @@ mod focus_tests {
             ..fixture(Some(true), Quality::Original)
         };
         let (v, n) = quality_row(burn_own, None);
-        assert_eq!((v, n.as_str()), (format!("{original} \u{b7} {converted}"), note), "own burn");
+        assert_eq!((v, n.as_str()), (format!("{original}   {converted}"), note), "own burn");
         let burn_plain = EnhTestFixture {
             subtitle_effect: plx_media::route::SubtitleEffect::Embedded,
             ..fixture(Some(false), Quality::Original)
         };
         let (v, n) = quality_row(burn_plain, None);
-        assert_eq!((v, n.as_str()), (format!("{original} \u{b7} {converted}"), note), "plain burn");
+        assert_eq!((v, n.as_str()), (format!("{original}   {converted}"), note), "plain burn");
         // 5. a fixed 720p: the short name, no sub-line (the page keeps the full label)
         let (v, n) = quality_row(EnhTestFixture { base_present: false, ..fixture(Some(false), Quality::P720) }, None);
         assert_eq!((v.as_str(), n.contains(note)), ("720p", false), "5");

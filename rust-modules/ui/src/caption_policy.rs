@@ -180,9 +180,10 @@ pub fn caption_lines(policy: &CaptionPolicy, facts: &CaptionFacts, locale: &Loca
     [title, join(details.into_iter().chain(facts.source.clone().filter(|s| !s.is_empty())).collect())]
 }
 
-/// The facts of one caption line joined with the app's one separator (" · "); no facts, no line.
+/// The facts of one caption line joined with the app's one separator, [`crate::fmt::GAP`] (JF
+/// Native separates facts with space, never a dot); no facts, no line.
 pub fn join(parts: Vec<String>) -> Option<String> {
-    (!parts.is_empty()).then(|| parts.join(" \u{b7} "))
+    (!parts.is_empty()).then(|| parts.join(crate::fmt::GAP))
 }
 
 /// PMS `videoResolution` ("4k", "1080", "720", "sd") as the mark a viewer knows.

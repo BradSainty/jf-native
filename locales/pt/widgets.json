@@ -18,7 +18,7 @@
   "widgets.tracks.mono": "Mono",
   "widgets.tracks.stereo": "Estéreo",
   "widgets.tracks.original": "Original: {language}",
-  "widgets.tracks.converted_by_server": "{track} · convertido pelo servidor",
+  "widgets.tracks.converted_by_server": "{track}   convertido pelo servidor",
   "widgets.action.mark_watched": "Marcar como visto",
   "widgets.action.mark_unwatched": "Marcar como não visto",
   "widgets.action.play_start": "Reproduzir do início",
@@ -37,13 +37,13 @@
   "widgets.playback.direct_play": "Reprodução direta",
   "widgets.playback.direct_stream": "Transmissão direta",
   "widgets.playback.converting": "A converter",
-  "widgets.playback.converting_codec": "A converter · {codec}",
+  "widgets.playback.converting_codec": "A converter   {codec}",
   "widgets.chapters.number": "Capítulo {number}",
   "widgets.skip.intro": "Saltar introdução",
   "widgets.skip.credits": "Saltar genérico",
   "widgets.next.episode": "Próximo episódio",
   "widgets.next.credits": "Ver genérico",
-  "widgets.next.caption": "A seguir · {episode}",
+  "widgets.next.caption": "A seguir   {episode}",
   "widgets.status.preparing": "A preparar…",
   "widgets.status.connecting": "A ligar…",
   "widgets.status.buffering": "A carregar…",
@@ -53,7 +53,7 @@
   "widgets.player.info": "Info",
   "widgets.player.chapters": "Capítulos",
   "widgets.card.new_episode": "Novo episódio",
-  "widgets.card.show_new_episode": "{show} · Novo episódio",
+  "widgets.card.show_new_episode": "{show}   Novo episódio",
   "widgets.failure.jail": "Falha na reprodução — o ambiente isolado deste televisor bloqueia o vídeo nativo",
   "widgets.failure.refused": "Falha na reprodução — o servidor não consegue reproduzir nem converter este ficheiro",
   "widgets.failure.audio_only": "Falha na reprodução — o servidor só enviou áudio",
@@ -104,14 +104,14 @@
     "other": "{count} faixas"
   },
   "widgets.tracks.count_detail": {
-    "one": "{description} · {count} faixa",
-    "many": "{description} · {count} de faixas",
-    "other": "{description} · {count} faixas"
+    "one": "{description}   {count} faixa",
+    "many": "{description}   {count} de faixas",
+    "other": "{description}   {count} faixas"
   },
   "widgets.tracks.count_heading": {
-    "one": "{heading} · {count} FAIXA",
-    "many": "{heading} · {count} DE FAIXAS",
-    "other": "{heading} · {count} FAIXAS"
+    "one": "{heading}   {count} FAIXA",
+    "many": "{heading}   {count} DE FAIXAS",
+    "other": "{heading}   {count} FAIXAS"
   },
   "widgets.reason.jail_help": "A reparação requer um televisor com root e acesso ao Homebrew Channel. Ajuda: plxnative.com/troubleshooting/#playback-reports-jail_missing_rtkmem",
   "widgets.tracks.empty": "Sem faixas",

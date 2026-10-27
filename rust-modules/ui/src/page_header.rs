@@ -186,8 +186,8 @@ fn text_w(s: &str, measure: &dyn Measure) -> f32 {
 fn run_w(item: &HeaderItem, measure: &dyn Measure) -> f32 {
     let w = |s: &str| text_w(s, measure);
     let (sep, value) = match (&item.value_slot, &item.value) {
-        (Some(slot), value) => (Item::new(w(" \u{b7} ")), Item::new(w(slot).max(value.as_deref().map_or(0.0, w)))),
-        (None, Some(value)) => (Item::new(w(" \u{b7} ")), Item::new(w(value))),
+        (Some(slot), value) => (Item::new(w(crate::fmt::GAP)), Item::new(w(slot).max(value.as_deref().map_or(0.0, w)))),
+        (None, Some(value)) => (Item::new(w(crate::fmt::GAP)), Item::new(w(value))),
         (None, None) => (Item::absent(), Item::absent()),
     };
     let fold = if item.fold_glyph { fold_item() } else { Item::absent() };
@@ -205,7 +205,7 @@ fn fold_item() -> Item {
 fn ink_w(item: &HeaderItem, measure: &dyn Measure) -> f32 {
     if item.value_slot.is_none() { return run_w(item, measure); }
     let w = |s: &str| text_w(s, measure);
-    w(&item.label) + item.value.as_deref().map_or(0.0, |value| w(" \u{b7} ") + w(value))
+    w(&item.label) + item.value.as_deref().map_or(0.0, |value| w(crate::fmt::GAP) + w(value))
 }
 
 const FOLD_GAP: f32 = 10.0;
@@ -449,7 +449,7 @@ impl PageHeader {
         };
         let mut value_end = x;
         if sep_alpha > 0.0 {
-            if let Ok(sep) = CString::new(" \u{b7} ") {
+            if let Ok(sep) = CString::new(crate::fmt::GAP) {
                 let advance = p.alpha(sep_alpha).text(sep.as_ptr(), x, y, theme::size::BODY, to_accent(rest), 0, 0);
                 x += advance;
                 value_end = x;

@@ -18,7 +18,7 @@
   "widgets.tracks.mono": "Mono",
   "widgets.tracks.stereo": "Stereo",
   "widgets.tracks.original": "Originale: {language}",
-  "widgets.tracks.converted_by_server": "{track} · convertito dal tuo server",
+  "widgets.tracks.converted_by_server": "{track}   convertito dal tuo server",
   "widgets.action.mark_watched": "Segna come già visto",
   "widgets.action.mark_unwatched": "Segna come da vedere",
   "widgets.action.play_start": "Riproduci dall'inizio",
@@ -37,13 +37,13 @@
   "widgets.playback.direct_play": "Direct Play",
   "widgets.playback.direct_stream": "Streaming diretto",
   "widgets.playback.converting": "Conversione in corso",
-  "widgets.playback.converting_codec": "Conversione · {codec}",
+  "widgets.playback.converting_codec": "Conversione   {codec}",
   "widgets.chapters.number": "Capitolo {number}",
   "widgets.skip.intro": "Salta intro",
   "widgets.skip.credits": "Salta titoli di coda",
   "widgets.next.episode": "Prossimo episodio",
   "widgets.next.credits": "Guarda titoli di coda",
-  "widgets.next.caption": "A seguire · {episode}",
+  "widgets.next.caption": "A seguire   {episode}",
   "widgets.status.preparing": "Preparazione…",
   "widgets.status.connecting": "Connessione…",
   "widgets.status.buffering": "Caricamento…",
@@ -53,7 +53,7 @@
   "widgets.player.info": "Info",
   "widgets.player.chapters": "Capitoli",
   "widgets.card.new_episode": "Nuovo episodio",
-  "widgets.card.show_new_episode": "{show} · Nuovo episodio",
+  "widgets.card.show_new_episode": "{show}   Nuovo episodio",
   "widgets.failure.jail": "Riproduzione non riuscita — la sandbox di questa TV blocca il video nativo",
   "widgets.failure.refused": "Riproduzione non riuscita: il server non può riprodurre né convertire questo file",
   "widgets.failure.audio_only": "Riproduzione non riuscita — il server ha inviato solo l'audio",
@@ -104,14 +104,14 @@
     "other": "{count} tracce"
   },
   "widgets.tracks.count_detail": {
-    "one": "{description} · {count} traccia",
-    "many": "{description} · {count} tracce",
-    "other": "{description} · {count} tracce"
+    "one": "{description}   {count} traccia",
+    "many": "{description}   {count} tracce",
+    "other": "{description}   {count} tracce"
   },
   "widgets.tracks.count_heading": {
-    "one": "{heading} · {count} TRACCIA",
-    "many": "{heading} · {count} TRACCE",
-    "other": "{heading} · {count} TRACCE"
+    "one": "{heading}   {count} TRACCIA",
+    "many": "{heading}   {count} TRACCE",
+    "other": "{heading}   {count} TRACCE"
   },
   "widgets.reason.jail_help": "Servono root e Homebrew Channel. Aiuto: plxnative.com/troubleshooting/#playback-reports-jail_missing_rtkmem.",
   "widgets.tracks.empty": "Nessuna traccia",

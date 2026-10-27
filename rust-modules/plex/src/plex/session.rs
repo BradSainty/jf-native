@@ -939,7 +939,8 @@ impl PlaybackQuality {
             msg::widgets_tracks_kbps(&current().number(kbps))
         };
         // `1080p` is the format's own conventional name in every shipped language.
-        format!("{lines}p \u{b7} {rate}")
+        // (spaced, not `·`: JF Native separates facts with space, `ui::fmt::GAP`)
+        format!("{lines}p   {rate}")
     }
 
     /// The rung's SHORT name for a row that has another part to read beside it ("720p"): the

@@ -37,12 +37,12 @@ fn the_default_details_line_by_kind() {
     let p = CaptionPolicy::DEFAULT;
     let line = |f: &CaptionFacts| caption_lines(&p, f, cx)[1].clone();
     let movie = CaptionFacts { year: Some(2024), duration_min: Some(112), ..Default::default() };
-    assert_eq!(line(&movie).as_deref(), Some("2024 \u{b7} 1h 52m"));
+    assert_eq!(line(&movie).as_deref(), Some("2024   1h 52m"));
     let started = CaptionFacts { view_offset_min: Some(74), ..movie.clone() };
     assert_eq!(line(&started).as_deref(), Some("38m left"));
     let finished = CaptionFacts { view_offset_min: Some(112), ..movie };
-    assert_eq!(line(&finished).as_deref(), Some("2024 \u{b7} 1h 52m"), "a past-end offset is not 'started'");
-    assert_eq!(line(&show(0)).as_deref(), Some("2019 \u{b7} 3 seasons"));
+    assert_eq!(line(&finished).as_deref(), Some("2024   1h 52m"), "a past-end offset is not 'started'");
+    assert_eq!(line(&show(0)).as_deref(), Some("2019   3 seasons"));
     assert_eq!(line(&show(4)).as_deref(), Some("4 new episodes"));
     assert_eq!(line(&show(1)).as_deref(), Some("1 new episode"));
     let films = CaptionFacts { subtype: Some("movie".into()), child_count: Some(7), ..Default::default() };
@@ -57,8 +57,8 @@ fn video_and_age_rating_lines() {
         content_rating: Some("PG-13".into()), audience_rating: Some(7.84), ..Default::default()
     };
     let at = |details| caption_lines(&CaptionPolicy { title: false, details }, &f, cx)[1].clone();
-    assert_eq!(at(DetailsKind::Video).as_deref(), Some("4K \u{b7} HDR"));
-    assert_eq!(at(DetailsKind::AgeRatingScore).as_deref(), Some("PG-13 \u{b7} 7.8"));
+    assert_eq!(at(DetailsKind::Video).as_deref(), Some("4K   HDR"));
+    assert_eq!(at(DetailsKind::AgeRatingScore).as_deref(), Some("PG-13   7.8"));
     let hd = CaptionFacts { video_resolution: Some("1080".into()), ..Default::default() };
     assert_eq!(caption_lines(&CaptionPolicy { title: false, details: DetailsKind::Video }, &hd, cx)[1].as_deref(), Some("1080p"));
 }
@@ -207,7 +207,7 @@ impl plx_machine::machine::Measure for Flat {
 #[test]
 fn the_details_line_under_a_poster_is_white_at_82_percent() {
     let _g = plx_base::testlock::serial();
-    let mut l = card_row::TileLabel::from_lines([None, Some("2019 · 2h 6m".into())]);
+    let mut l = card_row::TileLabel::from_lines([None, Some("2019   2h 6m".into())]);
     l.reveal = None;
     let runs = crate::draw_census::capture_runs(|| {
         card_row::draw_label(crate::Painter::recording(), crate::Rect::new(100.0, 100.0, 200.0, 300.0), 1.0, &card_row::RowStyle::HOME, &l, &Flat);
@@ -249,7 +249,7 @@ fn a_details_line_the_tile_has_no_facts_for_says_its_identity() {
     let movie = CaptionFacts { year: Some(1995), ..Default::default() };
     let films = CaptionFacts { subtype: Some("movie".into()), child_count: Some(7), ..Default::default() };
     for details in pickers {
-        assert_eq!(at(details, &episode).as_deref(), Some("S1 \u{b7} E8"), "{details:?}");
+        assert_eq!(at(details, &episode).as_deref(), Some("S1 E8"), "{details:?}");
         assert_eq!(at(details, &show).as_deref(), Some("2022"), "{details:?}");
         assert_eq!(at(details, &movie).as_deref(), Some("1995"), "{details:?}");
         assert_eq!(at(details, &films).as_deref(), Some("7 films"), "{details:?}");
@@ -302,12 +302,12 @@ fn a_friends_server_is_credited_after_the_details_line() {
         source: Some("@alex".into()), ..Default::default()
     };
     let lines = |title, details| caption_lines(&CaptionPolicy { title, details }, &f, cx);
-    assert_eq!(lines(true, DetailsKind::Genre), [Some("Heat".into()), Some("Crime \u{b7} @alex".into())]);
-    assert_eq!(lines(false, DetailsKind::YearLength), [None, Some("1995 \u{b7} @alex".into())]);
+    assert_eq!(lines(true, DetailsKind::Genre), [Some("Heat".into()), Some("Crime   @alex".into())]);
+    assert_eq!(lines(false, DetailsKind::YearLength), [None, Some("1995   @alex".into())]);
     assert_eq!(lines(true, DetailsKind::None), [Some("Heat".into()), None], "Nothing drops the credit with the line");
     let bare = CaptionFacts { year: Some(0), genre: None, ..f.clone() };
     assert_eq!(caption_lines(&CaptionPolicy { title: false, details: DetailsKind::Genre }, &bare, cx)[1].as_deref(),
-        Some("Movie \u{b7} @alex"), "the kind word is the line it is credited on");
+        Some("Movie   @alex"), "the kind word is the line it is credited on");
     let none = CaptionFacts { source: Some(String::new()), ..f };
     assert_eq!(caption_lines(&CaptionPolicy { title: false, details: DetailsKind::Genre }, &none, cx)[1].as_deref(), Some("Crime"), "an empty handle credits nothing");
 }
@@ -350,11 +350,11 @@ fn a_show_reads_new_episodes_only_when_it_is_in_progress() {
     let cx = i18n::english();
     let line = |f: &CaptionFacts| caption_lines(&CaptionPolicy::DEFAULT, f, cx)[1].clone();
     let unopened = CaptionFacts { leaf_count: Some(62), viewed_leaf_count: Some(0), ..show(0) };
-    assert_eq!(line(&unopened).as_deref(), Some("2019 \u{b7} 3 seasons"), "viewed 0: nothing is 'new' to a show never opened");
+    assert_eq!(line(&unopened).as_deref(), Some("2019   3 seasons"), "viewed 0: nothing is 'new' to a show never opened");
     let no_count = CaptionFacts { viewed_leaf_count: None, ..show(4) };
-    assert_eq!(line(&no_count).as_deref(), Some("2019 \u{b7} 3 seasons"), "no viewed count: not known to be started");
+    assert_eq!(line(&no_count).as_deref(), Some("2019   3 seasons"), "no viewed count: not known to be started");
     assert_eq!(line(&show(4)).as_deref(), Some("4 new episodes"), "started with 4 unwatched");
-    assert_eq!(line(&show(0)).as_deref(), Some("2019 \u{b7} 3 seasons"), "all watched: nothing new");
+    assert_eq!(line(&show(0)).as_deref(), Some("2019   3 seasons"), "all watched: nothing new");
 }
 
 /// **S1 + S3: ONE rule for a collection tile, on every surface.** The Title switch governs its title
@@ -376,9 +376,9 @@ fn a_collection_follows_the_policy_like_any_kind() {
     assert_eq!(lines(true, DetailsKind::None, &films), [Some("Marvel".into()), None]);
     assert_eq!(lines(false, DetailsKind::None, &films), [None, None], "Nothing opens nothing");
     let cut = CaptionFacts { name_cut: true, ..films.clone() };
-    assert_eq!(lines(false, DetailsKind::YearLength, &cut), [None, Some("Marvel \u{b7} 7 films".into())],
+    assert_eq!(lines(false, DetailsKind::YearLength, &cut), [None, Some("Marvel   7 films".into())],
         "a cut name rides the one line the policy opened");
-    assert_eq!(lines(false, DetailsKind::Genre, &cut), [None, Some("Marvel \u{b7} 7 films".into())]);
+    assert_eq!(lines(false, DetailsKind::Genre, &cut), [None, Some("Marvel   7 films".into())]);
     assert_eq!(lines(true, DetailsKind::Genre, &cut), [Some("Marvel".into()), Some("7 films".into())], "the title is on: said once");
     assert_eq!(lines(false, DetailsKind::None, &cut), [None, None], "Nothing opens nothing, a cut name or not");
     assert_eq!(lines(true, DetailsKind::None, &cut), [Some("Marvel".into()), None]);
@@ -395,9 +395,9 @@ fn an_episode_whose_art_prints_its_address_names_its_show() {
     };
     for details in [DetailsKind::YearLength, DetailsKind::Genre, DetailsKind::Video, DetailsKind::AgeRatingScore] {
         assert_eq!(at(details, &marked).as_deref(), Some("Severance"), "{details:?}");
-        assert_eq!(at(details, &CaptionFacts { address_on_art: false, ..marked.clone() }).as_deref(), Some("S3 \u{b7} E4"), "{details:?}");
+        assert_eq!(at(details, &CaptionFacts { address_on_art: false, ..marked.clone() }).as_deref(), Some("S3 E4"), "{details:?}");
     }
-    assert_eq!(at(DetailsKind::YearLength, &CaptionFacts { show: None, ..marked }).as_deref(), Some("S3 \u{b7} E4"),
+    assert_eq!(at(DetailsKind::YearLength, &CaptionFacts { show: None, ..marked }).as_deref(), Some("S3 E4"),
         "no show to name: the address is better than nothing");
 }
 

@@ -51,7 +51,7 @@
   "browse.detail.converts": "Konvertálás a szerveren",
   "browse.detail.direct_play": "Közvetlen lejátszás",
   "browse.detail.direct_stream": "Közvetlen stream",
-  "browse.detail.original_audio_converted": "Eredeti · konvertált hang",
+  "browse.detail.original_audio_converted": "Eredeti   konvertált hang",
   "browse.detail.hardware_needs": "a hardveres konvertáláshoz szükséges:",
   "browse.detail.tonemap_needs": "a tónusleképezéshez szükséges:",
   "browse.home.failed": "A Plex-szerver nem érhető el",
@@ -118,8 +118,8 @@
   "browse.person.library_one": "{titles} ebben a könyvtárban",
   "browse.person.library_both": "{films} és {shows} ebben a könyvtárban",
   "browse.person.credits": {
-    "one": "{count} közreműködés · A legújabbak elöl.",
-    "other": "{count} közreműködés · A legújabbak elöl."
+    "one": "{count} közreműködés   A legújabbak elöl.",
+    "other": "{count} közreműködés   A legújabbak elöl."
   },
   "browse.detail.seasons": {
     "one": "{count} évad",
@@ -133,9 +133,9 @@
   "browse.detail.season_number": "{number}. évad",
   "browse.detail.episode_number": "{number}. EPIZÓD",
   "browse.library.unwatched": "Nem látott",
-  "browse.library.genre_unwatched": "{genre} · Nem látott",
+  "browse.library.genre_unwatched": "{genre}   Nem látott",
   "browse.library.unreachable": "{name} nem érhető el",
-  "browse.library.shared_unreachable": "Megosztotta: {owner} · a saját szervere rendben van.",
+  "browse.library.shared_unreachable": "Megosztotta: {owner}   a saját szervere rendben van.",
   "browse.library.no_movies": "Nincs film itt: {library}",
   "browse.library.no_shows": "Nincs sorozat itt: {library}",
   "browse.search.people": {
@@ -162,7 +162,7 @@
   },
   "browse.search.searching": "Keresés: {sources}",
   "browse.search.unreachable": "Nem érhető el: {sources}",
-  "browse.search.partial": "Nem érhető el: {unreachable} · csak innen vannak találatok: {available}",
+  "browse.search.partial": "Nem érhető el: {unreachable}   csak innen vannak találatok: {available}",
   "browse.auth.timeout": "A bejelentkezés túllépte az időkorlátot – próbálja újra.",
   "browse.auth.no_servers": "Ehhez a Plex-fiókhoz még nem tartozik szerver.",
   "browse.auth.no_servers_signed_in_as": "Bejelentkezve: {account}.\nEhhez a Plex-fiókhoz még nem tartozik szerver.",
@@ -249,7 +249,7 @@
   "browse.collection.unavailable": "Ez a gyűjtemény nem érhető el ennek a profilnak",
   "browse.collection.unavailable_reason": "Az ezt tartalmazó könyvtárat nem osztották meg Önnel, vagy a szerver tulajdonosa korlátozta a hozzáférést.",
   "browse.collection.kind": "Gyűjtemény",
-  "browse.collection.meta": "{items} · Gyűjtemény",
+  "browse.collection.meta": "{items}   Gyűjtemény",
   "browse.collection.season_mark": "{number}. ÉVAD",
   "browse.home.hub.on_deck": "Soron következő",
   "browse.home.hub.recent_playlists": "Legutóbbi lejátszási listák",

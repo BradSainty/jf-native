@@ -22,7 +22,7 @@ const POLICY: plx_ui::caption_policy::CaptionPolicy = plx_ui::caption_policy::Ca
 fn grid_labels_identify_episodes_and_seasons() {
     let episode = PmsMovie { kind: 3, title: "The Bear".into(), show_title: "The Bear".into(),
         season_index: 3, ep_index: 4, ..Default::default() };
-    assert_eq!(super::parts::grid_label(&episode, &POLICY).title.unwrap().to_str().unwrap(), "S3 · E4",
+    assert_eq!(super::parts::grid_label(&episode, &POLICY).title.unwrap().to_str().unwrap(), "S3 E4",
         "an episode without its own title must identify the episode, not repeat the show");
     let season = PmsMovie { kind: 2, title: "Season 3".into(), show_title: "The Bear".into(),
         season_index: 3, ..Default::default() };
@@ -35,7 +35,7 @@ fn grid_labels_identify_episodes_and_seasons() {
 
 #[test]
 fn focused_grid_labels_keep_the_shared_trailing_fact_including_under_a_menu() {
-    for (kind, year, line) in [(0, 1994, "1994 · 1h 0m"), (1, 2022, "2022")] {
+    for (kind, year, line) in [(0, 1994, "1994   1h 0m"), (1, 2022, "2022")] {
         let item = PmsMovie { kind, year, title: "Synthetic title".into(),
             dur_ns: 60 * 60 * 1_000_000_000, resume_ms: 35 * 60 * 1000,
             ..Default::default() };
@@ -301,10 +301,10 @@ fn a_focused_poster_tile_always_fills_the_caption_rung_it_reserves() {
         assert_eq!(caption(&l), "");
         // …and an episode with no title of its own falls back to its address on the title rung
         let sh = shelf(vec![dated(ep(3, 4, "", "The Bear"))]);
-        assert_eq!(title(&shelf_label(&sh, 0)), "S3 \u{b7} E4");
+        assert_eq!(title(&shelf_label(&sh, 0)), "S3 E4");
         // an episode whose title IS the show's says it once, as the address
         let sh = shelf(vec![dated(ep(2, 1, "X", "X"))]);
-        assert_eq!(title(&shelf_label(&sh, 0)), "S2 \u{b7} E1");
+        assert_eq!(title(&shelf_label(&sh, 0)), "S2 E1");
 
         // …and a POSTER shelf follows the Under posters setting: its tiles name the item on focus
         // when the Title switch is on, and the episode's address is its default details line
@@ -315,7 +315,7 @@ fn a_focused_poster_tile_always_fills_the_caption_rung_it_reserves() {
             plx_plex::plex::session::UnderPosters { title: true, details: plx_plex::plex::session::UnderPostersDetails::YearLength })));
         let l = shelf_label(&poster, 0);
         crate::registry::captions::TEST_UNDER_POSTERS.with(|cell| cell.set(None));
-        assert_eq!((title(&l).as_str(), caption(&l).as_str()), ("Violet", "S3 \u{b7} E4"));
+        assert_eq!((title(&l).as_str(), caption(&l).as_str()), ("Violet", "S3 E4"));
     }
 
 /// The artwork FALLBACK CHAIN: the episode's own still, then the show's POSTER, and its

@@ -32,7 +32,7 @@
     "description": "Narrative copy beside the Details picker page: the facts that replace the details line on started, upcoming and collection titles. One sentence."
   },
   "under_posters.year_length": {
-    "value": "Year · Length",
+    "value": "Year, length",
     "description": "Under posters details choice: the release year and the running time, e.g. 2019 · 2h 14m. Keep the middle dot."
   },
   "under_posters.genre": {
@@ -44,7 +44,7 @@
     "description": "Under posters details choice: video quality marks such as 4K · HDR."
   },
   "under_posters.age_rating_score": {
-    "value": "Age rating · Score",
+    "value": "Age rating, score",
     "description": "Under posters details choice: age rating and audience score, e.g. PG-13 · 7.8. Keep the middle dot."
   },
   "under_posters.none": {

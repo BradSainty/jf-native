@@ -595,7 +595,7 @@ fn scope_text(sources: &[ScopeSource]) -> Option<String> {
             .filter(|source| !source.household && !source.handle.is_empty());
         if let (2, Some(source), None) = (live.len(), shares.next(), shares.next()) {
             if source_label(source) != source.handle {
-                line.push_str(" · ");
+                line.push_str(plx_ui::fmt::GAP);
                 line.push_str(&source.handle);
             }
         }
@@ -633,7 +633,7 @@ mod tests {
         assert_eq!(msg::browse_search_no_results_in(&be, "Кіна {query}"), "Няма вынікаў для «Кіна {query}»");
         let es = LocaleContext::resolve(Preference::Es, None, None, None, None);
         assert_eq!(msg::browse_search_partial_in(&es, "Biblioteca A", "Servidor B"),
-            "No se puede conectar con Servidor B · solo hay resultados de Biblioteca A");
+            "No se puede conectar con Servidor B   solo hay resultados de Biblioteca A");
         assert_eq!(msg::browse_search_placeholder_c_in(&be).to_str().unwrap(), "Пошук у вашай бібліятэцы");
     }
 
@@ -905,7 +905,7 @@ mod tests {
     fn a_household_source_is_named_while_a_friends_share_stays_credited_and_counted() {
         assert_eq!(
             scope_text(&[household("nas-home"), share("Film Club", "friend")]).unwrap(),
-            "Searching nas-home and Film Club · friend"
+            "Searching nas-home and Film Club   friend"
         );
         let many = vec![
             household("nas-home"),
@@ -935,7 +935,7 @@ mod tests {
     fn two_live_sources_name_both_and_attribute_the_share() {
         assert_eq!(
             scope_text(&[own("nas-home"), share("Film Club", "friend")]).unwrap(),
-            "Searching nas-home and Film Club · friend"
+            "Searching nas-home and Film Club   friend"
         );
     }
 
@@ -992,7 +992,7 @@ mod tests {
     fn an_unreachable_source_names_itself_and_what_is_left() {
         assert_eq!(
             scope_text(&[own("nas-home"), down(share("Film Club", "friend"))]).unwrap(),
-            "Film Club unreachable · results from nas-home only"
+            "Film Club unreachable, results from nas-home only"
         );
     }
 
@@ -1000,7 +1000,7 @@ mod tests {
     fn your_own_server_going_quiet_reads_the_same_way() {
         assert_eq!(
             scope_text(&[down(own("nas-home")), share("Film Club", "friend")]).unwrap(),
-            "nas-home unreachable · results from Film Club only"
+            "nas-home unreachable, results from Film Club only"
         );
     }
 
@@ -1037,7 +1037,7 @@ mod tests {
     fn an_unnamed_source_still_produces_a_sentence() {
         assert_eq!(
             scope_text(&[own(""), share("Film Club", "friend")]).unwrap(),
-            "Searching your server and Film Club · friend"
+            "Searching your server and Film Club   friend"
         );
         assert_eq!(
             scope_text(&[own("nas-home"), share("", "")]).unwrap(),
@@ -1163,7 +1163,7 @@ mod tests {
         assert_eq!(lines(&still_label(&ep, false, "")), [Some("A Grand Day Out".into()), Some("11/4/1989".into())]);
         assert_eq!(
             lines(&still_label(&ep, false, "friend")),
-            [Some("A Grand Day Out".into()), Some("11/4/1989 \u{b7} friend".into())]
+            [Some("A Grand Day Out".into()), Some("11/4/1989   friend".into())]
         );
         let undated = plx_data::pms::PmsMovie {
             kind: 3,
@@ -1171,9 +1171,9 @@ mod tests {
             ep_index: 3,
             ..Default::default()
         };
-        assert_eq!(lines(&still_label(&undated, false, "")), [Some("S1 \u{b7} E3".into()), None],
+        assert_eq!(lines(&still_label(&undated, false, "")), [Some("S1 E3".into()), None],
             "an untitled, undated episode says its address alone");
-        assert_eq!(lines(&still_label(&undated, false, "friend")), [Some("S1 \u{b7} E3".into()), Some("friend".into())]);
+        assert_eq!(lines(&still_label(&undated, false, "friend")), [Some("S1 E3".into()), Some("friend".into())]);
         assert!(still_label(&ep, false, "").shadowed, "a still is shadowed like every other landscape block");
     }
 

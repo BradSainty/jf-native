@@ -3744,20 +3744,21 @@ fn hero_content(hero: &PmsMovie, source: &str, p: Painter, dx: f32, measure: &dy
     let meta = if episode {
         let mut text = plx_ui::fmt::episode_address(i64::from(hero.season_index), i64::from(hero.ep_index));
         if !text.is_empty() && !hero.title.is_empty() {
-            text.push_str(" \u{b7} ");
+            text.push_str(plx_ui::fmt::GAP);
         }
         text.push_str(&hero.title);
         text
     } else {
         format!(
-            "{} \u{b7} {} \u{b7} {}",
+            "{}{gap}{}{gap}{}",
             if hero.kind == 1 { plx_platform::i18n::msg::browse_kind_show() } else { plx_platform::i18n::msg::browse_kind_movie() },
             hero.year,
             if hero.rating.is_empty() {
                 plx_platform::i18n::msg::browse_detail_unrated()
             } else {
                 &hero.rating
-            }
+            },
+            gap = plx_ui::fmt::GAP,
         )
     };
     let meta_view = TextView::new(&meta, theme::size::BODY, theme::TEXT_SECONDARY).max_lines(1);

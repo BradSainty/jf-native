@@ -1075,16 +1075,16 @@ mod tests {
         );
         assert_eq!(
             playback_now(true, true, false, "h264").as_deref(),
-            Some("Converting \u{b7} H.264")
+            Some(format!("Converting{}H.264", plx_ui::fmt::GAP).as_str())
         );
         assert_eq!(
             playback_now(true, true, false, "hevc").as_deref(),
-            Some("Converting \u{b7} HEVC")
+            Some(format!("Converting{}HEVC", plx_ui::fmt::GAP).as_str())
         );
         // a codec map we have never met is upper-cased, not dropped and not renamed
         assert_eq!(
             playback_now(true, true, false, "av1").as_deref(),
-            Some("Converting \u{b7} AV1")
+            Some(format!("Converting{}AV1", plx_ui::fmt::GAP).as_str())
         );
         // a re-encode whose output codec never landed still converted
         assert_eq!(

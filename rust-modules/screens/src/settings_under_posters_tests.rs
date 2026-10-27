@@ -104,7 +104,7 @@ fn the_details_row_reads_the_current_line_and_opens_the_picker() {
     let mut page = UnderPostersPage::new(EntryId(0));
     let i = page.form.index_of_key(UpId::Details.key()).unwrap();
     let value = page.form.table.sections.iter().flat_map(|s| s.rows.iter()).nth(i).and_then(|r| r.value.clone());
-    assert_eq!(value.as_deref(), Some("Year \u{b7} Length"));
+    assert_eq!(value.as_deref(), Some("Year, length"));
     assert_eq!(page.form.activate(i), Some(plx_ui::form::Activation::Push(SettingsPage::UnderPostersDetails)));
     let out = activate(&mut page, UpId::Details);
     assert!(out.iter().any(|e| matches!(e.fx, Fx::Nav(plx_machine::machine::NavOp::Push(SettingsPage::UnderPostersDetails)))));
@@ -148,20 +148,19 @@ fn the_picker_lists_nothing_first_each_line_with_its_sample_and_checks_the_curre
     let page = DetailsPage::new(EntryId(0));
     let rows: Vec<(String, Option<String>)> = page.form.table.sections.iter().flat_map(|s| s.rows.iter())
         .map(|r| (r.label.to_string(), r.value.clone())).collect();
-    let dot = '\u{b7}';
     assert_eq!(rows, vec![
         ("Nothing".to_string(), None),
-        (format!("Year {dot} Length"), Some(format!("2019 {dot} 2h 14m"))),
+        ("Year, length".to_string(), Some(format!("2019   2h 14m"))),
         ("Genre".to_string(), Some("Drama".to_string())),
-        ("Video".to_string(), Some(format!("4K {dot} HDR"))),
-        (format!("Age rating {dot} Score"), Some(format!("PG-13 {dot} 7.8"))),
+        ("Video".to_string(), Some(format!("4K   HDR"))),
+        ("Age rating, score".to_string(), Some(format!("PG-13   7.8"))),
     ]);
     assert_eq!(checked(&page), vec![UnderPostersDetails::YearLength]);
 }
 
 /// **Every sample on the picker comes from ONE source: the preview's middle poster** (design review
-/// C1). The rows said "2019 · 2h 14m" and "PG-13 · 7.8" (invented) beside a preview that read
-/// "2022 · 6m" from the library's own poster; a kind the poster has no fact for samples what the
+/// C1). The rows said "2019   2h 14m" and "PG-13   7.8" (invented) beside a preview that read
+/// "2022   6m" from the library's own poster; a kind the poster has no fact for samples what the
 /// tile says instead (its identity line), the same words the preview draws.
 #[test]
 fn the_pickers_samples_are_worded_from_the_previews_middle_poster() {
@@ -180,13 +179,12 @@ fn the_pickers_samples_are_worded_from_the_previews_middle_poster() {
     page.step(&ScreenEvent::Mount, &c, &mut Effects::new(&mut out, MachineId::Instance(InstanceId(0)), &mut present));
     let rows: Vec<(String, Option<String>)> = page.form.table.sections.iter().flat_map(|s| s.rows.iter())
         .map(|r| (r.label.to_string(), r.value.clone())).collect();
-    let dot = '\u{b7}';
     assert_eq!(rows, vec![
         ("Nothing".to_string(), None),
-        (format!("Year {dot} Length"), Some(format!("2022 {dot} 6m"))),
+        ("Year, length".to_string(), Some(format!("2022   6m"))),
         ("Genre".to_string(), Some("Western".to_string())),
         ("Video".to_string(), Some("2022".to_string())),
-        (format!("Age rating {dot} Score"), Some("PG".to_string())),
+        ("Age rating, score".to_string(), Some("PG".to_string())),
     ], "the middle poster's own facts, and for a kind it has none for the identity line the tile says instead (its year), never an invented fact");
     // …and each sample is what the preview captions that poster with under the same choice
     let posters = preview_posters(&c);
@@ -307,13 +305,13 @@ fn the_preview_is_captioned_by_the_same_policy() {
     assert_eq!(preview_lines(UnderPosters { title: false, details: none }, None), [None, None]);
     let default = preview_lines(UnderPosters::DEFAULT, None);
     assert_eq!(default[0], None, "the default shows no title");
-    assert_eq!(default[1].as_deref(), Some("2019 \u{b7} 2h 14m"));
+    assert_eq!(default[1].as_deref(), Some("2019   2h 14m"));
     let both = preview_lines(UnderPosters { title: true, details: UnderPostersDetails::Genre }, None);
     assert_eq!(both[0].as_deref(), Some("Movie"));
     assert_eq!(both[1].as_deref(), Some("Drama"));
-    assert_eq!(preview_lines(UnderPosters { title: false, details: UnderPostersDetails::Video }, None)[1].as_deref(), Some("4K \u{b7} HDR"));
+    assert_eq!(preview_lines(UnderPosters { title: false, details: UnderPostersDetails::Video }, None)[1].as_deref(), Some("4K   HDR"));
     assert_eq!(preview_lines(UnderPosters { title: false, details: UnderPostersDetails::AgeRatingScore }, None)[1].as_deref(),
-        Some("PG-13 \u{b7} 7.8"));
+        Some("PG-13   7.8"));
 }
 
 #[test]
@@ -359,9 +357,9 @@ fn the_root_row_reads_the_setting_and_names_the_poster_it_governs() {
     let _en = language_on_this_thread_for_test(plx_platform::i18n::Preference::En);
     let read = |title, details| root_row_text(&RootInputs { under_posters: UnderPosters { title, details }, ..text_fit_inputs() });
     let (value, sub) = read(false, UnderPostersDetails::YearLength);
-    assert_eq!(value.as_deref(), Some("Year \u{b7} Length"), "the default reads its details line");
+    assert_eq!(value.as_deref(), Some("Year, length"), "the default reads its details line");
     assert_eq!(sub, "What shows under the poster you are on.");
-    assert_eq!(read(true, UnderPostersDetails::YearLength).0.as_deref(), Some("Year \u{b7} Length"), "the title is the page's own row");
+    assert_eq!(read(true, UnderPostersDetails::YearLength).0.as_deref(), Some("Year, length"), "the title is the page's own row");
     assert_eq!(read(true, UnderPostersDetails::Genre).0.as_deref(), Some("Genre"));
     assert_eq!(read(false, UnderPostersDetails::Video).0.as_deref(), Some("Video"));
     assert_eq!(read(true, UnderPostersDetails::None).0.as_deref(), Some("Title"));

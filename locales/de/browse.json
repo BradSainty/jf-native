@@ -51,7 +51,7 @@
   "browse.detail.converts": "Wird auf dem Server konvertiert",
   "browse.detail.direct_play": "Direktwiedergabe",
   "browse.detail.direct_stream": "Direkt-Stream",
-  "browse.detail.original_audio_converted": "Original · Audio konvertiert",
+  "browse.detail.original_audio_converted": "Original   Audio konvertiert",
   "browse.detail.hardware_needs": "Hardware-Konvertierung erfordert",
   "browse.detail.tonemap_needs": "Tone-Mapping erfordert",
   "browse.home.failed": "Dein Plex-Server ist nicht erreichbar",
@@ -118,8 +118,8 @@
   "browse.person.library_one": "{titles} in dieser Mediathek",
   "browse.person.library_both": "{films} und {shows} in dieser Mediathek",
   "browse.person.credits": {
-    "one": "{count} Mitwirkung · Neueste zuerst.",
-    "other": "{count} Mitwirkungen · Neueste zuerst."
+    "one": "{count} Mitwirkung   Neueste zuerst.",
+    "other": "{count} Mitwirkungen   Neueste zuerst."
   },
   "browse.detail.seasons": {
     "one": "{count} Staffel",
@@ -133,9 +133,9 @@
   "browse.detail.season_number": "Staffel {number}",
   "browse.detail.episode_number": "EPISODE {number}",
   "browse.library.unwatched": "Ungesehen",
-  "browse.library.genre_unwatched": "{genre} · Ungesehen",
+  "browse.library.genre_unwatched": "{genre}   Ungesehen",
   "browse.library.unreachable": "{name} ist nicht erreichbar",
-  "browse.library.shared_unreachable": "Geteilt von {owner} · dein eigener Server funktioniert.",
+  "browse.library.shared_unreachable": "Geteilt von {owner}   dein eigener Server funktioniert.",
   "browse.library.no_movies": "Keine Filme in {library}",
   "browse.library.no_shows": "Keine Serien in {library}",
   "browse.search.people": {
@@ -162,7 +162,7 @@
   },
   "browse.search.searching": "Suche läuft: {sources}",
   "browse.search.unreachable": "{sources} nicht erreichbar",
-  "browse.search.partial": "{unreachable} nicht erreichbar · nur Ergebnisse von: {available}",
+  "browse.search.partial": "{unreachable} nicht erreichbar   nur Ergebnisse von: {available}",
   "browse.auth.timeout": "Zeitüberschreitung bei der Anmeldung – versuche es erneut.",
   "browse.auth.no_servers": "Dieses Plex-Konto hat noch keinen Server.",
   "browse.auth.no_servers_signed_in_as": "Angemeldet als {account}.\nDieses Plex-Konto hat noch keinen Server.",
@@ -249,7 +249,7 @@
   "browse.collection.unavailable": "Diese Sammlung ist für dieses Profil nicht verfügbar",
   "browse.collection.unavailable_reason": "Ihre Mediathek ist nicht mit dir geteilt, oder der Serverbesitzer hat sie eingeschränkt.",
   "browse.collection.kind": "Sammlung",
-  "browse.collection.meta": "{items} · Sammlung",
+  "browse.collection.meta": "{items}   Sammlung",
   "browse.collection.season_mark": "STAFFEL {number}",
   "browse.home.hub.on_deck": "Als Nächstes",
   "browse.home.hub.recent_playlists": "Neue Playlists",

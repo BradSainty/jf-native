@@ -1468,7 +1468,7 @@ impl TrackMenuState {
                 [h.provider.as_str(), h.language.as_str()].into_iter().filter(|p| !p.is_empty()).collect();
             let mut row = Row::new(title).server_label();
             if !detail.is_empty() {
-                row = row.detail(detail.join(" \u{b7} ")).server_detail();
+                row = row.detail(detail.join(plx_ui::fmt::GAP)).server_detail();
             }
             if h.hearing_impaired {
                 row = row.badge(Badge::Sdh);
@@ -2455,7 +2455,7 @@ fn flat_row(t: &SubTrack, active_sub: c_int) -> Row {
         parts.push(plx_platform::i18n::msg::widgets_tracks_track_ordinal(n as i64));
     }
     if !parts.is_empty() {
-        row = row.detail(parts.join(" \u{b7} "));
+        row = row.detail(parts.join(plx_ui::fmt::GAP));
     }
     for b in &t.badges {
         row = row.badge(row_badge(b));
@@ -2486,14 +2486,14 @@ fn in_lang_label(t: &SubTrack) -> String {
     let nth = t.ordinal.map(|n| plx_platform::i18n::msg::widgets_tracks_track_ordinal(n as i64));
     if !t.detail.is_empty() {
         match &nth {
-            Some(n) => format!("{} \u{b7} {}", t.detail, n),
+            Some(n) => format!("{}{}{}", t.detail, plx_ui::fmt::GAP, n),
             None => t.detail.clone(),
         }
     } else if let Some(n) = &nth {
         if t.kind == Kind::Full {
             n.clone()
         } else {
-            format!("{} \u{b7} {}", t.kind.fallback_label(), n)
+            format!("{}{}{}", t.kind.fallback_label(), plx_ui::fmt::GAP, n)
         }
     } else {
         t.kind.fallback_label().to_string()
@@ -2733,7 +2733,7 @@ mod tests {
         let (sections, _targets) =
             sub_layout(&subs, &offered, &names, &["rus"], -1, true, 0);
         let labels: Vec<&str> = sections[1].rows.iter().map(|r| r.label.as_str()).collect();
-        assert_eq!(labels, ["iTunes \u{b7} Track 1", "iTunes \u{b7} Track 2"]);
+        assert_eq!(labels, ["iTunes   Track 1", "iTunes   Track 2"]);
     }
 
     // ---- sub_layout: one badge per row, by priority --------------------------------------------
@@ -3631,7 +3631,7 @@ mod enhancement_menu_tests {
     }
 
     /// Original picked and the server converting the video: the Quality row reads
-    /// "Original · Converted" and the note agrees (one fact).
+    /// "Original   Converted" and the note agrees (one fact).
     #[test]
     fn enh_rows_disabled_while_the_server_converts() {
         let _g = plx_base::testlock::serial();
@@ -4334,7 +4334,7 @@ mod enhancement_menu_tests {
     #[test]
     fn a_converted_track_names_the_server_on_its_sub_line_and_a_playable_one_does_not() {
         let _g = plx_base::testlock::serial();
-        assert_eq!(audio_sub_line_for("AAC 7.1".into(), true), "AAC 7.1 \u{b7} converted by your server");
+        assert_eq!(audio_sub_line_for("AAC 7.1".into(), true), format!("AAC 7.1{}converted by your server", plx_ui::fmt::GAP));
         assert_eq!(audio_sub_line_for("Dolby Digital 5.1".into(), false), "Dolby Digital 5.1");
         assert_eq!(audio_sub_line_for(String::new(), true), "", "no descriptor, nothing to extend");
         // the capability answer it is fed: TrueHD is outside the profile's audio list, AC-3 is not

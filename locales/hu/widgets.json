@@ -18,7 +18,7 @@
   "widgets.tracks.mono": "Monó",
   "widgets.tracks.stereo": "Sztereó",
   "widgets.tracks.original": "Eredeti: {language}",
-  "widgets.tracks.converted_by_server": "{track} · a szerver konvertálja",
+  "widgets.tracks.converted_by_server": "{track}   a szerver konvertálja",
   "widgets.action.mark_watched": "Megjelölés megnézettként",
   "widgets.action.mark_unwatched": "Megjelölés nem látottként",
   "widgets.action.play_start": "Lejátszás az elejéről",
@@ -37,13 +37,13 @@
   "widgets.playback.direct_play": "Közvetlen lejátszás",
   "widgets.playback.direct_stream": "Közvetlen stream",
   "widgets.playback.converting": "Konvertálás",
-  "widgets.playback.converting_codec": "Konvertálás · {codec}",
+  "widgets.playback.converting_codec": "Konvertálás   {codec}",
   "widgets.chapters.number": "{number}. fejezet",
   "widgets.skip.intro": "Főcím kihagyása",
   "widgets.skip.credits": "Stáblista kihagyása",
   "widgets.next.episode": "Következő epizód",
   "widgets.next.credits": "Stáblista megtekintése",
-  "widgets.next.caption": "Következik · {episode}",
+  "widgets.next.caption": "Következik   {episode}",
   "widgets.status.preparing": "Előkészítés…",
   "widgets.status.connecting": "Csatlakozás…",
   "widgets.status.buffering": "Pufferelés…",
@@ -53,7 +53,7 @@
   "widgets.player.info": "Infó",
   "widgets.player.chapters": "Fejezetek",
   "widgets.card.new_episode": "Új epizód",
-  "widgets.card.show_new_episode": "{show} · Új epizód",
+  "widgets.card.show_new_episode": "{show}   Új epizód",
   "widgets.failure.jail": "Sikertelen lejátszás – a TV sandboxa tiltja a natív videót",
   "widgets.failure.refused": "Sikertelen lejátszás – a szerver nem tudja lejátszani vagy konvertálni a fájlt",
   "widgets.failure.audio_only": "Sikertelen lejátszás – a szerver csak hangot küldött",
@@ -103,12 +103,12 @@
     "other": "{count} sáv"
   },
   "widgets.tracks.count_detail": {
-    "one": "{description} · {count} sáv",
-    "other": "{description} · {count} sáv"
+    "one": "{description}   {count} sáv",
+    "other": "{description}   {count} sáv"
   },
   "widgets.tracks.count_heading": {
-    "one": "{heading} · {count} SÁV",
-    "other": "{heading} · {count} SÁV"
+    "one": "{heading}   {count} SÁV",
+    "other": "{heading}   {count} SÁV"
   },
   "widgets.reason.jail_help": "A javításhoz rootolt TV és Homebrew Channel-hozzáférés kell. Súgó: plxnative.com/troubleshooting/#playback-reports-jail_missing_rtkmem",
   "widgets.tracks.empty": "Nincsenek sávok",

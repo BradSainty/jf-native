@@ -57,14 +57,15 @@ fn a_ground_never_outshines_the_fine_print_that_sits_on_it() {
     }
 }
 
-/// The other end: a ground keyed to near-black key art must not sink below the value a card's
-/// drop shadow needs to read against. `SURFACE_APP`'s own doc rejects the old near-black
-/// (25,25,29)/255 for exactly that reason; `GROUND_W ≤ 0.26` is what keeps the floor above it,
-/// with no floor constant anywhere.
+/// The other end: a ground keyed to near-black key art must not sink to black. Upstream held it
+/// above a near-black gray (25,25,29) a card shadow reads against; JF Native's ground is the
+/// owner's dark navy, which is itself below that gray, so the floor here is the scrim ink a page
+/// darkens toward — a black key art leaves the page navy, never black. `GROUND_W ≤ 0.26` is what
+/// keeps the floor above it, with no floor constant anywhere.
 #[test]
 fn a_ground_stays_light_enough_for_a_card_shadow() {
     let floor = AmbientWash::keyed([[0.0; 3]; 4], [AmbientWash::GROUND_W; 4]);
-    let rejected = [25.0 / 255.0, 25.0 / 255.0, 29.0 / 255.0, 1.0];
+    let ink = plx_gfx::gfx::tokens::SCRIM_INK;
     for corner in floor {
         for ch in 0..3 {
             let want = theme::SURFACE_APP[ch] * (1.0 - AmbientWash::GROUND_W);
@@ -73,8 +74,8 @@ fn a_ground_stays_light_enough_for_a_card_shadow() {
                 "the darkest ground is the surface scaled by 1-GROUND_W"
             );
             assert!(
-                corner[ch] > rejected[ch],
-                "channel {ch} sank to {} — into the near-black the palette rejects",
+                corner[ch] > ink[ch] + 4.0 / 255.0,
+                "channel {ch} sank to {} — into the scrim's black",
                 corner[ch]
             );
         }

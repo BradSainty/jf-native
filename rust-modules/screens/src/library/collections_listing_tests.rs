@@ -189,7 +189,7 @@ fn a_long_collection_name_is_held_to_its_lifted_tile_with_a_fade_and_marquees() 
         thumb: "/library/collections/50001/composite/1700000000?width=400".into(), ..Default::default()
     };
     let label = parts::grid_label(&item, &plx_ui::caption_policy::CaptionPolicy::DEFAULT);
-    let line = format!("{name} \u{b7} 2 films");
+    let line = format!("{name}   2 films");
     assert!(label.title.is_none(), "the Title switch is off: the name rides the details line");
     assert_eq!(label.caption.as_ref().map(|c| c.to_str().unwrap()), Some(line.as_str()), "the cut name is carried by the caption");
     let sty = layout::Layout::new(false, 10_000).style();

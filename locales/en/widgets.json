@@ -94,7 +94,7 @@
     }
   },
   "widgets.tracks.converted_by_server": {
-    "value": "{track} · converted by your server",
+    "value": "{track}   converted by your server",
     "description": "Sub-line under an audio track in the player's audio menu when the TV cannot decode that track and the server converts its audio. {track} is the codec and channel layout, e.g. AAC 7.1.",
     "args": {
       "track": "str"
@@ -173,7 +173,7 @@
     "description": "Human-readable description of the active playback delivery mode."
   },
   "widgets.playback.converting_codec": {
-    "value": "Converting · {codec}",
+    "value": "Converting   {codec}",
     "description": "Human-readable description of the active playback delivery mode.",
     "args": {
       "codec": "str"
@@ -203,7 +203,7 @@
     "description": "Up-next episode card over the player; keep the supplied episode title intact."
   },
   "widgets.next.caption": {
-    "value": "Up Next · {episode}",
+    "value": "Up Next   {episode}",
     "description": "Up-next episode card over the player; keep the supplied episode title intact.",
     "args": {
       "episode": "str"
@@ -246,7 +246,7 @@
     "description": "Secondary caption beneath a focused media card."
   },
   "widgets.card.show_new_episode": {
-    "value": "{show} · New episode",
+    "value": "{show}   New episode",
     "description": "Secondary caption beneath a focused media card.",
     "args": {
       "show": "str"
@@ -455,8 +455,8 @@
   },
   "widgets.tracks.count_detail": {
     "value": {
-      "one": "{description} · {count} track",
-      "other": "{description} · {count} tracks"
+      "one": "{description}   {count} track",
+      "other": "{description}   {count} tracks"
     },
     "description": "Label or formatted fact in the media track information sheet or track selector.",
     "args": {
@@ -466,8 +466,8 @@
   },
   "widgets.tracks.count_heading": {
     "value": {
-      "one": "{heading} · {count} TRACK",
-      "other": "{heading} · {count} TRACKS"
+      "one": "{heading}   {count} TRACK",
+      "other": "{heading}   {count} TRACKS"
     },
     "description": "Label or formatted fact in the media track information sheet or track selector.",
     "args": {

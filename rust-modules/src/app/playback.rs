@@ -301,16 +301,17 @@ pub(super) trait PlaybackResources {
         pa: &mut plx_media::player::adapter::PlayerAdapter, resume_ns: i64) -> bool;
 }
 
-/// The HUD's context line for a catalog movie, `"2019 · PG-13 · 2h 15m"` — what
+/// The HUD's context line for a catalog movie, `"2019   PG-13   2h 15m"` — what
 /// `route::request_play_movie` takes as its `ctx`. Formatted here rather than in `route` because
 /// the runtime is `ui::fmt`'s and `route` may not name `ui`.
 pub(crate) fn movie_ctx(m: &plx_data::pms::PmsMovie) -> String {
     let rating = if m.rating.is_empty() { "NR" } else { &m.rating };
     format!(
-        "{} \u{b7} {} \u{b7} {}",
+        "{}{gap}{}{gap}{}",
         m.year,
         rating,
-        plx_ui::fmt::duration(m.dur_ns / 1_000_000)
+        plx_ui::fmt::duration(m.dur_ns / 1_000_000),
+        gap = plx_ui::fmt::GAP,
     )
 }
 

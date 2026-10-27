@@ -51,7 +51,7 @@
   "browse.detail.converts": "Преобразуется на сервере",
   "browse.detail.direct_play": "Прямое воспроизведение",
   "browse.detail.direct_stream": "Прямая передача",
-  "browse.detail.original_audio_converted": "Видео без изменений · аудио преобразовано",
+  "browse.detail.original_audio_converted": "Видео без изменений   аудио преобразовано",
   "browse.detail.hardware_needs": "требования к аппаратному преобразованию",
   "browse.detail.tonemap_needs": "требования к тональному отображению",
   "browse.home.failed": "Не удалось подключиться к серверу Plex",
@@ -122,10 +122,10 @@
   "browse.person.library_one": "В этой медиатеке: {titles}",
   "browse.person.library_both": "В этой медиатеке: {films} и {shows}",
   "browse.person.credits": {
-    "one": "{count} работа · Сначала новые.",
-    "few": "{count} работы · Сначала новые.",
-    "many": "{count} работ · Сначала новые.",
-    "other": "{count} работы · Сначала новые."
+    "one": "{count} работа   Сначала новые.",
+    "few": "{count} работы   Сначала новые.",
+    "many": "{count} работ   Сначала новые.",
+    "other": "{count} работы   Сначала новые."
   },
   "browse.detail.seasons": {
     "one": "{count} сезон",
@@ -143,9 +143,9 @@
   "browse.detail.season_number": "Сезон {number}",
   "browse.detail.episode_number": "СЕРИЯ {number}",
   "browse.library.unwatched": "Непросмотренные",
-  "browse.library.genre_unwatched": "{genre} · Непросмотренные",
+  "browse.library.genre_unwatched": "{genre}   Непросмотренные",
   "browse.library.unreachable": "Не удалось подключиться к {name}",
-  "browse.library.shared_unreachable": "Доступ предоставлен пользователем {owner} · ваш сервер работает.",
+  "browse.library.shared_unreachable": "Доступ предоставлен пользователем {owner}   ваш сервер работает.",
   "browse.library.no_movies": "В медиатеке «{library}» нет фильмов",
   "browse.library.no_shows": "В медиатеке «{library}» нет сериалов",
   "browse.search.people": {
@@ -182,7 +182,7 @@
   },
   "browse.search.searching": "Поиск: {sources}",
   "browse.search.unreachable": "Недоступно: {sources}",
-  "browse.search.partial": "Недоступно: {unreachable} · результаты только из {available}",
+  "browse.search.partial": "Недоступно: {unreachable}   результаты только из {available}",
   "browse.auth.timeout": "Время ожидания входа истекло — повторите попытку.",
   "browse.auth.no_servers": "У этого аккаунта Plex пока нет серверов.",
   "browse.auth.no_servers_signed_in_as": "Вы вошли как {account}.\nУ этого аккаунта Plex пока нет серверов.",
@@ -273,7 +273,7 @@
   "browse.collection.unavailable": "Эта коллекция недоступна для данного профиля",
   "browse.collection.unavailable_reason": "У вас нет доступа к её медиатеке либо владелец сервера ограничил доступ.",
   "browse.collection.kind": "Коллекция",
-  "browse.collection.meta": "{items} · Коллекция",
+  "browse.collection.meta": "{items}   Коллекция",
   "browse.collection.season_mark": "СЕЗОН {number}",
   "browse.home.hub.on_deck": "На очереди",
   "browse.home.hub.recent_playlists": "Недавние плейлисты",

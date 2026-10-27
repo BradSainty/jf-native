@@ -18,7 +18,7 @@
   "widgets.tracks.mono": "Mono",
   "widgets.tracks.stereo": "Stereo",
   "widgets.tracks.original": "Original: {language}",
-  "widgets.tracks.converted_by_server": "{track} · vom Server konvertiert",
+  "widgets.tracks.converted_by_server": "{track}   vom Server konvertiert",
   "widgets.action.mark_watched": "Als gesehen markieren",
   "widgets.action.mark_unwatched": "Als ungesehen markieren",
   "widgets.action.play_start": "Von Anfang an abspielen",
@@ -37,13 +37,13 @@
   "widgets.playback.direct_play": "Direktwiedergabe",
   "widgets.playback.direct_stream": "Direkt-Stream",
   "widgets.playback.converting": "Wird konvertiert",
-  "widgets.playback.converting_codec": "Wird konvertiert · {codec}",
+  "widgets.playback.converting_codec": "Wird konvertiert   {codec}",
   "widgets.chapters.number": "Kapitel {number}",
   "widgets.skip.intro": "Intro überspringen",
   "widgets.skip.credits": "Abspann überspringen",
   "widgets.next.episode": "Nächste Episode",
   "widgets.next.credits": "Abspann ansehen",
-  "widgets.next.caption": "Als Nächstes · {episode}",
+  "widgets.next.caption": "Als Nächstes   {episode}",
   "widgets.status.preparing": "Wird vorbereitet …",
   "widgets.status.connecting": "Verbinden …",
   "widgets.status.buffering": "Puffern …",
@@ -53,7 +53,7 @@
   "widgets.player.info": "Info",
   "widgets.player.chapters": "Kapitel",
   "widgets.card.new_episode": "Neue Episode",
-  "widgets.card.show_new_episode": "{show} · Neue Episode",
+  "widgets.card.show_new_episode": "{show}   Neue Episode",
   "widgets.failure.jail": "Wiedergabe fehlgeschlagen – die Sandbox dieses Fernsehers blockiert natives Video",
   "widgets.failure.refused": "Wiedergabe fehlgeschlagen – der Server kann diese Datei weder abspielen noch konvertieren",
   "widgets.failure.audio_only": "Wiedergabe fehlgeschlagen – der Server hat nur Audio gesendet",
@@ -103,12 +103,12 @@
     "other": "{count} Spuren"
   },
   "widgets.tracks.count_detail": {
-    "one": "{description} · {count} Spur",
-    "other": "{description} · {count} Spuren"
+    "one": "{description}   {count} Spur",
+    "other": "{description}   {count} Spuren"
   },
   "widgets.tracks.count_heading": {
-    "one": "{heading} · {count} SPUR",
-    "other": "{heading} · {count} SPUREN"
+    "one": "{heading}   {count} SPUR",
+    "other": "{heading}   {count} SPUREN"
   },
   "widgets.reason.jail_help": "Die Reparatur braucht einen gerooteten Fernseher mit Homebrew Channel. Hilfe: plxnative.com/troubleshooting/#playback-reports-jail_missing_rtkmem",
   "widgets.tracks.empty": "Keine Spuren",

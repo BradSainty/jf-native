@@ -18,7 +18,7 @@
   "widgets.tracks.mono": "Мона",
   "widgets.tracks.stereo": "Стэрэа",
   "widgets.tracks.original": "Арыгінал: {language}",
-  "widgets.tracks.converted_by_server": "{track} · канвертаваны",
+  "widgets.tracks.converted_by_server": "{track}   канвертаваны",
   "widgets.action.mark_watched": "Пазначыць як прагледжанае",
   "widgets.action.mark_unwatched": "Пазначыць як непрагледжанае",
   "widgets.action.play_start": "Глядзець з пачатку",
@@ -37,13 +37,13 @@
   "widgets.playback.direct_play": "Прамое прайграванне",
   "widgets.playback.direct_stream": "Прамы паток",
   "widgets.playback.converting": "Канвертаванне",
-  "widgets.playback.converting_codec": "Канвертаванне · {codec}",
+  "widgets.playback.converting_codec": "Канвертаванне   {codec}",
   "widgets.chapters.number": "Раздзел {number}",
   "widgets.skip.intro": "Прапусціць застаўку",
   "widgets.skip.credits": "Прапусціць цітры",
   "widgets.next.episode": "Наступная серыя",
   "widgets.next.credits": "Глядзець цітры",
-  "widgets.next.caption": "Далей · {episode}",
+  "widgets.next.caption": "Далей   {episode}",
   "widgets.status.preparing": "Падрыхтоўка…",
   "widgets.status.connecting": "Злучэнне…",
   "widgets.status.buffering": "Буферызацыя…",
@@ -53,7 +53,7 @@
   "widgets.player.info": "Звесткі",
   "widgets.player.chapters": "Раздзелы",
   "widgets.card.new_episode": "Новая серыя",
-  "widgets.card.show_new_episode": "{show} · Новая серыя",
+  "widgets.card.show_new_episode": "{show}   Новая серыя",
   "widgets.failure.jail": "Не ўдалося прайграць: ізаляванае асяроддзе тэлевізара блакуе натыўнае відэа",
   "widgets.failure.refused": "Не ўдалося прайграць: сервер не можа прайграць або сканвертаваць гэты файл",
   "widgets.failure.audio_only": "Не ўдалося прайграць: сервер адправіў толькі аўдыя",
@@ -105,16 +105,16 @@
     "other": "{count} дарожкі"
   },
   "widgets.tracks.count_detail": {
-    "one": "{description} · {count} дарожка",
-    "few": "{description} · {count} дарожкі",
-    "many": "{description} · {count} дарожак",
-    "other": "{description} · {count} дарожкі"
+    "one": "{description}   {count} дарожка",
+    "few": "{description}   {count} дарожкі",
+    "many": "{description}   {count} дарожак",
+    "other": "{description}   {count} дарожкі"
   },
   "widgets.tracks.count_heading": {
-    "one": "{heading} · {count} ДАРОЖКА",
-    "few": "{heading} · {count} ДАРОЖКІ",
-    "many": "{heading} · {count} ДАРОЖАК",
-    "other": "{heading} · {count} ДАРОЖКІ"
+    "one": "{heading}   {count} ДАРОЖКА",
+    "few": "{heading}   {count} ДАРОЖКІ",
+    "many": "{heading}   {count} ДАРОЖАК",
+    "other": "{heading}   {count} ДАРОЖКІ"
   },
   "widgets.reason.jail_help": "Для выпраўлення патрэбны тэлевізар з root-доступам і Homebrew Channel.",
   "widgets.tracks.empty": "Няма дарожак",

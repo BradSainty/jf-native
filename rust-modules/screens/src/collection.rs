@@ -103,7 +103,7 @@ const SUMMARY_LINES: usize = 3;
 /// `line-height:40px` — person.rs's biography, whose reading block this is.
 const SUMMARY_LEAD: f32 = 40.0;
 const MORE_GAP: f32 = theme::space::LG;
-/// The "Items · Release order" heading's cap top (`.hd { top:443px }`, a HEADLINE run).
+/// The "Items   Release order" heading's cap top (`.hd { top:443px }`, a HEADLINE run).
 const ITEMS_HEADING_Y: f32 = 447.0;
 /// The first row's poster top (`.tl { top:520px }`).
 const GRID_TOP: f32 = 520.0;
@@ -150,7 +150,7 @@ fn head_alpha(scroll: f32) -> f32 {
     (1.0 - scroll / (GRID_TOP - CONTENT_TOP)).clamp(0.0, 1.0)
 }
 
-/// The header's meta line — "N films · Collection" (the noun is the collection's own, the one its
+/// The header's meta line — "N films   Collection" (the noun is the collection's own, the one its
 /// tile's caption uses: `fmt::collection_count`), or the kind alone ([`meta_key`]).
 fn meta_line(collection: &Collection) -> CString {
     match meta_key(collection) {
@@ -170,7 +170,7 @@ pub fn member_label(item: &PmsMovie) -> String {
 
 /// A member's focused caption: the one Under posters builder, like every other poster. Every kind
 /// goes through it, an episode or a season too. The poster of an episode or a numbered season
-/// already wears its address ([`member_label`], "S3 · E4" or "SEASON 3", a persistent mark that
+/// already wears its address ([`member_label`], "S3 E4" or "SEASON 3", a persistent mark that
 /// stays), so its caption does not say it twice: where the setting would fall back to the address it
 /// names the show instead (`CaptionFacts::address_on_art`).
 fn member_caption(item: &PmsMovie) -> TileLabel {
@@ -1155,7 +1155,7 @@ mod tests {
         assert_eq!(member_label(&season), "SEASON 3");
         let episode = PmsMovie { kind: 3, season_index: 3, ep_index: 4, title: "The Answer".into(),
             show_title: "Example Show".into(), ..Default::default() };
-        assert_eq!(member_label(&episode), "S3 · E4");
+        assert_eq!(member_label(&episode), "S3 E4");
         // the focused caption is the Under posters builder's, not a copy of it: an episode is its own
         // title over its show (its address is already on the poster's mark), and the Title switch
         // decides the title
@@ -1484,13 +1484,13 @@ mod tests {
         let _g = plx_platform::i18n::language_on_this_thread_for_test(plx_platform::i18n::Preference::En);
         let (mut store, _) = seeded();
         store.edit_for_test(|c| { c.child_count = 6; c.subtype = None; });
-        assert_eq!(meta_line(store.view().current().unwrap()).to_str().unwrap(), "6 items \u{b7} Collection");
+        assert_eq!(meta_line(store.view().current().unwrap()).to_str().unwrap(), "6 items   Collection");
         store.edit_for_test(|c| c.subtype = Some("movie".into()));
         let c = store.view().current().unwrap();
-        assert_eq!(meta_line(c).to_str().unwrap(), "6 films \u{b7} Collection");
+        assert_eq!(meta_line(c).to_str().unwrap(), "6 films   Collection");
         assert_ne!(meta_key(c), (6, false, None), "a landed subtype re-keys the cached line");
         store.edit_for_test(|c| c.subtype = Some("show".into()));
-        assert_eq!(meta_line(store.view().current().unwrap()).to_str().unwrap(), "6 shows \u{b7} Collection");
+        assert_eq!(meta_line(store.view().current().unwrap()).to_str().unwrap(), "6 shows   Collection");
     }
 
     /// C4a: an empty collection keeps its header — the kind alone on the meta line, not
@@ -1887,7 +1887,7 @@ mod tests {
             let w = m.width_str(verdict, theme::size::TITLE, true);
             if w > (SCR_W - 2.0 * MARGIN_X) * HEADROOM { out.push(format!("{}: {verdict:?} is {w:.0}px", language.tag())); }
             for subtype in [None, Some("movie"), Some("show")] {
-                let heading = format!("{} · {}", plx_ui::fmt::collection_noun(subtype), msg::browse_collection_order_release());
+                let heading = format!("{}   {}", plx_ui::fmt::collection_noun(subtype), msg::browse_collection_order_release());
                 let w = m.width_str(&heading, theme::size::HEADLINE, true);
                 if w > (SCR_W - 2.0 * MARGIN_X) * HEADROOM { out.push(format!("{}: {heading:?} is {w:.0}px", language.tag())); }
             }

@@ -172,12 +172,12 @@ pub fn clock(ms: i64) -> String {
 /// title. It lives here rather than as a `format!` beside its one caller because the two spellings
 /// have to stay one vocabulary: a page that said "S2, E3" while the HUD said "S2E3" for the same
 /// leaf is exactly the drift this module exists to prevent, and nothing but shared code enforces it.
-/// **An episode's ADDRESS — `S1 · E3`** — the ONE spelling of it, in every place the app prints it:
+/// **An episode's ADDRESS — `S1 E3`** — the ONE spelling of it, in every place the app prints it:
 /// the identifier printed inside a still's artwork, a poster's persistent mark, the Library grid's
 /// and Recommended's title line, and the Under posters caption (`caption_policy`, the Continue
 /// Watching deck's `cw_caption`). The separator is the MIDDLE DOT, the design's: the Library
 /// mock's still ("`Library Screens.dc.html` E") and the redesign spec's details line by kind
-/// ("Episode “S2 · E4 · 48 min”", `spec-collections.md`) both set it, as the official client's own
+/// ("Episode “S2 E4   48 min”", `spec-collections.md`) both set it, as the official client's own
 /// hold menu does. (The caption used to spell it from a catalog key of its own, with a bullet, so one
 /// episode read two ways: on a poster's art and under it.)
 ///
@@ -193,6 +193,11 @@ pub fn clock(ms: i64) -> String {
 /// The MIDDOT is what separates this from [`episode_ordinal`]'s `S1, E3`, and the two are kept
 /// apart deliberately: this one is a printed mark on artwork, sized and inked as its own line,
 /// while the ordinal is a run inside sentences elsewhere in the app.
+/// **What separates two facts in one run of text: space, never a dot.** JF Native shows no `·`
+/// between words (the owner's call); a fact joined into a string sits this far from the next, the
+/// same air a separately drawn dot left behind (`theme::TEXT_SEPARATOR`, now transparent).
+pub const GAP: &str = "   ";
+
 pub fn episode_address(season: i64, index: i64) -> String {
     episode_address_in(plx_platform::i18n::current(), season, index)
 }
@@ -206,7 +211,7 @@ pub fn episode_address_in(cx: &LocaleContext, season: i64, index: i64) -> String
     if index > 0 {
         parts.push(msg::core_episode_in(cx, index));
     }
-    parts.join(" \u{b7} ")
+    parts.join(" ")
 }
 
 /// **What a season is called**, the ONE rule every surface that names a season reads (its caption
@@ -284,11 +289,11 @@ fn join_present(parts: &[&str], sep: &str) -> String {
     parts.iter().copied().filter(|part| !part.is_empty()).collect::<Vec<_>>().join(sep)
 }
 
-/// A line naming an episode and its show, `"Show  ·  S2, E3"` (the route's pre-roll context): the
+/// A line naming an episode and its show, `"Show   S2, E3"` (the route's pre-roll context): the
 /// show, then the [`episode_ordinal`] when the episode has one. ONE formatter for the Detail page's
 /// play and the app's own playback request, which each spelled it by hand.
 pub fn episode_context(show: &str, season: i64, index: i64) -> String {
-    join_present(&[show, &episode_ordinal(season, index)], "  \u{b7}  ")
+    join_present(&[show, &episode_ordinal(season, index)], GAP)
 }
 
 /// **The kicker over an episode card on Detail**, `"EPISODE 3"`: the card's own number, and for an
@@ -326,13 +331,13 @@ pub fn shared_by(handle: &str) -> Option<String> {
     (!handle.is_empty()).then(|| plx_platform::i18n::msg::core_shared_by(handle))
 }
 
-/// The episode kicker — `"S2, E3 · Laura"`, the [`episode_ordinal`] with the episode's title after
+/// The episode kicker — `"S2, E3   Laura"`, the [`episode_ordinal`] with the episode's title after
 /// it. ONE formatter, because this string is drawn by the transport HUD (the now-playing item), the
 /// route's pre-roll ctx line and the Up Next caption, and the whole point of the last two is that
 /// they read identically to the first. It was three separate literals before, with nothing keeping
 /// them in step.
 pub fn episode_kicker(season: i64, index: i64, title: &str) -> String {
-    join_present(&[&episode_ordinal(season, index), title], " \u{b7} ")
+    join_present(&[&episode_ordinal(season, index), title], GAP)
 }
 
 /// The media badge for a video version — `"4K"` / `"1080p"` / `"SD"`, or None when the item has no
@@ -384,7 +389,7 @@ mod tests {
 
     /// **An episode the server did not number never prints a zero address**, in any language: the
     /// ordinal says the parts it has ("S1, E3", "E3", "S1") and nothing when it has none, and the
-    /// lines built on it (the kicker over a title, the "show · address" context line, the Detail
+    /// lines built on it (the kicker over a title, the "show   address" context line, the Detail
     /// card's kicker) leave the empty part out rather than print "S1, E0" or a trailing dot.
     #[test]
     fn an_unnumbered_episode_never_prints_a_zero_address() {
@@ -400,11 +405,11 @@ mod tests {
             assert_eq!(episode_ordinal(0, 0), "", "{tag}");
             assert_eq!(episode_ordinal(0, 3), plx_platform::i18n::msg::core_episode(3), "{tag}: no season, the episode alone");
             assert_eq!(episode_ordinal(2, 0), plx_platform::i18n::msg::core_season(2), "{tag}: no episode, the season alone");
-            assert_eq!(episode_kicker(1, 0, "Pilot"), format!("{} \u{b7} Pilot", episode_ordinal(1, 0)), "{tag}");
+            assert_eq!(episode_kicker(1, 0, "Pilot"), format!("{}   Pilot", episode_ordinal(1, 0)), "{tag}");
             assert_eq!(episode_kicker(0, 0, "Pilot"), "Pilot", "{tag}: nothing numbered leaves the title alone");
             assert_eq!(episode_kicker(0, 0, ""), "", "{tag}");
             assert_eq!(episode_context("Show", 0, 0), "Show", "{tag}: no trailing dot");
-            assert_eq!(episode_context("Show", 1, 3), format!("Show  \u{b7}  {}", episode_ordinal(1, 3)), "{tag}");
+            assert_eq!(episode_context("Show", 1, 3), format!("Show   {}", episode_ordinal(1, 3)), "{tag}");
             let kicker = episode_card_kicker(0);
             assert!(!kicker.contains('0') && !kicker.is_empty(), "{tag}: the card's kicker without a number is {kicker:?}");
             assert_eq!(kicker, plx_platform::i18n::msg::browse_kind_episode().to_uppercase(), "{tag}: the kind word");

@@ -38,10 +38,10 @@ fn facts(resume: bool) -> impl Fn(&mut plx_data::pms::PmsMovie) {
     }
 }
 
-const YEAR_LENGTH: &str = "1999 \u{b7} 1h 40m";
+const YEAR_LENGTH: &str = "1999   1h 40m";
 const GENRE: &str = "Drama";
-const AGE_SCORE: &str = "PG-13 \u{b7} 7.8";
-const VIDEO: &str = "1080p \u{b7} HDR";
+const AGE_SCORE: &str = "PG-13   7.8";
+const VIDEO: &str = "1080p   HDR";
 /// 80 of 100 minutes left, as the deck words it.
 fn left() -> String { plx_ui::fmt::time_left(80 * 60 * 1000) }
 
@@ -247,10 +247,10 @@ fn bare_movie(m: &mut plx_data::pms::PmsMovie) {
 const TILES: [Tile; 8] = [
     Tile { name: "a season with no facts", edit: bare_season, title: "The Office", details: ["Season 6"; 4] },
     Tile { name: "a season with every fact but a length", edit: rich_season, title: "The Office",
-           details: ["Season 6", "Comedy", "1080p \u{b7} HDR", "TV-14 \u{b7} 8.5"] },
+           details: ["Season 6", "Comedy", "1080p   HDR", "TV-14   8.5"] },
     Tile { name: "a season the server titled itself", edit: specials, title: "The Office", details: ["Specials"; 4] },
     Tile { name: "a show with a year only", edit: bare_show, title: "Severance", details: ["2022"; 4] },
-    Tile { name: "an episode with no facts", edit: bare_episode, title: "Pilot", details: ["S1 \u{b7} E8"; 4] },
+    Tile { name: "an episode with no facts", edit: bare_episode, title: "Pilot", details: ["S1 E8"; 4] },
     Tile { name: "an unnumbered episode", edit: unnumbered_episode, title: "Pilot", details: ["Episode"; 4] },
     Tile { name: "a season with no title or number", edit: untitled_specials, title: "The Office", details: ["Specials"; 4] },
     Tile { name: "a movie with a year only", edit: bare_movie, title: "Heat", details: ["1995"; 4] },

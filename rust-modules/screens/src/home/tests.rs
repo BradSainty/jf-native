@@ -717,14 +717,17 @@ fn the_wash_floors_on_the_app_surface_and_never_dims_toward_black() {
         [0.8, 0.75, 0.2],
         [0.1, 0.1, 0.12],
     ]);
-    assert_eq!(
-        wash_corners(Some(&bright), flat, 1.0),
-        flat,
+    // (to the float's last bit: the lerp's endpoint is exact for upstream's gray and one ulp off
+    // for JF Native's navy, which no panel can show)
+    let same = |a: [[f32; 4]; 4], b: [[f32; 4]; 4]| {
+        a.iter().flatten().zip(b.iter().flatten()).all(|(x, y)| (x - y).abs() < 1e-6)
+    };
+    assert!(
+        same(wash_corners(Some(&bright), flat, 1.0), flat),
         "the dive resolves to the app ground, not to black"
     );
-    assert_eq!(
-        wash_corners(Some(&bright), flat, 1.5),
-        flat,
+    assert!(
+        same(wash_corners(Some(&bright), flat, 1.5), flat),
         "…and an overshooting snap cannot push past it"
     );
 
@@ -1101,7 +1104,7 @@ fn the_continue_watching_caption_promises_time_left_only_when_the_bar_is_drawn()
     );
     assert_eq!(
         ui_cards::cw_caption(&tile_facts::of(&mid)).unwrap().to_str().unwrap(),
-        "Laura \u{00b7} 25m left"
+        "Laura   25m left"
     );
 }
 
@@ -1120,10 +1123,10 @@ fn a_continue_watching_episode_is_captioned_by_its_address_not_its_show() {
         ui_cards::cw_caption(&tile_facts::of(m)).unwrap().to_str().unwrap().to_owned()
     };
     // the poster is the show's own art, so the show's name adds nothing: the address leads
-    assert_eq!(cap(&m(3, 5, 20 * 60_000)), "S2 \u{00b7} E5 \u{00b7} 25m left");
-    assert_eq!(cap(&m(3, 5, 0)), "S2 \u{00b7} E5 \u{00b7} New episode");
+    assert_eq!(cap(&m(3, 5, 20 * 60_000)), "S2 E5   25m left");
+    assert_eq!(cap(&m(3, 5, 0)), "S2 E5   New episode");
     // an unnumbered episode still names its show
-    assert_eq!(cap(&m(3, 0, 20 * 60_000)), "Laura \u{00b7} 25m left");
+    assert_eq!(cap(&m(3, 0, 20 * 60_000)), "Laura   25m left");
     // a movie: the time left alone
     assert_eq!(cap(&m(1, 0, 20 * 60_000)), "25m left");
 }

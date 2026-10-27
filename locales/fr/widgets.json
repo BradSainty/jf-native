@@ -18,7 +18,7 @@
   "widgets.tracks.mono": "Mono",
   "widgets.tracks.stereo": "Stéréo",
   "widgets.tracks.original": "Original : {language}",
-  "widgets.tracks.converted_by_server": "{track} · converti par votre serveur",
+  "widgets.tracks.converted_by_server": "{track}   converti par votre serveur",
   "widgets.action.mark_watched": "Marquer comme vu",
   "widgets.action.mark_unwatched": "Marquer comme non vu",
   "widgets.action.play_start": "Lire depuis le début",
@@ -37,13 +37,13 @@
   "widgets.playback.direct_play": "Lecture directe",
   "widgets.playback.direct_stream": "Flux direct",
   "widgets.playback.converting": "Conversion",
-  "widgets.playback.converting_codec": "Conversion · {codec}",
+  "widgets.playback.converting_codec": "Conversion   {codec}",
   "widgets.chapters.number": "Chapitre {number}",
   "widgets.skip.intro": "Passer l’intro",
   "widgets.skip.credits": "Passer le générique",
   "widgets.next.episode": "Épisode suivant",
   "widgets.next.credits": "Voir le générique",
-  "widgets.next.caption": "À suivre · {episode}",
+  "widgets.next.caption": "À suivre   {episode}",
   "widgets.status.preparing": "Préparation…",
   "widgets.status.connecting": "Connexion…",
   "widgets.status.buffering": "Chargement…",
@@ -53,7 +53,7 @@
   "widgets.player.info": "Infos",
   "widgets.player.chapters": "Chapitres",
   "widgets.card.new_episode": "Nouvel épisode",
-  "widgets.card.show_new_episode": "{show} · Nouvel épisode",
+  "widgets.card.show_new_episode": "{show}   Nouvel épisode",
   "widgets.failure.jail": "Échec de la lecture : le bac à sable de cette TV bloque la vidéo native",
   "widgets.failure.refused": "Échec de la lecture : le serveur ne peut ni lire ni convertir ce fichier",
   "widgets.failure.audio_only": "Échec de la lecture : le serveur n’a envoyé que l’audio",
@@ -104,14 +104,14 @@
     "other": "{count} pistes"
   },
   "widgets.tracks.count_detail": {
-    "one": "{description} · {count} piste",
-    "many": "{description} · {count} pistes",
-    "other": "{description} · {count} pistes"
+    "one": "{description}   {count} piste",
+    "many": "{description}   {count} pistes",
+    "other": "{description}   {count} pistes"
   },
   "widgets.tracks.count_heading": {
-    "one": "{heading} · {count} PISTE",
-    "many": "{heading} · {count} PISTES",
-    "other": "{heading} · {count} PISTES"
+    "one": "{heading}   {count} PISTE",
+    "many": "{heading}   {count} PISTES",
+    "other": "{heading}   {count} PISTES"
   },
   "widgets.reason.jail_help": "La réparation nécessite une TV rootée et Homebrew Channel. Aide : plxnative.com/troubleshooting/#playback-reports-jail_missing_rtkmem",
   "widgets.tracks.empty": "Aucune piste",
