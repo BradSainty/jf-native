@@ -135,6 +135,14 @@ pub enum Listing {
     Recommended,
 }
 
+/// **JF Native's header row above a library's grid carries the library names alone**: a tab is its
+/// posters, sorted by title, with no Collections, Recommended or Sort & Filter controls
+/// (`header.rs`), and with a single library no row at all. The names stay because they are how
+/// another library of the same kind is reached. Upstream's full row stays behind this switch; the
+/// inherited suites still drive it (`test` and the application's `test-support` builds), and the
+/// shipped page is graded by the tests that turn it off ([`LibraryScreen::hide_header`]).
+const SHOW_HEADER: bool = cfg!(any(test, feature = "test-support"));
+
 /// A retained page body, also remountable from its entry-owned LibraryMemory.
 pub struct LibraryScreen {
     /// Which listing the page shows. Fixed at mount by the `AppArg` that mounted it, so it is not
@@ -159,6 +167,8 @@ pub struct LibraryScreen {
     /// moves (`RowCache`, the one rule the Recommended page and the Watchlist hold their row by).
     /// No row before the first sync.
     header: plx_ui::page_header::RowCache<plx_ui::page_header::HeaderRow>,
+    /// Whether the header row is on the page at all ([`SHOW_HEADER`]).
+    show_header: bool,
     /// The header row's pills: the focus capsule and the selection plate, and the focus pop. Held
     /// HERE and not in the row, so a library switch (which replaces the whole row) does not start
     /// them over: the capsule travels from the old stop to the new.
@@ -277,7 +287,7 @@ impl LibraryScreen {
                 MasterDetailGroups { master: RAIL_GROUP, detail: GRID_GROUP },
                 MasterDetailPolicy::new(MasterSide::Right, Follow::Live), Regions,
             ),
-            libraries: Vec::new(), folded: Vec::new(), header: plx_ui::page_header::RowCache::new(), header_capsules: plx_ui::widgets::TabStrip::new(), header_pop: plx_ui::widgets::CtlPop::new(), header_swap: plx_ui::page_header::HeaderSwap::new(), header_of: None, collections: CollectionsControl::Unknown, collections_sort: false, collections_asked: None,
+            libraries: Vec::new(), folded: Vec::new(), header: plx_ui::page_header::RowCache::new(), show_header: SHOW_HEADER, header_capsules: plx_ui::widgets::TabStrip::new(), header_pop: plx_ui::widgets::CtlPop::new(), header_swap: plx_ui::page_header::HeaderSwap::new(), header_of: None, collections: CollectionsControl::Unknown, collections_sort: false, collections_asked: None,
             type_before_collections: None, unfiltered: None,
             switched: false, enter_remembered: false, section: None, epoch: None, query: None, grid_reset_pending: false,
             layout, target_layout: layout,
@@ -318,6 +328,12 @@ impl LibraryScreen {
     /// The header row's group: the library names, "+N" and the controls.
     #[cfg(any(test, feature = "test-support"))]
     pub fn toolbar_group(&self) -> GroupId { LIBRARY_GROUP }
+    /// The shipped page: no header row above the grid ([`SHOW_HEADER`]).
+    #[cfg(test)]
+    pub(super) fn hide_header(&mut self) { self.show_header = false; }
+    /// Is the header row on the page: upstream's always, JF Native's only with names to switch
+    /// between ([`SHOW_HEADER`]).
+    pub(super) fn header_shown(&self) -> bool { self.show_header || !self.libraries.is_empty() }
 
     /// The header row's stops in focus order, each named by what it is (`"library"`, `"collections"`,
     /// `"recommended"`, `"sort"`, `"crumb"`): the per-stop probe the app-tier route tables walk.
@@ -615,10 +631,10 @@ impl LibraryScreen {
         let episodes = self.layout.is_episodes();
         let band_h = self.grid_policy().as_ref().map_or(plx_ui::cards::LEGACY_BAND_H, plx_ui::caption_policy::band_h);
         self.layout = if self.readout == Readout::Failed {
-            Layout::failed(true)
-        } else { Layout::new(true, rows) }.with_episodes(episodes).with_band_h(band_h)
+            Layout::failed(self.header_shown())
+        } else { Layout::new(self.header_shown(), rows) }.with_episodes(episodes).with_band_h(band_h)
             .with_grid_bands(self.pair.detail.band_geometry());
-        self.target_layout = Layout::new(true, rows).with_episodes(episodes).with_band_h(band_h)
+        self.target_layout = Layout::new(self.header_shown(), rows).with_episodes(episodes).with_band_h(band_h)
             .with_grid_focus(grid_focus.map(|index| index / self.layout.cols()));
         if self.grid_reset_pending {
             self.scroll_target = self.target_layout.row_reveal(0);
@@ -661,7 +677,7 @@ impl LibraryScreen {
         if self.readout == Readout::Failed { content.push(STATUS_GROUP); }
         if self.pair.detail.total() > 0 { content.push(self.pair.groups_config().detail); }
         then(&PageRegions {
-            header: Some(LIBRARY_GROUP),
+            header: self.header_shown().then_some(LIBRARY_GROUP),
             content: &content,
             rail: Some(self.pair.groups_config().master),
             back_walks_header: self.listing != Listing::Collections,

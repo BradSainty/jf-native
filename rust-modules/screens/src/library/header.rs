@@ -52,6 +52,7 @@ impl LibraryScreen {
     /// Every focusable element of the header row in focus order: the library names, "+N", then
     /// the controls (on the Collections page, the crumb's root, then Sort).
     pub(super) fn header_elems(&self) -> Vec<u32> {
+        if !self.header_shown() { return Vec::new(); }
         self.header.row().map_or_else(Vec::new, |row| row.stops.iter().map(|(elem, _)| *elem).collect())
     }
 
@@ -122,6 +123,10 @@ impl LibraryScreen {
         let locale = plx_platform::i18n::current();
         let mut right = Vec::new();
         let mut widest = Vec::new();
+        // JF Native: the names alone (`SHOW_HEADER`); no read-out, Collections, Recommended or Sort.
+        if !self.show_header {
+            return (right, widest);
+        }
         if let Some(readout) = self.filtered_readout(cx) {
             let item = HeaderItem { label: readout, readout: true, ..Default::default() };
             widest.push(item.clone());
@@ -218,6 +223,9 @@ impl LibraryScreen {
             (read, _) => read,
         };
         self.note_unfiltered(cx);
+        // JF Native (`SHOW_HEADER` off): the row is built from the library names alone, and with a
+        // single library it is not on the page (`header_shown`).
+        if !self.show_header && self.listing == Listing::Collections { return; }
         // `sync` runs every frame; the row (text measurement, packing) is rebuilt only when one
         // of the things it is made of changed.
         let key = self.header_key(cx);
@@ -326,6 +334,7 @@ impl LibraryScreen {
     /// The row as one focus group of this page, at its scroll: what the engine's `Focusable`
     /// questions about the header are answered from (`None` before the row is built).
     pub(super) fn header_focus(&self) -> Option<HeaderFocus<'_>> {
+        if !self.header_shown() { return None; }
         self.header.row().map(|row| row.focus(self.entry, LIBRARY_GROUP, (self.scroll.pos, self.scroll_target), content_clip()))
     }
 
@@ -345,6 +354,7 @@ impl LibraryScreen {
     /// Paint the row at the drawn scroll. The row scrolls away with the page: only its pill and
     /// the selected plate are chrome of its own.
     pub(super) fn draw_header<H: LibraryLike>(&self, f: &DrawFrame<'_, '_, H>) {
+        if !self.header_shown() { return; }
         let Some(row) = self.header.row() else { return };
         let top = layout::HEADER_Y - self.scroll.pos;
         // The row rides the scroll under the top fade, and keeps out of the band the returning

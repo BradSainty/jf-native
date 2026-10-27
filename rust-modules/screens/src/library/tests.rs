@@ -1010,6 +1010,25 @@ fn header_controls_sit_in_the_header_row_left_to_right() {
     }
 }
 
+/// **The shipped page (JF Native)**: no header row above the grid. The grid starts at the top of
+/// the document, no header control is built, placed or focusable, and the page's first seat (what
+/// DOWN from the strip reaches) is the grid itself.
+#[test]
+fn the_shipped_page_has_no_header_row_and_starts_at_the_grid() {
+    let _guard = plx_base::testlock::serial();
+    let fixture = Fixture::new();
+    let cx = fixture.cx(None);
+    let with_row = fixture.screen();
+    assert!(with_row.layout.grid_top() > 0.0, "the inherited page keeps room for its header row");
+    let mut page = LibraryScreen::new(ENTRY, InstanceId(19), SecKind::Movie);
+    page.hide_header();
+    page.sync(&cx);
+    assert_eq!(page.layout.grid_top(), 0.0, "no room is kept for a header row");
+    assert!(page.header_elems().is_empty(), "no header control is built");
+    assert!(page.header_focus().is_none());
+    assert_eq!(page.first_group(), Some(page.pair.groups_config().detail), "the page's head is the grid");
+}
+
 #[test]
 fn section_grid_memories_do_not_overwrite_one_another() {
     let _guard = plx_base::testlock::serial();
