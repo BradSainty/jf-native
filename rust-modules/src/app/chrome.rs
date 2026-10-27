@@ -15,18 +15,31 @@ pub(crate) enum Pill {
     Search,
 }
 
+/// **JF Native has no Watchlist bookmark on the strip.** The Watchlist is plex.tv's, which this fork
+/// never contacts, so the tab could only ever show a failure (a Jellyfin title carries no plex.tv
+/// id, so the hero disc and the menu rows that would add one stay away on their own). Upstream's tab
+/// stays behind this switch; the inherited suites still drive it (`test` builds), and the shipped
+/// strip is graded by [`strip_keys_with`]'s own test.
+const SHOW_WATCHLIST: bool = cfg!(test);
+
 /// The strip's destination keys in strip order: Home, one key per type pill, the Watchlist
-/// bookmark, Search. The one
+/// bookmark ([`SHOW_WATCHLIST`]), Search. The one
 /// place that order is written; `refresh` publishes it and the pill maps below read it, so no
 /// map assumes which index Search holds.
 fn strip_keys(directory: DirectoryView<'_>) -> Vec<u32> {
+    strip_keys_with(directory, SHOW_WATCHLIST)
+}
+
+fn strip_keys_with(directory: DirectoryView<'_>, watchlist: bool) -> Vec<u32> {
     let mut keys = vec![widgets::TAB_KEY_HOME];
     keys.extend((0..directory.tab_count()).filter_map(|i| directory.tab_kind(i)).map(|kind| match kind {
         SecKind::Movie => widgets::TAB_KEY_MOVIES,
         SecKind::Show => widgets::TAB_KEY_SHOWS,
         SecKind::Collection => widgets::TAB_KEY_COLLECTIONS,
     }));
-    keys.push(widgets::TAB_KEY_WATCHLIST);
+    if watchlist {
+        keys.push(widgets::TAB_KEY_WATCHLIST);
+    }
     keys.push(widgets::TAB_KEY_SEARCH);
     keys
 }
@@ -295,6 +308,17 @@ mod tests {
         assert_eq!(pill_in(2, &keys), Pill::Section(Show));
         assert_eq!(pill_index(Pill::Search, &keys), Some(4));
         assert_eq!(pill_index(Pill::Section(Movie), &keys), Some(1));
+    }
+
+    /// The shipped strip (JF Native): no Watchlist bookmark, and Search right after the libraries.
+    #[test]
+    fn the_shipped_strip_has_no_watchlist_bookmark() {
+        let directory = directory(&[SecKind::Movie, SecKind::Show]);
+        let keys = strip_keys_with(directory.view(), false);
+        assert_eq!(keys, vec![widgets::TAB_KEY_HOME, widgets::TAB_KEY_MOVIES, widgets::TAB_KEY_SHOWS,
+            widgets::TAB_KEY_SEARCH]);
+        assert_eq!(pill_index(Pill::Watchlist, &keys), None);
+        assert_eq!(pill_in(3, &keys), Pill::Search);
     }
 
     #[test]
