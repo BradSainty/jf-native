@@ -435,6 +435,12 @@ fn stream_under(
     if !credential_transport_allowed_under(policy, origin, path, headers) {
         return StreamEnd::Refused;
     }
+    // JF Native: a Jellyfin server has no Plex event stream (`/:/eventsource/notifications`), and
+    // the request would carry its token to a path it cannot answer. Refuse it here as the server
+    // would, without a socket: a 4xx parks the notification link (`stores::notify`) for good.
+    if crate::jellyfin::intercepts(origin) {
+        return StreamEnd::Status(404);
+    }
     let owned: Vec<String> = headers.iter().map(|h| (*h).to_string()).collect();
     match origin.scheme() {
         Scheme::Http => plx_net::stream::http_stream_plain(
@@ -848,6 +854,20 @@ mod tests {
         let _frame = plx_base::task::FrameScope::enter();
         let payload = std::panic::catch_unwind(call).expect_err("a frame-thread PMS request is refused");
         payload.downcast_ref::<String>().cloned().expect("a formatted panic")
+    }
+
+    /// JF Native: the server-sent-event feed is never opened against a Jellyfin server. The stream
+    /// door answers a 404 without dialling (the address is unroutable, so a dial would hang, not
+    /// answer), which the notification link reads as a refusal it does not retry.
+    #[test]
+    fn a_jellyfin_server_is_never_asked_for_the_plex_event_stream() {
+        crate::jellyfin::intercept_in_tests(true);
+        let origin = Origin::parse("http://192.0.2.1:8096").expect("parses");
+        let cancel = std::sync::atomic::AtomicBool::new(false);
+        let end = stream(&origin, "/:/eventsource/notifications?filters=playing", &[], None,
+            std::time::Duration::from_secs(1), &cancel, &mut |_| true);
+        crate::jellyfin::intercept_in_tests(false);
+        assert_eq!(end, StreamEnd::Status(404));
     }
 
     /// `main-thread block: PMS HTTP` is deduped per (label, call site), so it only separates the

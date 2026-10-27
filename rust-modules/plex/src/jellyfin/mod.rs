@@ -109,7 +109,7 @@ fn position_ms(id: &str, server_ms: i64) -> i64 {
 /// the PMS transport against loopback fixtures that speak Plex, and must keep reaching them.
 pub fn intercepts(origin: &Origin) -> bool {
     #[cfg(any(test, feature = "test-support"))]
-    if !TEST_INTERCEPT.load(std::sync::atomic::Ordering::Relaxed) {
+    if !TEST_INTERCEPT.with(std::cell::Cell::get) {
         return false;
     }
     let host = origin.host().to_ascii_lowercase();
@@ -117,12 +117,15 @@ pub fn intercepts(origin: &Origin) -> bool {
 }
 
 #[cfg(any(test, feature = "test-support"))]
-static TEST_INTERCEPT: std::sync::atomic::AtomicBool = std::sync::atomic::AtomicBool::new(false);
+thread_local! {
+    static TEST_INTERCEPT: std::cell::Cell<bool> = const { std::cell::Cell::new(false) };
+}
 
-/// Route requests through the Jellyfin backend in a test build, as a shipped build always does.
+/// Route THIS thread's requests through the Jellyfin backend in a test build, as a shipped build
+/// always does. Per thread, so the suites running beside it keep reaching their Plex fixtures.
 #[cfg(any(test, feature = "test-support"))]
 pub fn intercept_in_tests(on: bool) {
-    TEST_INTERCEPT.store(on, std::sync::atomic::Ordering::Relaxed);
+    TEST_INTERCEPT.with(|t| t.set(on));
 }
 
 #[cfg(test)]
