@@ -448,26 +448,12 @@ impl Route<'_> {
         ok(map::container_of(map::list(&body, &self.env_for(&v)), int(&body, "TotalRecordCount"), start))
     }
 
-    fn section_hubs(&self, k: &str) -> Answer {
-        let Some(v) = self.view(k).filter(View::holds_media) else { return ok(json!({ "size": 0, "Hub": [] })) };
-        let count = self.q.int("count").unwrap_or(12);
-        let mut hubs = Vec::new();
-        let resume = self.resume_and_next(Some(&v), count);
-        if !resume.is_empty() {
-            let n = resume.len() as i64;
-            hubs.push(map::hub(
-                &format!("{}.inprogress.{}", v.kind, v.key),
-                &format!("/hubs/sections/{}/continueWatching/items", v.key),
-                "Continue Watching",
-                v.kind,
-                resume,
-                n,
-            ));
-        }
-        if let Some(h) = self.recently_added_hub(&v, count) {
-            hubs.push(h);
-        }
-        ok(json!({ "size": hubs.len(), "Hub": hubs }))
+    /// A library tab's shelves: none. JF Native's Movies, TV Shows and Collections tabs are the
+    /// library's posters and nothing else; carrying on with something and seeing what was added
+    /// are Home's job (its Continue Watching and Recently Added rows), so a tab does not repeat
+    /// them above its grid.
+    fn section_hubs(&self, _k: &str) -> Answer {
+        ok(json!({ "size": 0, "Hub": [] }))
     }
 
     fn section_resume_page(&self, k: &str) -> Answer {

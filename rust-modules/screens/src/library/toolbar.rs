@@ -45,6 +45,8 @@ impl LibraryScreen {
     /// The controls on the row, left to right. The Collections control is on it only with a known
     /// count: an unknown or hidden one is not.
     pub(super) fn toolbar_elems(&self) -> &'static [u32] {
+        // JF Native: the header row carries the library names alone (`SHOW_HEADER`)
+        if !self.show_header { return &[]; }
         // The Collections page's row: the crumb (its own element, `CRUMB_ROOT`) and, only when the
         // server declares two sorts, the one Sort control. No Collections, Recommended or menu.
         if self.listing == Listing::Collections { return if self.collections_sort { &[SORTFILTER] } else { &[] }; }
