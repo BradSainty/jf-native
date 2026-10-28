@@ -101,6 +101,7 @@ pub fn handle(origin: &Origin, path: &str, method: Method, headers: &[&str]) -> 
         (_, ["library", "collections", id, "children"]) => r.collection_members(id),
         (_, ["library", "collections", ..]) => empty(),
         (Method::Post, ["playQueues"]) => r.play_queue(),
+        (Method::Get, ["playQueues", id]) => r.play_queue_window(id),
         (_, ["video", ":", "transcode", "universal", "decision"]) => r.decision(),
         (_, ["video", ":", "transcode", "universal", "stop"]) => r.stop_transcode(),
         (_, ["video", ":", "transcode", "universal", "ping"]) => ok_bare(),
@@ -116,6 +117,19 @@ pub fn handle(origin: &Origin, path: &str, method: Method, headers: &[&str]) -> 
         }
     };
     answer
+}
+
+/// Episodes a play queue carries before and after the one it was made for: Previous and Next have
+/// somewhere to go, and the queue stays a page however long the show is.
+const QUEUE_BEFORE: usize = 25;
+const QUEUE_AFTER: usize = 25;
+
+/// Which of a show's `len` episodes a play queue around episode `at` carries, and where `at` sits
+/// in that slice.
+fn queue_slice(len: usize, at: usize) -> (std::ops::Range<usize>, usize) {
+    let lo = at.saturating_sub(QUEUE_BEFORE);
+    let hi = (at + 1 + QUEUE_AFTER).min(len);
+    (lo..hi, at - lo)
 }
 
 fn method_name(m: Method) -> &'static str {
@@ -691,31 +705,61 @@ impl Route<'_> {
         self.q.str("ratingKey").to_string()
     }
 
-    /// `POST /playQueues` — the item, followed (for an episode) by the rest of its show, so the
-    /// player's Up Next has somewhere to go.
+    /// `POST /playQueues` — the item and, for an episode, the episodes of its show around it, so
+    /// the player's Up Next and its Previous and Next buttons have somewhere to go.
     fn play_queue(&self) -> Answer {
-        let rk = self.rating_key_param();
-        let first = self.detail(&rk)?;
+        ok(self.queue_around(&self.rating_key_param())?)
+    }
+
+    /// `GET /playQueues/{id}?center={item}` — an existing queue's window around one of its items, as
+    /// the player re-reads it before a Previous or Next (`plex::queue_window`). A queue here is no
+    /// server object: it is the show's episodes around `center`, built again, under the same id.
+    fn play_queue_window(&self, id: &str) -> Answer {
+        let rk = ids::string_of(self.q.int("center")?)?;
+        let mc = self.queue_around(&rk)?;
+        if mc["playQueueID"].as_i64().map(|n| n.to_string()).as_deref() != Some(id) {
+            return not_found();
+        }
+        ok(mc)
+    }
+
+    /// The play queue around item `rk`: the item itself (its full detail, which is what plays) and,
+    /// for an episode, up to [`QUEUE_BEFORE`] episodes of its show before it and [`QUEUE_AFTER`]
+    /// after it, in the show's order. Every row's `playQueueItemID` is its stable integer
+    /// ([`ids::int_of`] of its id), so a later `center` names it, and the queue's id is its show's.
+    fn queue_around(&self, rk: &str) -> Option<Value> {
+        let first = self.detail(rk)?;
+        let mut owner = rk.to_string();
         let mut queue = vec![first];
+        let mut selected = 0;
         if queue[0]["type"] == "episode" {
             let series = queue[0]["grandparentRatingKey"].as_str().unwrap_or("").to_string();
             if !series.is_empty() {
+                owner = series.clone();
                 if let Some(body) = self.conn.get_json(&format!(
-                    "/Shows/{series}/Episodes?userId={}&startItemId={rk}&limit=25&fields={LIST_FIELDS}&{IMAGE_FIELDS}",
+                    "/Shows/{series}/Episodes?userId={}&fields={LIST_FIELDS}&{IMAGE_FIELDS}",
                     self.uid()
                 )) {
-                    queue.extend(map::list(&body, &self.env).into_iter().filter(|m| m["ratingKey"] != rk.as_str()));
+                    let mut all = map::list(&body, &self.env);
+                    if let Some(at) = all.iter().position(|m| m["ratingKey"] == rk) {
+                        let (range, offset) = queue_slice(all.len(), at);
+                        let mut window: Vec<Value> = all.drain(range).collect();
+                        window[offset] = queue.pop().expect("the item itself");
+                        queue = window;
+                        selected = offset;
+                    }
                 }
             }
         }
-        for (i, m) in queue.iter_mut().enumerate() {
-            m["playQueueItemID"] = json!(i as i64 + 1);
+        for m in queue.iter_mut() {
+            let id = ids::int_of(m["ratingKey"].as_str().unwrap_or(""));
+            m["playQueueItemID"] = json!(id);
         }
         let n = queue.len();
-        ok(json!({
-            "playQueueID": 1,
-            "playQueueSelectedItemID": 1,
-            "playQueueSelectedItemOffset": 0,
+        Some(json!({
+            "playQueueID": ids::int_of(&format!("queue:{owner}")),
+            "playQueueSelectedItemID": queue[selected]["playQueueItemID"].clone(),
+            "playQueueSelectedItemOffset": selected,
             "playQueueTotalCount": n,
             "size": n,
             "Metadata": queue,
@@ -873,4 +917,19 @@ fn started() -> &'static std::sync::Mutex<std::collections::HashSet<String>> {
     static S: std::sync::OnceLock<std::sync::Mutex<std::collections::HashSet<String>>> =
         std::sync::OnceLock::new();
     S.get_or_init(|| std::sync::Mutex::new(std::collections::HashSet::new()))
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    /// A queue around an episode carries the episodes before it as well as after, within the page.
+    #[test]
+    fn a_queue_slice_keeps_episodes_on_both_sides_of_the_one_playing() {
+        assert_eq!(queue_slice(10, 0), (0..10, 0), "the first episode: nothing before");
+        assert_eq!(queue_slice(10, 4), (0..10, 4));
+        assert_eq!(queue_slice(10, 9), (0..10, 9), "the last episode: nothing after");
+        assert_eq!(queue_slice(200, 100), (75..126, 25), "a long show: a page each side");
+        assert_eq!(queue_slice(1, 0), (0..1, 0));
+    }
 }
