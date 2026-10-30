@@ -58,6 +58,10 @@ thread_local! {
 /// Nothing, two with Title On, per shelf and never per tile) and [`shelf_label`] words its tiles by
 /// it, so the band and the label cannot disagree.
 pub fn deck_policy(policy: &CaptionPolicy) -> CaptionPolicy {
+    // JF Native: Nothing means nothing on the deck too; a poster there is named like any other.
+    if plx_ui::cards::EVERY_TILE_NAMED {
+        return *policy;
+    }
     let details = if policy.details == DetailsKind::None { DetailsKind::YearLength } else { policy.details };
     CaptionPolicy { details, ..*policy }
 }

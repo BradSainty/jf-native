@@ -1283,7 +1283,7 @@ impl UnderPostersDetails {
 ///
 /// Each field is soft-parsed on its own, so a spelling a later build wrote for `details` costs the
 /// details alone and never the title.
-#[derive(Serialize, Deserialize, Default, Clone, Copy, Debug, PartialEq, Eq)]
+#[derive(Serialize, Deserialize, Clone, Copy, Debug, PartialEq, Eq)]
 #[serde(default)]
 pub struct UnderPosters {
     #[serde(deserialize_with = "de_soft_under_posters_title")]
@@ -1293,8 +1293,9 @@ pub struct UnderPosters {
 }
 
 fn de_soft_under_posters_title<'de, D: Deserializer<'de>>(d: D) -> Result<bool, D::Error> {
-    let Ok(v) = Value::deserialize(d) else { return Ok(false) };
-    Ok(v.as_bool().unwrap_or(false))
+    let fallback = UnderPosters::DEFAULT.title;
+    let Ok(v) = Value::deserialize(d) else { return Ok(fallback) };
+    Ok(v.as_bool().unwrap_or(fallback))
 }
 
 fn de_soft_under_posters_details<'de, D: Deserializer<'de>>(d: D) -> Result<UnderPostersDetails, D::Error> {
@@ -1302,9 +1303,29 @@ fn de_soft_under_posters_details<'de, D: Deserializer<'de>>(d: D) -> Result<Unde
     Ok(serde_json::from_value::<UnderPostersDetails>(v).unwrap_or_default())
 }
 
+/// **JF Native shows each poster's title, and nothing under it, by default** (the owner's calls:
+/// every poster is named, `ui::card_row::EVERY_TILE_NAMED`, and no year, length or time left).
+/// Settings > Libraries > Under posters still changes either.
+/// Upstream's default (no title) stays for the inherited suites, `test` and `test-support` builds.
+#[cfg(not(any(test, feature = "test-support")))]
+const TITLE_BY_DEFAULT: bool = true;
+#[cfg(any(test, feature = "test-support"))]
+const TITLE_BY_DEFAULT: bool = false;
+
+impl Default for UnderPosters {
+    fn default() -> Self {
+        Self::DEFAULT
+    }
+}
+
 impl UnderPosters {
     /// The defaults, as a `const` for callers that compare against them.
-    pub const DEFAULT: UnderPosters = UnderPosters { title: false, details: UnderPostersDetails::YearLength };
+    /// JF Native names every poster with its title alone ([`TITLE_BY_DEFAULT`]); upstream shows no
+    /// title and the year and length by default.
+    pub const DEFAULT: UnderPosters = UnderPosters {
+        title: TITLE_BY_DEFAULT,
+        details: if TITLE_BY_DEFAULT { UnderPostersDetails::None } else { UnderPostersDetails::YearLength },
+    };
 
     /// One byte for the media layer's live cell: the title in bit 0, the details' index in bits 1-3.
     pub fn pack(self) -> u8 {

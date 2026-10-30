@@ -887,6 +887,16 @@ impl Shelf {
             }
         } else {
             card_row::draw_tile(pr, src.art(i), rect, s, self.style, src.progress(i));
+            // JF Native: a resting card is named too (`card_row::EVERY_TILE_NAMED`). A shelf that
+            // has ridden up under the shown chrome takes its names out of the way there, as Home's
+            // headings do (`scroll_chrome::clearance_under_shown_chrome`): the strip stays legible.
+            if card_row::EVERY_TILE_NAMED {
+                let top = pr.dy() + card_row::unscaled_bottom(rect, s);
+                let clear = crate::scroll_chrome::clearance_under_shown_chrome(top);
+                if clear > 0.0 {
+                    card_row::draw_label(pr.alpha(clear), rect, s, self.style, &src.label(i).resting(), f.measure);
+                }
+            }
         }
         let tile = Tile { rect, scale: s, radius: self.style.tile_radius(rect, s), focused };
         src.overlay(pr, i, &tile, f.measure);
@@ -898,6 +908,11 @@ impl Shelf {
     /// What [`draw_card`](Self::draw_card) paints and [`caption_lines_probe`](Self::caption_lines_probe)
     /// reads, so a test sees the ink the frame carries.
     fn focused_label<H: Host, S: CardSource<H>>(&self, src: &S, i: usize, at: SectionFrame) -> TileLabel {
+        // JF Native: whole from the first frame, in a band that is always open, and held to its tile
+        // (its neighbours are named beside it): `card_row::EVERY_TILE_NAMED`.
+        if card_row::EVERY_TILE_NAMED {
+            return src.label(i).within_tile();
+        }
         self.row.reveal(src.label(i), at.below_rise)
             .settling(self.row.settle_lag(src.len(), i, self.style))
     }

@@ -914,6 +914,9 @@ pub struct TileLabel {
     /// cannot hold glides on the shared marquee and dissolves at BOTH of the window's edges
     /// ([`LABEL_EDGE_FADE`]) instead of being cut there.
     pub within_tile: bool,
+    /// JF Native: the label of a tile that does NOT hold focus ([`EVERY_TILE_NAMED`]): drawn whole
+    /// and still, each line elided to the card ([`draw_label`]), quieter than the focused block.
+    pub resting: bool,
 }
 
 /// A label band part-way through opening or closing: its whole height, its expansion and how far
@@ -966,6 +969,12 @@ impl TileLabel {
     /// reach into its neighbours' room ([`under_budget`]).
     pub fn within_tile(mut self) -> Self {
         self.within_tile = true;
+        self
+    }
+    /// **The label of a tile at rest** ([`EVERY_TILE_NAMED`]): the same lines on the same boxes as
+    /// the focused block, drawn whole and still inside the card.
+    pub fn resting(mut self) -> Self {
+        self.resting = true;
         self
     }
     /// A block from [`crate::caption_policy::caption_lines`]: the title line (if the policy shows
@@ -1150,7 +1159,47 @@ pub fn draw_label(
     if lines.iter().flatten().all(|l| l.alpha <= 0.0) {
         return;
     }
+    if label.resting {
+        draw_resting_label(p, rect, sty, label, lines, bottom, measure);
+        return;
+    }
     draw_label_block(p, rect, sty, label, lines, bottom, measure);
+}
+
+/// **The label block under a RESTING tile** ([`TileLabel::resting`]): the focused block's lines on
+/// the same boxes and centred on the same card, so moving focus changes how a line is drawn and
+/// never where. A line wider than the card ends in an ellipsis inside it (the focused tile glides
+/// it instead). Quieter than the focused block: regular weight, one rung dimmer each, so the focused
+/// title still leads. The Continue-Watching play mark belongs to the focused tile alone.
+fn draw_resting_label(
+    p: Painter,
+    rect: Rect,
+    sty: &RowStyle,
+    label: &TileLabel,
+    lines: [Option<LineBox>; 2],
+    bottom: f32,
+    measure: &dyn plx_machine::machine::Measure,
+) {
+    #[cfg(any(test, feature = "test-support"))]
+    let _label_scope = crate::draw_census::label_scope();
+    let (x0, w) = (rect.cx() - sty.w * 0.5, sty.w);
+    let [title_line, caption_line] = lines;
+    let runs = [
+        (label.title.as_ref(), title_line, theme::size::LABEL, theme::TEXT_SECONDARY),
+        (label.caption.as_ref(), caption_line, theme::size::CAPTION, theme::TEXT_TERTIARY),
+    ];
+    for (text, line, sz, ink) in runs {
+        let (Some(text), Some(line)) = (text, line.filter(|l| l.alpha > 0.0)) else { continue };
+        // `fit_line` is the capability's memoised elide: a screenful of resting titles costs a hash
+        // lookup each per frame, not a search through the font.
+        let shown = measure.fit_line(&text.to_string_lossy(), w, sz, false);
+        let run = measure.width(&shown, sz, false);
+        let (p, x, y) = (p.alpha(line.alpha), x0 + (w - run) * 0.5, bottom + line.top);
+        if label.shadowed {
+            p.text(shown.as_ptr(), x, y + crate::caption_policy::CAPTION_SHADOW_DY, sz, crate::caption_policy::CAPTION_SHADOW, 0, 0);
+        }
+        p.text(shown.as_ptr(), x, y, sz, ink, 0, 0);
+    }
 }
 /// **The state line under a focused Continue Watching tile** (`registry::captions::shelf_label`: the
 /// caption rung of the deck's state, replacing the details line, and always shown on the deck (the
@@ -1234,8 +1283,21 @@ pub const UNDER_LABEL_H: f32 = TileLabel::block_h(true);
 /// this constant is whatever is left of it once `consts::UNDER_LABEL_AIR` (already inside the pitch,
 /// below the block) is taken out. Authoring the 18 directly would be a number nobody could check;
 /// authoring the rung makes the claim falsifiable, and the test beside it does.
-pub const LABEL_BAND_COLLAPSED: f32 =
-    crate::theme::space::LG - crate::consts::UNDER_LABEL_AIR;
+pub const LABEL_BAND_COLLAPSED: f32 = if EVERY_TILE_NAMED {
+    UNDER_LABEL_H
+} else {
+    crate::theme::space::LG - crate::consts::UNDER_LABEL_AIR
+};
+
+/// **JF Native names every poster, not only the focused one** (the owner's call): every tile of a
+/// shelf or grid carries its title and details line ([`TileLabel::resting`]) in a band that is
+/// always open, so moving focus changes how a label is drawn and never where, and never moves a row.
+/// [`LABEL_BAND_COLLAPSED`] is then the whole label block, so a band has no travel left to open
+/// ([`under_band_for`] stays where it is); a resting tile elides a line too long for its card and the
+/// focused one glides it inside the card ([`TileLabel::within_tile`]), its neighbours' titles being
+/// beside it. Upstream's collapsing band stays behind this switch: the inherited suites (`test` and
+/// the `test-support` builds) still drive it, and the simulator and the TV show the shipped one.
+pub const EVERY_TILE_NAMED: bool = !cfg!(any(test, feature = "test-support"));
 
 /// The label band a shelf reserves at expansion `e` (0 collapsed → 1 focused) — **the ONE
 /// expression every screen's row pitch is built from**, so Home, the Library, Search and the person
@@ -3359,5 +3421,37 @@ mod tests {
         let _ = plx_machine::idle::take_local_damage();
         assert_eq!(credit_runs("Ana", "Director", true).len(), 2);
         assert_eq!(plx_machine::idle::take_local_damage(), 0, "a fitting label never reports");
+    }
+
+    /// JF Native: a RESTING tile is named too ([`TileLabel::resting`]): its title and details line
+    /// stand on the focused block's boxes, centred on the card, and a title wider than the card ends
+    /// in an ellipsis inside it rather than gliding (only the focused tile glides).
+    #[test]
+    fn a_resting_tile_names_itself_and_elides_inside_its_card() {
+        let _serial = plx_base::testlock::serial();
+        let sty = RowStyle::HOME;
+        let rect = Rect::new(700.0, 300.0, sty.w, sty.h);
+        let label = TileLabel::titled(LONG_TITLE, "1979").resting();
+        let mut log = Vec::new();
+        let runs = plx_gfx::text::capture_text_runs_for_test(|| {
+            log = crate::draw_census::capture(|| {
+                draw_label(Painter::recording(), rect, 1.0, &sty, &label, &crate::fixture::FixtureMeasure);
+            });
+        });
+        assert_eq!(runs.len(), 2, "one still run per line: {runs:?}");
+        assert!(runs[0].ends_with('\u{2026}') && runs[0].len() < LONG_TITLE.len(), "the title is elided: {runs:?}");
+        assert!(measure_w(&runs[0], theme::size::LABEL) <= sty.w, "inside the card's width");
+        assert_eq!(runs[1], "1979");
+        let [title, caption] = label.lines();
+        let bottom = unscaled_bottom(rect, 1.0);
+        let ys: Vec<f32> = log.iter().filter(|(tag, _)| *tag == 100).map(|(_, r)| r.y).collect();
+        assert!(ys.contains(&(bottom + title.unwrap().top)), "the title on the focused block's box: {ys:?}");
+        assert!(ys.contains(&(bottom + caption.unwrap().top)), "the details line on its box: {ys:?}");
+        let xs: Vec<f32> = log.iter().filter(|(tag, _)| *tag == 100).map(|(_, r)| r.x).collect();
+        assert!(xs.iter().all(|&x| x >= rect.x - 0.5 && x <= rect.x + sty.w), "drawn under its card: {xs:?}");
+        let empty = plx_gfx::text::capture_text_runs_for_test(|| {
+            draw_label(Painter::recording(), rect, 1.0, &sty, &TileLabel::default().resting(), &crate::fixture::FixtureMeasure);
+        });
+        assert!(empty.is_empty(), "a tile with no label draws nothing");
     }
 }

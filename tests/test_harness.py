@@ -7472,7 +7472,8 @@ impl PersonOwnerGateFixture {
         # Attempt-caps (#1044) moved the pin by nothing: the spellings widened to `devcaps::caps` and the zero-argument
         # `is_dp_audio` / `is_dp_audio_track` (a coverage expansion, not a shrink), and the planner reads none of them.
         "globals": 66,  # production process-global reads inside machines (`ci/allow/globals/`)
-        "forks": 58,  # production test/production forks in data/, plex/, media/, session/ (`ci/allow/forks/`)
+        "forks": 60,  # production test/production forks in data/, plex/, media/, session/ (`ci/allow/forks/`);
+        # JF Native: +2, `jellyfin::api::set_path_prefix` and `session::TITLE_BY_DEFAULT`
         "fxlanes": 11,  # Bridge::app_effect arms that do not push Fx::Deliver (`ci/allow/fxlanes/`)
     }
 

@@ -958,20 +958,33 @@ impl Grid {
         // Either way each line is revealed by the band's own progress and the room it has made
         // (`card_row::line_reveal_for`), so the caption goes with the gap and never stands over
         // the row under it.
-        let label = if focused {
+        // JF Native: every card carries its label, whole, in a band that is always open
+        // (`card_row::EVERY_TILE_NAMED`): the focused one held to its tile, the rest at rest.
+        let named = card_row::EVERY_TILE_NAMED.then(|| {
+            if !focused {
+                src.label(i).resting()
+            } else if self.caption_held() {
+                super::TileLabel::default()
+            } else {
+                src.label(i).within_tile()
+            }
+        });
+        let label = if named.is_some() {
+            named
+        } else if focused {
             let row = i / self.spec.cols;
             let open = bands.iter().find(|band| band.row == row).map_or(0.0, |band| band.expansion);
             // The focused card left as a ghost that is still waiting for the landing to step: the
             // ghost keeps the caption as drawn ([`paint_ghosts`](Self::paint_ghosts)); the card
             // focus reconciled to takes it up with the landing's first step.
             let label = if self.caption_held() { super::TileLabel::default() } else { src.label(i) };
-            Some((label, open))
+            Some(label.revealed(self.band_h(), open, self.rise_below(cards, f.cx, src, i, bands)))
         } else {
             self.bands.closing()
                 .find(|&(row, card, _)| card == i && row == i / self.spec.cols)
                 .map(|(_, _, open)| (src.label(i), open))
-        }
-        .map(|(label, open)| label.revealed(self.band_h(), open, self.rise_below(cards, f.cx, src, i, bands)));
+                .map(|(label, open)| label.revealed(self.band_h(), open, self.rise_below(cards, f.cx, src, i, bands)))
+        };
         let rect = super::to_local(p, self.slot(i, src.len(), bands)).scaled(s);
         if !card_row::paint_visible(p, rect, s, label.is_some()) {
             return None;
