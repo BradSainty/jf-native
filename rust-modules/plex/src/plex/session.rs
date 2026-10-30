@@ -1457,8 +1457,9 @@ mod sort_value_off {
 }
 
 fn de_soft_under_posters_title<'de, D: Deserializer<'de>>(d: D) -> Result<bool, D::Error> {
-    let Ok(v) = Value::deserialize(d) else { return Ok(false) };
-    Ok(v.as_bool().unwrap_or(false))
+    let fallback = UnderPosters::DEFAULT.title;
+    let Ok(v) = Value::deserialize(d) else { return Ok(fallback) };
+    Ok(v.as_bool().unwrap_or(fallback))
 }
 
 fn de_soft_under_posters_ladder<'de, D: Deserializer<'de>>(d: D) -> Result<UnderPostersLadder, D::Error> {
@@ -1480,10 +1481,25 @@ fn de_soft_parts<'de, D: Deserializer<'de>>(d: D) -> Result<Option<Vec<String>>,
     Ok(Some(items.into_iter().filter_map(|i| i.as_str().map(str::to_owned)).collect()))
 }
 
+/// **JF Native shows each poster's title, and nothing under it, by default** (the owner's calls:
+/// every poster is named, `ui::card_row::EVERY_TILE_NAMED`, and no year, length or time left).
+/// Settings > Libraries > Under posters still changes either.
+/// Upstream's default (no title) stays for the inherited suites, `test` and `test-support` builds.
+#[cfg(not(any(test, feature = "test-support")))]
+const TITLE_BY_DEFAULT: bool = true;
+#[cfg(any(test, feature = "test-support"))]
+const TITLE_BY_DEFAULT: bool = false;
+
 impl UnderPosters {
     /// The defaults, as a `const` for callers that compare against them.
-    pub const DEFAULT: UnderPosters =
-        UnderPosters { title: false, details: DetailParts::MOVIE_DEFAULT, show_details: DetailParts::SHOW_DEFAULT, sort_value: true };
+    /// JF Native names every poster with its title alone ([`TITLE_BY_DEFAULT`]); upstream shows no
+    /// title and the year and length (a show: year and seasons) by default.
+    pub const DEFAULT: UnderPosters = UnderPosters {
+        title: TITLE_BY_DEFAULT,
+        details: if TITLE_BY_DEFAULT { DetailParts::NONE } else { DetailParts::MOVIE_DEFAULT },
+        show_details: if TITLE_BY_DEFAULT { DetailParts::NONE } else { DetailParts::SHOW_DEFAULT },
+        sort_value: true,
+    };
 
     /// Two bytes for the live cell: title in bit 0, "sort value Off" in bit 1, the movie parts in
     /// bits 2-8 and the TV show parts in bits 9-15 (one bit per [`DetailPart`]).

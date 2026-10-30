@@ -1048,11 +1048,21 @@ impl Grid {
         let rect = super::to_local(p, self.slot(i, src.len(), bands)).scaled(s);
         let visible = if self.spec.value_line {
             card_row::paint_visible_with_label_h(p, rect, s, card_row::SORT_VALUE_REACH)
-        } else { card_row::paint_visible(p, rect, s, open.is_some()) };
+        } else { card_row::paint_visible(p, rect, s, open.is_some() || card_row::EVERY_TILE_NAMED) };
         if !visible { return None; }
         // A value line's words stay in the source cache until draw_caption borrows them. Legacy bands
         // retain their per-frame reveal, including the focused ghost's held caption.
-        let label = if self.spec.value_line { None } else {
+        // JF Native: every card carries its label, whole, in a band that is always open
+        // (`card_row::EVERY_TILE_NAMED`): the focused one held to its tile, the rest at rest.
+        let label = if self.spec.value_line { None } else if card_row::EVERY_TILE_NAMED {
+            Some(if !focused {
+                src.label(i).resting()
+            } else if self.caption_held() {
+                super::TileLabel::default()
+            } else {
+                src.label(i).within_tile()
+            })
+        } else {
             open.map(|open| {
                 let label = if focused && self.caption_held() { super::TileLabel::default() } else { src.label(i) };
                 label.revealed(self.band_h(), open, self.rise_below(cards, f.cx, src, i, bands))

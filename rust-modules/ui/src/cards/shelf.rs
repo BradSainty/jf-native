@@ -1014,6 +1014,16 @@ impl Shelf {
             }
         } else {
             card_row::draw_tile(pr, src.art(i), rect, s, &self.style, src.progress(i));
+            // JF Native: a resting card is named too (`card_row::EVERY_TILE_NAMED`). A shelf that
+            // has ridden up under the shown chrome takes its names out of the way there, as Home's
+            // headings do (`scroll_chrome::clearance_under_shown_chrome`): the strip stays legible.
+            if card_row::EVERY_TILE_NAMED {
+                let top = pr.dy() + card_row::unscaled_bottom(rect, s);
+                let clear = crate::scroll_chrome::clearance_under_shown_chrome(top);
+                if clear > 0.0 {
+                    card_row::draw_label(pr.alpha(clear), rect, s, &self.style, &src.label(i).resting(), f.measure);
+                }
+            }
         }
         let tile = Tile { rect, scale: s, radius: self.style.tile_radius(rect, s), focused, pop: super::pop_progress(s, i, self.entry, src, f.cx, self.style.focus_scale) };
         src.compose(pr, i, &tile, f.measure, label.as_ref(), |paint, label| {
@@ -1027,6 +1037,11 @@ impl Shelf {
     /// The default label passed to [`CardSource::compose`]; a source with a decorative template may
     /// compose the shared label painter at a different resolved position.
     fn focused_label<H: Host, S: CardSource<H>>(&self, src: &S, i: usize, at: SectionFrame) -> TileLabel {
+        // JF Native: whole from the first frame, in a band that is always open, and held to its tile
+        // (its neighbours are named beside it): `card_row::EVERY_TILE_NAMED`.
+        if card_row::EVERY_TILE_NAMED {
+            return src.label(i).within_tile();
+        }
         // a style that hangs its block at its own drop shows it whole: no band opens for it
         let label = src.label(i);
         let label = if self.style.label_drop.is_some() { label } else { self.row.reveal(label, at.below_rise) };
