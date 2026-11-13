@@ -9344,14 +9344,13 @@ pub fn demux(
                         native_audio::publish_fed(kind, channels);
                     }
                 }
-                let dur = fmt_duration(fmt);
-                // A live Jellyfin remux/transcode declares no duration; the item's own runtime
-                // stands in, or there is no seek bar and no progress report.
-                let dur = if dur > 0 {
-                    dur
-                } else {
-                    plx_plex::jellyfin::runtime_ms_for_stream(&path).map_or(0, |ms| ms.saturating_mul(1000))
-                };
+                // A Jellyfin item's own runtime outranks what the container declares: a live Jellyfin
+                // remux/transcode declares no duration at all, or, when it starts at an offset (a
+                // resume or a seek), only what is LEFT from that offset; read as the whole, that
+                // ended the episode early and the queue played the next one there.
+                let dur = plx_plex::jellyfin::runtime_ms_for_stream(&path)
+                    .filter(|ms| *ms > 0)
+                    .map_or_else(|| fmt_duration(fmt), |ms| ms.saturating_mul(1000));
                 if dur > 0 {
                     SHARED
                         .duration_ns
