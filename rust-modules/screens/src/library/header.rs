@@ -320,6 +320,11 @@ impl LibraryScreen {
         self.folded.clear();
         let current = self.view_section(cx);
         let mut left = Vec::new();
+        self.switchable = current.is_some_and(|current| {
+            let directory = H::directory(cx);
+            let kind = directory.sections().get(current).map(|section| section.kind);
+            directory.sections().iter().filter(|section| Some(section.kind) == kind).count() > 1
+        });
         if let Some(current) = current {
             let directory = H::directory(cx);
             let mut all: Vec<(u32, usize)> = Vec::new();

@@ -1811,8 +1811,9 @@ pub fn hero_metadata(p: Painter, r: Rect, parts: &[&str], quality: Option<&str>,
     identity_row(Some(p), r, parts, quality, chips, theme::TEXT_READING, measure);
 }
 
-/// **JF Native spaces the identity band evenly** (the owner's call): words and chips one
-/// `detail_layout::FACT_GAP` apart, with no dot. Upstream's `SM` run / `XS` chips stay behind this.
+/// **JF Native spaces the hero's bands evenly** (the owner's call): the identity band's words and
+/// chips, and the facts row's facts, one `detail_layout::FACT_GAP` apart, with no dot. Upstream's
+/// `SM` runs / `XS` chips stay behind this.
 const EVEN_IDENTITY_GAPS: bool = true;
 
 /// The one layout of the identity band, painted with `paint` or only measured without it.
@@ -1900,15 +1901,22 @@ fn facts_row(paint: Option<Painter>, r: Rect, date: &str, length: &str, resumes:
     use crate::hstack::{Flow, Item};
     let cy = r.y + r.h * 0.5;
     let y = plx_gfx::text::text_vcenter_y(theme::size::CAPTION, 0, cy);
-    let mut flow = Flow::new(r.x, theme::space::SM);
+    // JF Native (`EVEN_IDENTITY_GAPS`): facts one even `detail_layout::FACT_GAP` apart, the
+    // (transparent) dot centred in it; upstream's `SM` either side otherwise.
+    let pad = if EVEN_IDENTITY_GAPS {
+        ((crate::detail_layout::FACT_GAP - measure.width(c"\u{b7}", theme::size::CAPTION, false)) * 0.5).max(0.0)
+    } else {
+        theme::space::SM
+    };
+    let mut flow = Flow::new(r.x, pad);
     let mut any = false;
     for (text, ink) in [(date, theme::TEXT_SECONDARY), (length, if resumes { theme::TEXT_PRIMARY } else { theme::TEXT_SECONDARY }), (source, theme::TEXT_SECONDARY)] {
         if text.is_empty() { continue; }
-        let prefix = if any { measure.width(c"\u{b7}", theme::size::CAPTION, false) + theme::space::SM } else { 0.0 };
+        let prefix = if any { measure.width(c"\u{b7}", theme::size::CAPTION, false) + pad } else { 0.0 };
         let budget = (r.x + r.w - flow.next_x() - prefix).max(0.0);
         if budget <= 0.0 { break; }
         let text = plx_gfx::text::elide_by(text, budget, false, |s| measure.width_str(s, theme::size::CAPTION, false));
-        let run = DottedRun::new(theme::size::CAPTION, ink, theme::space::SM).measured(measure);
+        let run = DottedRun::new(theme::size::CAPTION, ink, pad).measured(measure);
         let run = if any { run.lead_dot() } else { run };
         flow.place(|x| Item::new(match paint {
             Some(p) => run.draw(p, &[text.as_str()], x, y),
@@ -1934,9 +1942,16 @@ fn pdf_proposal_facts_keep_air_on_both_sides_of_each_dot() {
     assert_eq!(runs.iter().map(|r| r.text.as_str()).collect::<Vec<_>>(),
         ["2024", "·", "38 min left", "·", "Shared by friend"]);
     use plx_machine::machine::Measure;
+    // JF Native (`EVEN_IDENTITY_GAPS`): the air either side of the (transparent) dot makes one even
+    // `FACT_GAP` between facts
+    let pad = if EVEN_IDENTITY_GAPS {
+        ((crate::detail_layout::FACT_GAP - m.width_str("\u{b7}", theme::size::CAPTION, false)) * 0.5).max(0.0)
+    } else {
+        theme::space::SM
+    };
     for pair in runs.windows(2) {
         let right = pair[0].at.x + m.width_str(&pair[0].text, theme::size::CAPTION, false);
-        assert!((pair[1].at.x - right - theme::space::SM).abs() < 0.01);
+        assert!((pair[1].at.x - right - pad).abs() < 0.01);
     }
     assert_eq!(runs[2].ink, theme::TEXT_PRIMARY);
     assert_eq!(runs[4].ink, theme::TEXT_SECONDARY);

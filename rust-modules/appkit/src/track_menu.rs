@@ -4468,7 +4468,7 @@ mod enhancement_menu_tests {
     #[test]
     fn an_app_decoded_surround_track_says_it_plays_in_stereo() {
         let _g = plx_base::testlock::serial();
-        assert_eq!(audio_sub_line_for("DTS 7.1".into(), false, true), "DTS 7.1 \u{b7} played in stereo");
+        assert_eq!(audio_sub_line_for("DTS 7.1".into(), false, true), "DTS 7.1   played in stereo");
         assert_eq!(audio_sub_line_for("DTS 7.1".into(), false, false), "DTS 7.1");
         let dts = |channels| metadata::Stream { codec: "dca".into(), channels, sampling_rate: 48_000, ..Default::default() };
         let measured = std::sync::Arc::new(plx_platform::devcaps::Caps {
@@ -4477,11 +4477,11 @@ mod enhancement_menu_tests {
         });
         let mut ps = plx_media::route::PlaybackSession::IDLE;
         plx_media::route::begin_attempt_for_test(&mut ps, measured.clone());
-        assert_eq!(audio_sub_line(&ps, "DTS 5.1".into(), &dts(6)), "DTS 5.1 \u{b7} converted by your server", "Auto: the server converts it");
+        assert_eq!(audio_sub_line(&ps, "DTS 5.1".into(), &dts(6)), "DTS 5.1   converted by your server", "Auto: the server converts it");
         // The recovery's last rung put DTS in force: the attempt now plays the 5.1 track as stereo.
         let rung = std::sync::Arc::new((*measured).clone().with_app_lossy_for("dts"));
         plx_media::route::begin_attempt_for_test(&mut ps, rung.clone());
-        assert_eq!(audio_sub_line(&ps, "DTS 5.1".into(), &dts(6)), "DTS 5.1 \u{b7} played in stereo");
+        assert_eq!(audio_sub_line(&ps, "DTS 5.1".into(), &dts(6)), "DTS 5.1   played in stereo");
         assert_eq!(audio_sub_line(&ps, "DTS 2.0".into(), &dts(2)), "DTS 2.0", "a stereo track is not a downmix");
         // Force Direct Play refuses a surround track the set cannot decode instead of mixing it down, even
         // with the codec in force: no mark, because nothing plays it.

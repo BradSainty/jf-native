@@ -1263,7 +1263,7 @@ impl LibraryLike for HostFixture {
         assert_eq!(draft.sections.len(), 2);
         assert!(draft.sections.iter().all(|section| section.header.is_empty()));
         assert_eq!(draft.sections[0].rows[0].detail, "Own NAS");
-        assert_eq!(draft.sections[0].rows[1].detail, "Friend NAS · friend");
+        assert_eq!(draft.sections[0].rows[1].detail, "Friend NAS   friend");
         assert!(draft.sections[0].rows[0].checked);
         assert!(!draft.sections[0].rows[1].checked);
         assert_eq!(
@@ -1515,7 +1515,7 @@ impl LibraryLike for HostFixture {
         assert_eq!(draft.sections.len(), 2);
         assert!(draft.sections[0].header.is_empty());
         assert_eq!(draft.sections[0].rows[0].label, "Shared Movies");
-        assert_eq!(draft.sections[0].rows[0].detail, "Friend NAS · friend");
+        assert_eq!(draft.sections[0].rows[0].detail, "Friend NAS   friend");
         assert!(!draft.sections[0].rows[0].checked);
         assert!(matches!(draft.rows[1].1, Action::Recheck));
         assert!(matches!(draft.rows[2].1, Action::Favourites));
@@ -1745,7 +1745,7 @@ impl LibraryLike for HostFixture {
         let directory = switcher_directory(SourceState::Reachable);
         let laid = switcher_menu(&directory);
         assert!(laid.sections.iter().all(|section| section.header.is_empty()));
-        assert_eq!(laid.sections[0].rows[1].detail, "Friend NAS · friend");
+        assert_eq!(laid.sections[0].rows[1].detail, "Friend NAS   friend");
         let action = |id: &str| laid.rows.iter().find(|(row, ..)| row == id).map(|(_, action, _)| action.clone());
         assert!(
             matches!(action("section:2:8"),
@@ -1797,7 +1797,7 @@ impl LibraryLike for HostFixture {
         };
         let (ids, shared) = offered(SourceState::NotProbed);
         assert_eq!(ids, ["section:1:7", "section:2:7", "section:2:8"], "a server nobody has dialled is offered");
-        assert_eq!(shared, Some((false, "Friend NAS · friend".into())));
+        assert_eq!(shared, Some((false, "Friend NAS   friend".into())));
         for (state, word) in [
             (SourceState::Unauthorized, "Not authorized"),
             (SourceState::Unreachable, "Not reachable"),
@@ -1805,7 +1805,7 @@ impl LibraryLike for HostFixture {
         ] {
             let (ids, shared) = offered(state);
             assert_eq!(ids, ["section:1:7", "section:2:7"], "{state:?}: the favourite stays, the non-favourite goes");
-            assert_eq!(shared, Some((true, format!("Friend NAS · {word} · friend"))), "{state:?}: the group dims and says why");
+            assert_eq!(shared, Some((true, format!("Friend NAS   {word}   friend"))), "{state:?}: the group dims and says why");
         }
     }
 

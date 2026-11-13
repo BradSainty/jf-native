@@ -1575,8 +1575,9 @@ mod tests {
                 for (n, o) in n.into_iter().zip(o) {
                     assert_eq!((&n.text, n.size, n.bold), (&o.text, o.size, o.bold), "appear {appear}: `{}`", o.text);
                     // the colour of a button's label is its focus's (the card opens on its first button), the fade is the alpha
+                    // (JF Native inks every separator dot transparent; the goldens recorded upstream's)
                     assert!(
-                        (n.ink[3] - o.ink[3]).abs() < 0.001,
+                        (n.ink[3] - o.ink[3]).abs() < 0.001 || (o.text == "\u{b7}" && n.ink[3] == 0.0),
                         "appear {appear}: `{}` is inked {:?} where the card inks it {:?}", o.text, n.ink, o.ink
                     );
                     assert!(near(&n.at, &o.at), "appear {appear}: `{}` stands at {:?} where the card draws it at {:?}", o.text, n.at, o.at);

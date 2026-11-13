@@ -401,16 +401,16 @@ mod tests {
     /// spells the episode `O`; the app's one address spelling (`core.episode`) is `E`, so `pl` here
     /// is `E` and the draft's letter is a native-review question.
     const BOARD_USUAL: [(&str, &str); 10] = [
-        ("en", "S2 E4 · 38m left"),
-        ("de", "S2 E4 · noch 38 Min."),
-        ("fr", "S2 E4 · 38 min restantes"),
-        ("es", "T2 E4 · quedan 38 min"),
-        ("it", "S2 E4 · 38 min rimasti"),
-        ("pt", "T2 E4 · faltam 38 min"),
-        ("nl", "S2 A4 · nog 38 min"),
-        ("pl", "S2 E4 · zostało 38 min"),
-        ("ru", "S2 E4 · осталось 38 мин"),
-        ("be", "С2 Э4 · засталося 38 хв"),
+        ("en", "S2 E4 38m left"),
+        ("de", "S2 E4 noch 38 Min."),
+        ("fr", "S2 E4 38 min restantes"),
+        ("es", "T2 E4 quedan 38 min"),
+        ("it", "S2 E4 38 min rimasti"),
+        ("pt", "T2 E4 faltam 38 min"),
+        ("nl", "S2 A4 nog 38 min"),
+        ("pl", "S2 E4 zostało 38 min"),
+        ("ru", "S2 E4 осталось 38 мин"),
+        ("be", "С2 Э4 засталося 38 хв"),
     ];
 
     /// The board's measured widths (board fonts), usual / worst case S12 E24 1h 12m.
@@ -646,15 +646,15 @@ mod tests {
         // FixtureMeasure is 12 px a character: this status leaves 76 px of room at rest with the
         // tag and 48 with the cue open
         let status = "abcdefghijklmno";
-        let rest = runs_at(0.0, status, "S2 E4 \u{b7}");
+        let rest = runs_at(0.0, status, "S2 E4 x");
         assert_eq!(rest.len(), 2, "tag and status");
         let (tag_w, left) = (rest[1].at.x - rest[0].at.x, rest[0].at.x);
         assert!(tag_w > 0.0);
-        let mid = runs_at(0.5, status, "S2 E4 \u{b7}");
+        let mid = runs_at(0.5, status, "S2 E4 x");
         assert_eq!(mid.len(), 2);
         assert_eq!(mid[0].at.x, left + FOOTER_CUE_SLOT * 0.5 - tag_w * 0.5, "the tag slides out as it fades");
         assert!(mid[0].ink[3] < rest[0].ink[3] && mid[0].ink[3] > 0.0, "and fades");
-        let open = runs_at(1.0, status, "S2 E4 \u{b7}");
+        let open = runs_at(1.0, status, "S2 E4 x");
         assert_eq!(open.len(), 1, "the tag is gone");
         assert_eq!(open[0].at.x, left + FOOTER_CUE_SLOT, "the time stands where the tag's slot closed up");
     }
@@ -686,13 +686,13 @@ mod tests {
             resume: Some(Resume { frac: 0.3, left_ms: 38 * 60_000 }),
             ..Default::default()
         };
-        assert_eq!(words(started), ["Severance", "S2 E4 \u{b7}", "38m left"]);
+        assert_eq!(words(started), ["Severance", "S2 E4", "38m left"]);
         let film = TileFacts { title: "Heat", resume: Some(Resume { frac: 0.3, left_ms: 38 * 60_000 }), ..Default::default() };
         assert_eq!(words(film), ["Heat", "38m left"], "a film has no tag");
         let next_up = TileFacts { show_title: "Severance", season_index: 2, ep_index: 5, unwatched: true, ..Default::default() };
         assert_eq!(
             words(next_up),
-            ["Severance", "S2 E5 \u{b7}", "New episode"],
+            ["Severance", "S2 E5", "New episode"],
             "nothing to count down: the same tag a started episode wears, then the catalogue's New episode, no bar"
         );
         let unnumbered = TileFacts { show_title: "Severance", unwatched: true, ..Default::default() };
@@ -729,18 +729,18 @@ mod tests {
         assert!(titles[0].bold);
         assert!(titles[0].at.y + 1.0 < 236.0 - crate::theme::logo::CARD_BOTTOM_INSET + 1.0, "at the logo slot: {:?}", titles[0].at);
         let words: Vec<_> = r.iter().map(|run| run.text.as_str()).collect();
-        assert_eq!(&words[1..], ["S2 E4 \u{b7}", "38m left"], "the footer carries the tag and the status only");
+        assert_eq!(&words[1..], ["S2 E4", "38m left"], "the footer carries the tag and the status only");
         // a cover (or a composite) names the title in the art: the card draws none
         let covered = TileFacts { deck: Some(DeckArt { cover: "/plx/cover/x", card: "" }), ..started };
         let words: Vec<_> = runs(covered, cont).into_iter().map(|run| run.text).collect();
-        assert_eq!(words, ["S2 E4 \u{b7}", "38m left"]);
+        assert_eq!(words, ["S2 E4", "38m left"]);
         let composed = TileFacts { deck: Some(DeckArt { cover: "", card: "/plx/card/1/a" }), ..started };
         assert_eq!(runs(composed, cont).len(), 2);
         // the shelf footer follows the same rule: the address, and no show line above it
         let shelf = |facts| runs(facts, crate::widgets::StillFooter::Shelf).into_iter().map(|run| run.text).collect::<Vec<_>>();
-        assert_eq!(shelf(covered), ["S2 \u{b7} E4"], "a cover carries the title");
-        assert_eq!(shelf(bare), ["Severance", "S2 \u{b7} E4"], "type carries it once");
-        assert_eq!(shelf(TileFacts { deck: None, ..started }), ["Severance", "S2 \u{b7} E4"], "a plain still keeps its show line");
+        assert_eq!(shelf(covered), ["S2 E4"], "a cover carries the title");
+        assert_eq!(shelf(bare), ["Severance", "S2 E4"], "type carries it once");
+        assert_eq!(shelf(TileFacts { deck: None, ..started }), ["Severance", "S2 E4"], "a plain still keeps its show line");
         // a film names itself by its own title
         let film = TileFacts { title: "Heat", deck: Some(DeckArt::default()), ..Default::default() };
         assert_eq!(runs(film, cont).iter().filter(|run| run.text == "Heat").count(), 1);

@@ -127,7 +127,7 @@ fn the_library_and_the_criterion_are_primary_ink_and_the_count_and_the_dot_secon
     let ink = |text: &str| runs.iter().find(|r| r.text == text).map(|r| (r.size, r.bold, r.ink)).unwrap();
     assert_eq!(ink("TV Shows"), (theme::size::BODY, false, theme::TEXT_PRIMARY));
     assert_eq!(ink("312"), (theme::size::BODY, false, theme::COUNT_FILTERED_INK));
-    assert_eq!(ink("\u{b7}"), (theme::size::BODY, false, theme::COUNT_FILTERED_INK));
+    assert_eq!(ink("\u{b7}"), (theme::size::BODY, false, theme::TEXT_SEPARATOR), "JF Native: the dot leaves its air, no ink");
     assert_eq!(theme::COUNT_FILTERED_INK, [1.0, 1.0, 1.0, 0.5], "the role is 50% white");
     assert_eq!(ink("Unplayed"), (theme::size::BODY, false, theme::TEXT_PRIMARY));
 }

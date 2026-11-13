@@ -5294,7 +5294,8 @@ fn the_identity_line_paints_its_members_one_fact_gap_apart() {
     let genre = runs.iter().find(|r| r.text == "Drama").expect("the genre is painted");
     let gap = plx_ui::detail_layout::FACT_GAP;
     let res = keyline_left(painted_x(&runs, "1080p").expect("resolution chip"), "1080p", m);
-    assert!((res.0 - (genre.at.x + genre.at.w) - gap).abs() < 0.5, "FACT_GAP after the words: {}", res.0);
+    let genre_right = genre.at.x + plx_machine::machine::Measure::width_str(m, "Drama", theme::hero::IDENTITY_SIZE, false);
+    assert!((res.0 - genre_right - gap).abs() < 0.5, "FACT_GAP after the words: {} vs {genre_right}", res.0);
     assert!(painted_x(&runs, plx_platform::i18n::msg::widgets_badge_cc()).is_none(), "no CC chip");
     let sdh_label = plx_platform::i18n::msg::widgets_badge_sdh();
     let sdh = keyline_left(painted_x(&runs, sdh_label).expect("SDH chip"), sdh_label, m);

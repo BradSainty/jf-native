@@ -162,7 +162,7 @@ fn accessory(g: &SrcGroup) -> String {
     match (words.is_empty(), handle) {
         (_, "") => words,
         (true, h) => h.to_string(),
-        (false, h) => format!("{words} \u{b7} {h}"),
+        (false, h) => format!("{words}{}{h}", plx_ui::fmt::GAP),
     }
 }
 
@@ -176,7 +176,7 @@ fn accessory_parts(g: &SrcGroup) -> (String, &str) {
         .flatten()
         .copied()
         .collect::<Vec<_>>()
-        .join(" \u{b7} ");
+        .join(plx_ui::fmt::GAP);
     (words, g.handle.as_str())
 }
 
@@ -192,7 +192,7 @@ fn header_accessory(sec: Section, g: &SrcGroup) -> Section {
     } else if words.is_empty() {
         sec.server_accessory()
     } else {
-        sec.server_accessory().accessory_app_prefix(format!("{words} \u{b7}"))
+        sec.server_accessory().accessory_app_prefix(format!("{words}{}", plx_ui::fmt::GAP))
     }
 }
 
@@ -365,8 +365,8 @@ mod tests {
             "nobody has dialled: nothing is wrong, so nothing is said"
         );
         assert_eq!(words[1], "friend", "a working source states only its owner");
-        assert_eq!(words[2], "Not authorized \u{b7} friend");
-        assert_eq!(words[3], "Not reachable \u{b7} friend");
+        assert_eq!(words[2], "Not authorized   friend");
+        assert_eq!(words[3], "Not reachable   friend");
         assert_ne!(
             words[2], words[3],
             "the two faults are told apart, or the remedy is a guess"
@@ -380,7 +380,7 @@ mod tests {
     fn insecure_only_gets_its_own_word_and_dims_like_unauthorized() {
         assert_eq!(
             accessory(&group(SourceState::InsecureOnly, None, "friend")),
-            "Not secure \u{b7} friend"
+            "Not secure   friend"
         );
         assert!(!group(SourceState::InsecureOnly, None, "friend").reachable());
         assert!(!usable(&group(SourceState::InsecureOnly, None, "friend")));
@@ -423,7 +423,7 @@ mod tests {
                 Some(Location::Relay),
                 "friend"
             )),
-            "Not reachable \u{b7} friend"
+            "Not reachable   friend"
         );
     }
 

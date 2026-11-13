@@ -2042,6 +2042,10 @@ mod tests {
     /// The people lines share the facts bottom above the actions; adding a credit grows upward.
     #[test]
     fn the_people_lines_stack_up_from_the_facts_bottom() {
+        // JF Native draws no People column (`SHOW_PEOPLE`); the rule is upstream's to keep.
+        if !SHOW_PEOPLE {
+            return;
+        }
         let _g = plx_base::testlock::serial();
         let measure = plx_ui::fixture::FixtureMeasure;
         let credit = |tag: &str| plx_data::metadata::Cast { tag: tag.into(), role: String::new(), thumb: String::new(), id: 0, tag_key: String::new() };

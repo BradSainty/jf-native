@@ -4084,16 +4084,23 @@ fn hero_action(hero: &PmsMovie) -> (std::borrow::Cow<'static, std::ffi::CStr>, O
 /// **JF Native's billboard line names the year alone** (the owner's call): no "Movie"/"TV Show" —
 /// the artwork already says which — and no length, genres, quality or rating, which the detail page
 /// carries; an episode names its address. Nothing when there is no year. Upstream's line stays
-/// behind this switch.
+/// behind this switch, which the inherited suites keep off.
+#[cfg(not(any(test, feature = "test-support")))]
 const HERO_YEAR_ONLY: bool = true;
+#[cfg(any(test, feature = "test-support"))]
+const HERO_YEAR_ONLY: bool = false;
 
 fn hero_line(hero: &PmsMovie) -> Option<HeroLine<'_>> {
+    hero_line_as(hero, HERO_YEAR_ONLY)
+}
+
+fn hero_line_as(hero: &PmsMovie, year_only: bool) -> Option<HeroLine<'_>> {
     use plx_data::pms::{KIND_EPISODE, KIND_MOVIE, KIND_SHOW};
     use plx_platform::i18n::msg;
     use plx_ui::fmt;
     let is_episode = hero.kind == KIND_EPISODE;
     let is_show = hero.kind == KIND_SHOW;
-    if HERO_YEAR_ONLY && (hero.kind == KIND_MOVIE || is_show || is_episode) {
+    if year_only && (hero.kind == KIND_MOVIE || is_show || is_episode) {
         let (identity, date) = if is_episode {
             (fmt::episode_address(i64::from(hero.season_index), i64::from(hero.ep_index)), String::new())
         } else {

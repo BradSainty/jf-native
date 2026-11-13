@@ -40,9 +40,9 @@ fn a_show_is_worded_by_the_show_details_and_the_rest_by_the_movie_details() {
     let tv = CaptionFacts { genre: Some("Mystery".into()), ..show(0) };
     let policy = CaptionPolicy { title: false, details: DetailParts::of(&[DetailPart::Genre]), show_details: DetailParts::SHOW_DEFAULT };
     assert_eq!(caption_lines(&policy, &movie, cx)[1].as_deref(), Some("Drama"));
-    assert_eq!(caption_lines(&policy, &tv, cx)[1].as_deref(), Some("2019 \u{b7} 3 seasons"));
+    assert_eq!(caption_lines(&policy, &tv, cx)[1].as_deref(), Some("2019   3 seasons"));
     let swapped = CaptionPolicy { details: DetailParts::MOVIE_DEFAULT, show_details: DetailParts::of(&[DetailPart::Genre]), ..policy };
-    assert_eq!(caption_lines(&swapped, &movie, cx)[1].as_deref(), Some("2024 \u{b7} 1h 52m"));
+    assert_eq!(caption_lines(&swapped, &movie, cx)[1].as_deref(), Some("2024   1h 52m"));
     assert_eq!(caption_lines(&swapped, &tv, cx)[1].as_deref(), Some("Mystery"));
     // Nothing for one kind is Nothing for that kind alone; the band stays open for the other.
     let only_shows = CaptionPolicy { title: false, details: DetailParts::NONE, show_details: DetailParts::of(&[DetailPart::Genre]) };

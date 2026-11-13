@@ -2,11 +2,11 @@
 use super::*;
 use std::sync::mpsc;
 
-fn clock_now() -> Instant {
+pub(super) fn clock_now() -> Instant {
     plx_base::step::assert_io_allowed("session clock");
     Instant::now()
 }
-fn clock_elapsed(started: Instant) -> Duration {
+pub(super) fn clock_elapsed(started: Instant) -> Duration {
     plx_base::step::assert_io_allowed("session elapsed clock");
     started.elapsed()
 }

@@ -183,3 +183,23 @@ fn the_title_to_metadata_to_actions_gaps_are_the_same_for_art_and_for_type() {
         "the block's foot to the actions is the ladder's other gap"
     );
 }
+
+/// **JF Native's billboard line** (`HERO_YEAR_ONLY`, on in the shipped build): a film or show names
+/// its year alone, an episode its address, and a title with neither has no line at all.
+#[test]
+fn the_shipped_billboard_names_the_year_alone() {
+    let film = PmsMovie { year: 2010, video_resolution: Some("1080".into()), rating: "PG-13".into(), ..movie() };
+    match hero_line_as(&film, true) {
+        Some(HeroLine::Metadata { identity, date, length, genres, quality, rating }) => {
+            assert_eq!((identity.as_str(), date.as_str(), length.as_str(), genres.as_str(), quality, rating), ("", "2010", "", "", None, ""));
+        }
+        _ => panic!("a film with a year has the line"),
+    }
+    match hero_line_as(&PmsMovie { year: 2010, ..episode() }, true) {
+        Some(HeroLine::Metadata { identity, date, .. }) => {
+            assert_eq!((identity.as_str(), date.as_str()), (plx_ui::fmt::episode_address(2, 4).as_str(), ""));
+        }
+        _ => panic!("an episode names its address"),
+    }
+    assert!(hero_line_as(&PmsMovie { year: 0, ..movie() }, true).is_none(), "no year, no line (and no premise)");
+}

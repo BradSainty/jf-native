@@ -252,7 +252,9 @@ fn a_standalone_kicker_is_not_discarded_without_a_main_title() {
     let text = text.replacen("\"w\": \"fill\" } },\n        ]", "\"w\": \"fill\" } }\n        ]", 1);
     let drew = episode_frame(&load(&text), 0);
     let label = plx_ui::fmt::episode_kicker(1, 2, "An episode with a long name");
-    assert!(drew.1.iter().any(|r| r.text == label), "a declared kicker draws independently of title.main: {:?}", drew.1);
+    // (HUD text collapses a run of spaces, JF Native's separator, to one)
+    let words = |s: &str| s.split_whitespace().collect::<Vec<_>>().join(" ");
+    assert!(drew.1.iter().any(|r| words(&r.text) == words(&label)), "a declared kicker draws independently of title.main: {:?}", drew.1);
     assert!(!drew.1.iter().any(|r| r.size == theme::size::TITLE), "no undeclared main title");
 }
 

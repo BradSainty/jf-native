@@ -215,7 +215,10 @@ pub enum Listing {
 /// another library of the same kind is reached. Upstream's full row stays behind this switch; the
 /// inherited suites still drive it (`test` and the application's `test-support` builds), and the
 /// shipped page is graded by the tests that turn it off ([`LibraryScreen::hide_header`]).
-const SHOW_HEADER: bool = cfg!(any(test, feature = "test-support"));
+#[cfg(not(any(test, feature = "test-support")))]
+const SHOW_HEADER: bool = false;
+#[cfg(any(test, feature = "test-support"))]
+const SHOW_HEADER: bool = true;
 
 /// A retained page body, also remountable from its entry-owned LibraryMemory.
 pub struct LibraryScreen {
@@ -240,6 +243,9 @@ pub struct LibraryScreen {
     /// The visible favorite names, the current library when outside those shortcuts, and the
     /// persistent `MORE` action after the favorites, followed by any temporary visit.
     libraries: Vec<(u32, usize)>,
+    /// JF Native ([`SHOW_HEADER`] off): whether the directory holds another library of this page's
+    /// kind, so the row has a switch to offer. Set as the row is built.
+    switchable: bool,
     /// The directory sections the fold hid behind Library options (what the Sources list shows).
     folded: Vec<u32>,
     /// The header row as `sync` last built it (`header.rs`): rebuilt only when [`Self::header_key`]
@@ -373,7 +379,7 @@ impl LibraryScreen {
                 MasterDetailGroups { master: RAIL_GROUP, detail: GRID_GROUP },
                 MasterDetailPolicy::new(MasterSide::Right, Follow::Live), Regions,
             ),
-            libraries: Vec::new(), folded: Vec::new(), header: plx_ui::page_header::RowCache::new(), show_header: SHOW_HEADER, header_capsules: plx_ui::widgets::TabStrip::new(), header_pop: plx_ui::widgets::CtlPop::new(), header_swap: plx_ui::page_header::HeaderSwap::new(), header_of: None, collections: CollectionsControl::Unknown, collections_sort: false, collections_asked: None,
+            libraries: Vec::new(), switchable: false, folded: Vec::new(), header: plx_ui::page_header::RowCache::new(), show_header: SHOW_HEADER, header_capsules: plx_ui::widgets::TabStrip::new(), header_pop: plx_ui::widgets::CtlPop::new(), header_swap: plx_ui::page_header::HeaderSwap::new(), header_of: None, collections: CollectionsControl::Unknown, collections_sort: false, collections_asked: None,
             type_before_collections: None, unfiltered: None, filtered: None,
             switched: false, enter_remembered: false, section: None, epoch: None, query: None, grid_reset_pending: false,
             layout, target_layout: layout,
@@ -417,9 +423,9 @@ impl LibraryScreen {
     /// The shipped page: no header row above the grid ([`SHOW_HEADER`]).
     #[cfg(test)]
     pub(super) fn hide_header(&mut self) { self.show_header = false; }
-    /// Is the header row on the page: upstream's always, JF Native's only with names to switch
-    /// between ([`SHOW_HEADER`]).
-    pub(super) fn header_shown(&self) -> bool { self.show_header || !self.libraries.is_empty() }
+    /// Is the header row on the page: upstream's always, JF Native's only with another library of
+    /// the kind to switch to ([`SHOW_HEADER`]).
+    pub(super) fn header_shown(&self) -> bool { self.show_header || self.switchable }
 
     /// The header row's stops in focus order, each named by what it is (`"library"`, `"collections"`,
     /// `"recommended"`, `"sort"`, `"crumb"`): the per-stop probe the app-tier route tables walk.

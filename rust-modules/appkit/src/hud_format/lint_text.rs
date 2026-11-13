@@ -1296,7 +1296,7 @@ mod tests {
         for f in kicker {
             assert_eq!(f.code, "HUD-E0601");
             let fact = f.ctx.text.clone().unwrap();
-            assert_eq!(fact.string, "S11, E111 \u{b7} ");
+            assert_eq!(fact.string, "S11, E111   ");
             assert_eq!(fact.room, 100.0);
             assert!(fact.measured > 100.0);
             assert_eq!(f.ctx.lang.as_deref(), Some("en"));
@@ -1522,11 +1522,9 @@ mod tests {
         let caption = size_rung("CAPTION").unwrap();
         let plain = ShippedMeasure.width_str(&fact.string, caption, false);
         let bold = ShippedMeasure.width_str(&fact.string, caption, true);
-        assert!(
-            bold > plain,
-            "the premise: bold is wider ({bold} vs {plain})"
-        );
-        assert_eq!(fact.measured, bold);
+        // (JF Native's kicker ends in spaces, where bold can come out the narrower: the rule is the
+        // wider weight, whichever it is)
+        assert_eq!(fact.measured, bold.max(plain), "the wider weight is the one measured ({bold} vs {plain})");
     }
 
     #[test]
@@ -1611,7 +1609,7 @@ mod tests {
         assert_eq!(fallback, "Chapter 777");
         let (kicker, _) =
             widest_of_kind(&texts, AppText::KickerPrefix, "title.kicker", 24, &[false]);
-        assert_eq!(kicker, "S77, E777 \u{b7} ");
+        assert_eq!(kicker, "S77, E777   ");
         let de = LintLang::for_tag("de").unwrap();
         let (fallback_de, _) = widest_of_kind(
             &en_texts(&de, &Glyphs),

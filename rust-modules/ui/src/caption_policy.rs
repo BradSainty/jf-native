@@ -411,14 +411,14 @@ mod tests {
             content_rating: Some("PG-13".into()), audience_rating: Some(8.1), is_movie: true, ..Default::default()
         };
         let at = |ps: &[DetailPart]| caption_lines(&CaptionPolicy::same(false, parts(ps)), &movie, l)[1].clone();
-        assert_eq!(at(&[P::Score, P::Year]).as_deref(), Some("2024 \u{b7} 8.1"));
-        assert_eq!(at(&[P::Year, P::Length, P::Genre, P::VideoQuality]).as_deref(), Some("2024 \u{b7} 1h 52m \u{b7} Drama \u{b7} 4K \u{b7} HDR"));
-        assert_eq!(at(&[P::AgeRating, P::Score]).as_deref(), Some("PG-13 \u{b7} 8.1"));
+        assert_eq!(at(&[P::Score, P::Year]).as_deref(), Some("2024   8.1"));
+        assert_eq!(at(&[P::Year, P::Length, P::Genre, P::VideoQuality]).as_deref(), Some("2024   1h 52m   Drama   4K   HDR"));
+        assert_eq!(at(&[P::AgeRating, P::Score]).as_deref(), Some("PG-13   8.1"));
         assert_eq!(at(&[P::Seasons]).as_deref(), Some("2024"), "a movie has no seasons: its identity says the year");
         let show = CaptionFacts { is_show: true, year: Some(2019), season_count: Some(6), genre: Some("Mystery".into()), content_rating: Some("TV-14".into()), audience_rating: Some(8.4), ..Default::default() };
         let at = |ps: &[DetailPart]| caption_lines(&CaptionPolicy::same(false, parts(ps)), &show, l)[1].clone();
-        assert_eq!(at(&[P::Year, P::Seasons]).as_deref(), Some("2019 \u{b7} 6 seasons"));
-        assert_eq!(at(&[P::Seasons, P::Genre, P::AgeRating, P::Score]).as_deref(), Some("6 seasons \u{b7} Mystery \u{b7} TV-14 \u{b7} 8.4"));
+        assert_eq!(at(&[P::Year, P::Seasons]).as_deref(), Some("2019   6 seasons"));
+        assert_eq!(at(&[P::Seasons, P::Genre, P::AgeRating, P::Score]).as_deref(), Some("6 seasons   Mystery   TV-14   8.4"));
     }
 
     /// The stand-ins that matter more than the year, length and seasons keep their rules, and only a
@@ -432,8 +432,8 @@ mod tests {
         assert_eq!(at(&[P::Length]).as_deref(), Some("38m left"));
         assert_eq!(at(&[P::Genre]).as_deref(), Some("Drama"));
         let ep = CaptionFacts { title: Some("Pilot".into()), episode: Some((1, 8)), genre: Some("Drama".into()), ..Default::default() };
-        assert_eq!(caption_lines(&CaptionPolicy::same(false, parts(&[P::Year])), &ep, l)[1].as_deref(), Some("S1 \u{b7} E8"));
-        assert_eq!(caption_lines(&CaptionPolicy::same(false, parts(&[P::Score])), &ep, l)[1].as_deref(), Some("S1 \u{b7} E8"), "no fact: the identity");
+        assert_eq!(caption_lines(&CaptionPolicy::same(false, parts(&[P::Year])), &ep, l)[1].as_deref(), Some("S1 E8"));
+        assert_eq!(caption_lines(&CaptionPolicy::same(false, parts(&[P::Score])), &ep, l)[1].as_deref(), Some("S1 E8"), "no fact: the identity");
     }
 
     #[test]

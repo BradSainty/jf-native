@@ -6,7 +6,7 @@
 //! persists the session exactly as it did for Plex. Nothing here needs typing on the remote: the
 //! server answers a broadcast with its own address, and the code is approved from a phone.
 
-use std::time::{Duration, Instant};
+use std::time::Duration;
 
 use plx_plex::jellyfin::login::{self as jf, QuickConnect};
 use plx_plex::plex::probe;
@@ -98,8 +98,9 @@ pub(super) fn login_worker(epoch: u64, client_id: &str, output: &dyn owner::Obse
         if !output.progress(LoginProgress::CodeReady { epoch, code: qc.code.clone(), qr_png: Vec::new() }.into()) {
             return;
         }
-        let shown = Instant::now();
-        while shown.elapsed() < CODE_LIFETIME {
+        // the session's one clock port (`ports`), like every other sign-in wait
+        let shown = super::ports::clock_now();
+        while super::ports::clock_elapsed(shown) < CODE_LIFETIME {
             std::thread::sleep(POLL_EVERY);
             if !output.live() {
                 return;

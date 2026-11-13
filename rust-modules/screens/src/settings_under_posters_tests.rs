@@ -207,7 +207,7 @@ fn a_details_value_is_the_names_nothing_or_a_count() {
     assert_eq!(names_value(parts(&[P::Year])), "Year");
     assert_eq!(names_value(parts(&[P::Length, P::Year])), format!("Year, Length"), "the line's order, not the order ticked");
     assert_eq!(names_value(parts(&[P::Year, P::Length, P::Genre])), format!("Year, Length, Genre"));
-    assert_eq!(names_value(parts(&[P::Year, P::Length, P::Genre, P::Score])), "4 details");
+    assert_eq!(names_value(parts(&[P::Year, P::Length, P::Genre, P::Score])), "Year, Length, Genre, Score", "a comma list fits the row (JF Native: no dot)");
     assert_eq!(names_value(parts(&[P::Year, P::Length, P::VideoQuality])), "3 details", "names past the budget read their count");
 }
 
@@ -266,7 +266,7 @@ fn the_movie_picker_lists_six_parts_each_with_its_sample_and_checks_the_current(
         ("Year".to_string(), Some("2024".to_string())),
         ("Length".to_string(), Some("1h 52m".to_string())),
         ("Genre".to_string(), Some("Drama".to_string())),
-        ("Video quality".to_string(), Some(format!("4K, HDR"))),
+        ("Video quality".to_string(), Some(format!("4K   HDR"))),
         ("Age rating".to_string(), Some("PG-13".to_string())),
         ("Score".to_string(), Some("7.8".to_string())),
     ]);
@@ -467,11 +467,11 @@ fn the_picture_draws_each_kinds_whole_column_at_its_opacity() {
     let alpha = |runs: &[plx_ui::draw_census::Run], text: &str| runs.iter().find(|r| r.text == text).unwrap_or_else(|| panic!("{text:?} not drawn")).ink[3];
     let full = alphas([1.0, 1.0]);
     let dimmed = alphas([1.0, DIM]);
-    for (text, rest) in [("MOVIE", theme::TEXT_READING), ("Movie", theme::TEXT_PRIMARY), (&*format!("2024, 1h 52m"), theme::CAPTION_DETAIL_INK)] {
+    for (text, rest) in [("MOVIE", theme::TEXT_READING), ("Movie", theme::TEXT_PRIMARY), (&*format!("2024 1h 52m"), theme::CAPTION_DETAIL_INK)] {
         assert_eq!(alpha(&full, text), rest[3], "{text}: full strength is its own ink");
         assert_eq!(alpha(&dimmed, text), rest[3], "{text}: the chosen column is untouched");
     }
-    for (text, rest) in [("TV SHOW", theme::TEXT_READING), ("Show", theme::TEXT_PRIMARY), (&*format!("2019, 6 seasons"), theme::CAPTION_DETAIL_INK)] {
+    for (text, rest) in [("TV SHOW", theme::TEXT_READING), ("Show", theme::TEXT_PRIMARY), (&*format!("2019 6 seasons"), theme::CAPTION_DETAIL_INK)] {
         assert!((alpha(&dimmed, text) - rest[3] * DIM).abs() < 1e-4, "{text}: caption, title and line of the other column are at {DIM}: {} vs {}", alpha(&dimmed, text), rest[3]);
     }
 }
@@ -647,7 +647,7 @@ fn the_show_preview_supplies_examples_for_missing_facts() {
     };
     let value = up(true, &[], &[P::Year, P::Seasons, P::Genre, P::AgeRating]);
     assert_eq!(picture_lines(value, PosterKind::Show, Some(&tv), false),
-        [Some("Family Stories".into()), Some("2019 · 2 seasons · Drama · TV-14".into())]);
+        [Some("Family Stories".into()), Some("2019   2 seasons   Drama   TV-14".into())]);
 }
 
 #[test]
@@ -739,16 +739,16 @@ fn the_root_row_reads_the_setting() {
     let _en = language_on_this_thread_for_test(plx_platform::i18n::Preference::En);
     let read = |title, details: &[DetailPart]| root_row_text(&RootInputs { under_posters: UnderPosters { title, details: parts(details), ..UnderPosters::DEFAULT }, ..text_fit_inputs() });
     let (value, sub) = read(false, &[P::Year, P::Length]);
-    assert_eq!(value.as_deref(), Some("Year   Length"), "the default reads its names");
+    assert_eq!(value.as_deref(), Some("Year, Length"), "the default reads its names");
     assert_eq!(sub, "", "Settings v2: the root row has no sub-line");
     assert_eq!(super::super::sentence_for(Some(&RootId::UnderPosters)), "Choose what appears under posters, for movies and TV shows alike.",
         "the sentence moved beside the table");
-    assert_eq!(read(true, &[P::Year, P::Length]).0.as_deref(), Some("Year   Length"), "the title is the page's own row");
+    assert_eq!(read(true, &[P::Year, P::Length]).0.as_deref(), Some("Year, Length"), "the title is the page's own row");
     assert_eq!(read(true, &[P::Genre]).0.as_deref(), Some("Genre"));
     assert_eq!(read(false, &[P::VideoQuality]).0.as_deref(), Some("Video quality"));
     assert_eq!(read(true, &[]).0.as_deref(), Some("Title"));
     assert_eq!(read(false, &[]).0.as_deref(), Some("Nothing"));
-    assert_eq!(read(false, &[P::Year, P::Length, P::Genre, P::Score]).0.as_deref(), Some("4 details"));
+    assert_eq!(read(false, &[P::Year, P::Length, P::Genre, P::Score]).0.as_deref(), Some("Year, Length, Genre, Score"), "a comma list fits the row (JF Native: no dot)");
     let shows_only = UnderPosters { details: parts(&[P::Genre]), show_details: parts(&[P::AgeRating, P::Score]), ..UnderPosters::DEFAULT };
     assert_eq!(root_row_text(&RootInputs { under_posters: shows_only, ..text_fit_inputs() }).0.as_deref(), Some("Genre"), "the movie names, not the show's");
     for value in every_value() {
@@ -1216,7 +1216,7 @@ fn the_picture_paints_into_the_slot_it_is_handed() {
     assert!(slot.w >= PICTURE_TILE_STEP + PICTURE_TILE_W, "the slot holds both tiles: {slot:?}");
     let runs = at(slot);
     let words: Vec<&str> = runs.iter().map(|(s, _)| s.as_str()).collect();
-    assert_eq!(words, ["MOVIE", "2024 · 1h 52m", "TV SHOW", "2019 · 6 seasons"], "each kind over its tile, then its details line under it");
+    assert_eq!(words, ["MOVIE", "2024 1h 52m", "TV SHOW", "2019 6 seasons"], "each kind over its tile, then its details line under it");
     let tile_top = slot.y + PICTURE_TILE_TOP;
     let tile_bottom = tile_top + PICTURE_TILE_H;
     for (i, (kind, line)) in [(&runs[0], &runs[1]), (&runs[2], &runs[3])].into_iter().enumerate() {
@@ -1251,7 +1251,7 @@ fn with_title_on_the_bold_title_stands_above_the_details_line() {
         plx_gfx::gfx::without_frame_clear(|| plx_ui::follow_copy::PictureSlot::draw(&picture, plx_ui::Painter::recording(), slot, &ShippedMeasure));
     });
     let words: Vec<&str> = runs.iter().map(|r| r.text.as_str()).collect();
-    assert_eq!(words, ["MOVIE", "Movie", "2024 · 1h 52m", "TV SHOW", "Show", "2019 · 6 seasons"]);
+    assert_eq!(words, ["MOVIE", "Movie", "2024 1h 52m", "TV SHOW", "Show", "2019 6 seasons"]);
     for (title, details) in [(&runs[1], &runs[2]), (&runs[4], &runs[5])] {
         assert!(title.bold && !details.bold, "{title:?} {details:?}");
         assert!(title.at.y < details.at.y, "the title is above the details: {title:?} {details:?}");

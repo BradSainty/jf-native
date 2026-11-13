@@ -175,7 +175,7 @@
   "browse.auth.plex_unreachable": "Kan Plex niet bereiken. Controleer je internetverbinding. Voor inloggen is een internetverbinding nodig.",
   "browse.auth.switch_failed": "Kan profiel niet wisselen — controleer de verbinding.",
   "browse.auth.offline_profile": "Geen internetverbinding. Kies dit profiel één keer terwijl je online bent, dan werkt het ook offline.",
-  "browse.auth.insecure": "Je Jellyfin-server is gevonden, maar niet via HTTPS bereikbaar. Controleer of je server beveiligde verbindingen toestaat en probeer het opnieuw.",
+  "browse.auth.insecure": "Je Jellyfin-server is gevonden, maar niet via HTTPS bereikbaar. Controleer of je server beveiligde verbindingen toestaat.",
   "browse.auth.no_access": "{profile} heeft geen toegang tot server",
   "browse.auth.no_source_access": "{profile} heeft geen toegang tot deze server",
   "browse.auth.tls_untrusted": "Deze tv vertrouwt het beveiligingscertificaat van je server niet. Werk JF Native bij en probeer het opnieuw.",
