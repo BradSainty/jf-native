@@ -17,10 +17,12 @@ use std::os::raw::{c_int, c_long, c_uchar, c_uint, c_void};
 use std::sync::atomic::{AtomicBool, Ordering};
 use std::sync::Arc;
 
-/// A stand-in duration, in milliseconds, for a stream whose container declares none: a live Jellyfin
-/// remux/transcode Matroska carries no duration, and without one there is no seek bar and no progress
-/// report. The composition installs the lookup (it knows the item's runtime; this crate may not name
-/// the server layer). Keyed by the stream's path.
+/// The item's own duration, in milliseconds, for a stream the server knows the runtime of (a Jellyfin
+/// item): it outranks what the container declares. A live Jellyfin remux/transcode declares no
+/// duration at all, or, when it starts at an offset (a resume or a seek), only what is LEFT from that
+/// offset; read as the whole, that ended the episode early and the queue played the next one there.
+/// The composition installs the lookup (it knows the item's runtime; this crate may not name the
+/// server layer). Keyed by the stream's path.
 static DURATION_FALLBACK: std::sync::OnceLock<fn(&str) -> Option<i64>> = std::sync::OnceLock::new();
 
 /// Install the [`DURATION_FALLBACK`] lookup, once. A second call changes nothing.
@@ -6410,12 +6412,10 @@ pub fn demux(
                         native_audio::publish_fed(kind, channels);
                     }
                 }
-                let dur = fmt_duration(fmt);
-                let dur = if dur > 0 {
-                    dur
-                } else {
-                    DURATION_FALLBACK.get().and_then(|lookup| lookup(&path)).map_or(0, |ms| ms.saturating_mul(1000))
-                };
+                let dur = DURATION_FALLBACK.get()
+                    .and_then(|lookup| lookup(&path))
+                    .filter(|ms| *ms > 0)
+                    .map_or_else(|| fmt_duration(fmt), |ms| ms.saturating_mul(1000));
                 if dur > 0 {
                     session.media().publish(DemuxEffect::DurationNs(dur.saturating_mul(1000)));
                 }
