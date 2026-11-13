@@ -105,7 +105,7 @@
     }
   },
   "widgets.tracks.decoded_in_app_stereo": {
-    "value": "{track} · played in stereo",
+    "value": "{track}   played in stereo",
     "description": "Audio track sub-line: this surround track is decoded by the app and played in stereo.",
     "args": {
       "track": "str"

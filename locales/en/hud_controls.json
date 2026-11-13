@@ -12,7 +12,7 @@
     "description": "Label for a declared player HUD pill or button that seeks forward; the command owns the interval."
   },
   "player.up_next.seconds_left": {
-    "value": "Next Episode · {seconds} s",
+    "value": "Next Episode   {seconds} s",
     "description": "The Play Next button label with whole seconds remaining for a declared numeric HUD countdown; all values are measured before layout.",
     "args": {
       "seconds": "i64"

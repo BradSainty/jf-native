@@ -5,7 +5,7 @@
   "core.duration_minutes": "{minutes} min",
   "core.time_left_hours": "{hours} h {minutes} min restantes",
   "core.time_left_minutes": "{minutes} min restantes",
-  "core.footer_tag": "S{season} E{episode} ·",
+  "core.footer_tag": "S{season} E{episode}",
   "core.footer_left_minutes": "{minutes} min restantes",
   "core.footer_left_hours": "{hours} h {minutes} min restantes",
   "core.seconds": "{seconds} s",

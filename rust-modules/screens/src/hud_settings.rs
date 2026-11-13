@@ -261,7 +261,7 @@ fn address_text(why: AddressError) -> &'static str {
 }
 
 fn join(parts: &[String]) -> String {
-    parts.join(" \u{b7} ")
+    parts.join(plx_ui::fmt::GAP)
 }
 
 /// Why a package cannot be used now. The reason is its row's value ([`why_value`]); the sentence under the title says

@@ -172,8 +172,8 @@ pub fn footer_left_minutes_in(cx: &LocaleContext, mins: i64) -> String {
 pub fn footer_tag_in(cx: &LocaleContext, season: i64, index: i64) -> String {
     match (season > 0, index > 0) {
         (true, true) => msg::core_footer_tag_in(cx, index, season),
-        (true, false) => format!("{} \u{b7}", msg::core_season_in(cx, season)),
-        (false, true) => format!("{} \u{b7}", msg::core_episode_in(cx, index)),
+        (true, false) => msg::core_season_in(cx, season).to_string(),
+        (false, true) => msg::core_episode_in(cx, index).to_string(),
         (false, false) => String::new(),
     }
 }

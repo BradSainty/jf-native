@@ -301,7 +301,7 @@ pub fn compact_picker(groups: &[SrcGroup], rows: &[plx_data::browse::SrcRow], ta
         let Some(group) = groups.get(row.src) else { continue };
         let target = SrcTarget::Library(row.section);
         let detail = [group.name.as_str(), accessory(group).as_str()].into_iter()
-            .filter(|part| !part.is_empty()).collect::<Vec<_>>().join(" · ");
+            .filter(|part| !part.is_empty()).collect::<Vec<_>>().join(plx_ui::fmt::GAP);
         section = section.item(target, RowKind::Choice, target,
             Row::new(row.title.clone()).server_label().detail(detail).server_detail().checked(row.current))
             .disabled(!usable(group));

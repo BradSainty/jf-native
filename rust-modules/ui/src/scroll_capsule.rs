@@ -106,7 +106,8 @@ impl<'a> Runs<'a> {
                 list: [
                     run(name, theme::TEXT_PRIMARY),
                     run(count, theme::COUNT_FILTERED_INK),
-                    run(DOT, theme::COUNT_FILTERED_INK),
+                    // JF Native: the dot leaves its air and no ink (`theme::TEXT_SEPARATOR`)
+                    run(DOT, theme::TEXT_SEPARATOR),
                     run(criterion, theme::TEXT_PRIMARY),
                 ],
                 len: PIECES,

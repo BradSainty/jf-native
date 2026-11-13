@@ -187,7 +187,8 @@ pub fn fit_of(tag: &str, status: &str, cue_w: f32, bar: bool, measure: &dyn Meas
     } else if status.is_empty() {
         measure.width_str(tag, sz, false)
     } else {
-        measure.width_str(&format!("{tag} {status}"), sz, false) - status_w
+        // JF Native: the status stands one `fmt::GAP` after the tag (no dot between them)
+        measure.width_str(&format!("{tag}{}{status}", crate::fmt::GAP), sz, false) - status_w
     };
     FooterFit { tag_w, status_w, cue_w, bar }
 }

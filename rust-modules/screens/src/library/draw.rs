@@ -137,7 +137,7 @@ impl LibraryScreen {
         // on a frame that changes none of them.
         let strings = name.map(|(title, owner, server)| self.capsule_text.get_keyed(&[title, owner, server], || {
             let name = super::toolbar::joined_name(title, owner);
-            if server.is_empty() { name } else { format!("{name} · {server}") }
+            if server.is_empty() { name } else { format!("{name}{}{server}", plx_ui::fmt::GAP) }
         }, total, sort));
         let worn = strings.map(|(name, count, criterion)| plx_ui::scroll_capsule::Capsule::new(name, count, criterion, f.measure));
         if tuck > 0.0 {
