@@ -69,6 +69,12 @@ pub const DP_AUDIO_CODECS: &str = "aac,ac3,eac3,dts,opus";
 /// them, because the codec is a property of the buffer-feed pipeline rather than of the table.
 const PIPELINE_ONLY_AUDIO: &[&str] = &["opus"];
 
+/// **The audio codecs every webOS TV decodes**, and so the ones no `gstcool.conf` can switch off
+/// ([`apply_gst_decoders`]): some sets list AAC, AC3 and E-AC3 in the codec table but only their
+/// disabled SOFTWARE decoders in gstcool.conf (the pipeline uses LG's hardware ones). Ported from
+/// upstream #1133.
+pub const BASELINE_AUDIO: &[&str] = &["aac", "ac3", "eac3"];
+
 /// Auto's channel ceiling for Opus, whatever a table row claims: stereo plays cleanly on every set
 /// measured, while 5.1 stalls on a C1 (webOS 6) once packets pass ~1500 bytes, with nothing in the
 /// log (#917, #918). Wider tracks stay with the server; Force Direct Play applies no ceiling, as for
@@ -331,7 +337,14 @@ pub fn apply_gst_decoders(caps: &mut Caps, conf: &str) -> (Vec<&'static str>, Ve
         let listed: Vec<i64> = elements.iter().filter_map(|e| ranks.get(*e).copied()).collect();
         if listed.is_empty() {
             unlisted.push(*codec);
-        } else if listed.iter().all(|r| *r <= 0) {
+            continue;
+        }
+        // Absence of a line is never evidence, and a software decoder at rank 0 says nothing about
+        // the hardware one (upstream #1133): drop a codec only when its hardware element (the first
+        // listed) is explicitly off and every listed decoder is off. DTS keeps the older,
+        // conservative rule (#899): its only listed decoder off is enough. The baseline never goes.
+        let hardware_off = ranks.get(elements[0]).is_some_and(|r| *r <= 0);
+        if (*codec == "dts" || hardware_off) && !BASELINE_AUDIO.contains(codec) && listed.iter().all(|r| *r <= 0) {
             caps.audio = caps.audio.split(',').filter(|c| *c != *codec).collect::<Vec<_>>().join(",");
             caps.audio_channels.remove(*codec);
             dropped.push(*codec);
@@ -1778,9 +1791,40 @@ mod tests {
         let conf = "[rank]\naac_audiodec=0\n[sw_decoder]\navdec_aac=250\nopusdec=0\n";
         let mut c = native_set();
         let (dropped, unlisted) = apply_gst_decoders(&mut c, conf);
-        assert_eq!(dropped, ["opus"]);
-        assert!(c.audio_has("aac") && !c.audio_has("opus"));
+        assert!(dropped.is_empty(), "{dropped:?}");
+        assert!(c.audio_has("aac") && c.audio_has("opus"), "a software opusdec at 0 is no evidence");
         assert!(unlisted.contains(&"dts"));
+    }
+
+    /// **The baseline is never dropped** (upstream #1133): a set whose gstcool.conf lists only the
+    /// disabled software decoders of AAC, AC3 and E-AC3, or even their hardware elements at 0, keeps
+    /// all three, so a Dolby or AAC track direct-plays instead of going through the server.
+    #[test]
+    fn the_baseline_audio_codecs_survive_any_gstcool_conf() {
+        for conf in [
+            "[sw_decoder]
+avdec_aac=0
+faad=0
+avdec_ac3=0
+avdec_eac3=0
+",
+            "[rank]
+aac_audiodec=0
+ac3_audiodec=0
+[sw_decoder]
+avdec_aac=0
+faad=0
+avdec_ac3=0
+avdec_eac3=0
+",
+        ] {
+            let mut c = native_set();
+            let (dropped, _) = apply_gst_decoders(&mut c, conf);
+            assert!(!dropped.iter().any(|d| BASELINE_AUDIO.contains(d)), "{conf:?}: {dropped:?}");
+            for codec in BASELINE_AUDIO {
+                assert!(c.audio_has(codec), "{conf:?}: {codec}");
+            }
+        }
     }
 
     /// PMS names DTS `dca` (every DTS entry in the profiles shipped with PMS spells it so); the
