@@ -444,6 +444,7 @@ impl Route<'_> {
                 out.extend(map::list(&next, &env));
             }
         }
+        let mut out = one_per_show(out);
         out.truncate(limit.max(0) as usize);
         out
     }
@@ -912,6 +913,19 @@ impl Route<'_> {
     }
 }
 
+/// One card per show, as on Plex: the rows arrive resume points first (newest first) and then
+/// Next Up, so the first row for a series wins and any later row for it is dropped. Films, and any
+/// row without a series, pass through.
+fn one_per_show(rows: Vec<Value>) -> Vec<Value> {
+    let mut seen = std::collections::HashSet::new();
+    rows.into_iter()
+        .filter(|m| match m["grandparentRatingKey"].as_str() {
+            Some(k) if !k.is_empty() => seen.insert(k.to_owned()),
+            _ => true,
+        })
+        .collect()
+}
+
 /// Playback sessions already announced to the server.
 fn started() -> &'static std::sync::Mutex<std::collections::HashSet<String>> {
     static S: std::sync::OnceLock<std::sync::Mutex<std::collections::HashSet<String>>> =
@@ -931,5 +945,25 @@ mod tests {
         assert_eq!(queue_slice(10, 9), (0..10, 9), "the last episode: nothing after");
         assert_eq!(queue_slice(200, 100), (75..126, 25), "a long show: a page each side");
         assert_eq!(queue_slice(1, 0), (0..1, 0));
+    }
+
+    /// Continue Watching holds one card per show: the newest resume point wins over an older one
+    /// and over the show's Next Up episode, while films and other shows keep their places.
+    #[test]
+    fn continue_watching_keeps_one_card_per_show() {
+        let ep = |id: &str, show: &str| json!({ "ratingKey": id, "type": "episode", "grandparentRatingKey": show });
+        let film = |id: &str| json!({ "ratingKey": id, "type": "movie" });
+        let rows = vec![
+            ep("e5", "showA"),
+            film("f1"),
+            ep("e3", "showA"),
+            ep("b2", "showB"),
+            film("f2"),
+            ep("e6", "showA"),
+            ep("c1", "showC"),
+        ];
+        let keys: Vec<String> =
+            one_per_show(rows).iter().map(|m| m["ratingKey"].as_str().unwrap().to_owned()).collect();
+        assert_eq!(keys, ["e5", "f1", "b2", "f2", "c1"]);
     }
 }
